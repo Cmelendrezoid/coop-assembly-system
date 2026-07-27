@@ -1,0 +1,296 @@
+2026-07-21 04:49:49: <br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-21 04:50:45: <br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-21 07:39:22: <br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-21 07:39:51: <br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>71</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>53</b><br />
+<br />
+<b>Warning</b>:  Trying to access array offset on value of type int in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Deprecated</b>:  ord(): Passing null to parameter #1 ($character) of type string is deprecated in <b>C:\xampp\htdocs\evoting\qr-registration\qrsplit.php</b> on line <b>62</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />

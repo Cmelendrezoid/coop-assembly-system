@@ -1,0 +1,504 @@
+2026-07-20 03:52:06: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 0.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 1.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 2.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 3.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 4.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 5.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 6.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 7.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 8.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 9.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 10.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 11.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 12.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 13.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 14.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 15.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 16.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 17.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 18.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 19.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 20.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 21.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 22.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 23.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 24.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 25.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 26.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 27.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 28.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 29.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 30.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 31.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 32.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 33.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 34.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 35.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 36.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 37.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 38.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 39.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 40.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 41.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 42.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 0.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 1.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 2.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 3.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 4.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 5.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 6.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 7.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 8.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 9.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 10.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 11.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 12.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 13.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 14.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 15.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 16.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 17.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 18.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 19.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 20.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 21.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 22.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 23.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_37_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_37_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_37_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_37_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_37_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_37_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_37_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_37_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-20 03:52:20: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 0.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 1.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 2.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 3.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 4.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 5.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 6.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 7.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 8.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 9.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 10.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 11.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 12.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 13.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 14.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 15.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 16.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 17.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 18.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 19.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 20.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 21.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 22.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 23.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 24.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 25.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 26.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 27.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 28.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 29.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 30.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 31.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 32.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 33.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 34.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 35.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 36.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 37.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 38.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 39.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 40.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 41.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 42.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 0.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 1.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 2.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 3.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 4.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 5.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 6.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 7.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 8.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 9.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 10.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 11.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 12.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 13.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 14.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 15.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 16.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 17.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 18.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 19.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 20.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 21.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 22.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 23.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_37_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_37_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_37_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_37_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_37_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_37_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_37_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_37_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-20 03:53:30: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 0.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 1.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 2.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 3.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 4.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 5.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 6.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 7.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 8.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 9.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 10.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 11.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 12.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 13.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 14.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 15.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 16.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 17.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 18.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 19.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 20.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 21.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 22.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 23.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 24.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 25.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 26.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 27.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 28.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 29.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 30.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 31.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 32.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 33.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 34.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 35.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 36.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 37.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 38.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 39.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 40.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 41.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 42.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>140</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 0.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 1.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 2.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 3.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 4.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 5.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 6.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 7.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 8.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 9.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 10.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 11.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 12.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 13.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 14.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 15.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 16.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 17.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 18.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 19.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 20.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 21.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 22.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Deprecated</b>:  Implicit conversion from float 23.5 to int loses precision in <b>C:\xampp\htdocs\evoting\qr-registration\qrencode.php</b> on line <b>144</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_37_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_37_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_37_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_37_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_37_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_37_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_37_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_37_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
