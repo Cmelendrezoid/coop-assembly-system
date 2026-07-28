@@ -291,6 +291,7 @@ body{
     <a href="candidates.php" class="nav-link-custom">🧑 Candidates</a>
     <a href="positions.php" class="nav-link-custom">🏆 Positions</a>
     <a href="voters.php" class="nav-link-custom">👥 Voters</a>
+    <a href="pre-registered.php" class="nav-link-custom">📋 Pre-registered</a>
     <a href="elections.php" class="nav-link-custom">🗳 Branches</a>
     <a href="results.php" class="nav-link-custom">📊 Results</a>
     <a href="logout.php" class="nav-link-custom logout">🚪 Logout</a>
