@@ -116,7 +116,7 @@ if (!isset($_SESSION['qr_user_id'])) {
             .theme-toggle-login {
                 position: fixed;
                 top: 24px;
-                right: 0px;
+                right: 24px;
                 background: var(--card-bg);
                 border: 1px solid var(--border-color);
                 color: var(--text-main);
@@ -315,7 +315,7 @@ require_once 'qrlib.php';
 // 2. BACKEND ROUTING & EXPORT ACTIONS
 // =========================================================================
 
-// EXPORT 1: Freebies Claimants Report (Each claimed item in its own individual row cell)
+// EXPORT 1: Freebies Claimants Report
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'export_freebies') {
     try {
         $claims = $pdo->query("
@@ -341,7 +341,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
         $output = fopen('php://output', 'w');
         fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM
         
-        // Define Header Row
         fputcsv($output, [
             'Member ID', 
             'Member Name', 
@@ -514,7 +513,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// TERMINAL B: Scan Pre-Registration QR Code & Claim Freebies (WITH STRICT DUPLICATE CHECKING)
+// TERMINAL B: Scan Pre-Registration QR Code & Claim Freebies (ALLOWS REPRINT, TAGS DUPLICATE)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'gate_scan') {
     $scan_input = trim($_POST['scan_input'] ?? '');
     $selected_items = $_POST['claimed_items'] ?? [];
@@ -540,20 +539,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     if ($member['registered'] == 0) {
                         $error = "Access Denied: Member ID #{$scanned_id} (" . htmlspecialchars($member['full_name']) . ") has NOT pre-registered at Terminal A yet!";
                     } 
-                    // Check 2: Member has ALREADY claimed freebies
-                    elseif ($member['allowance_claimed'] == 1) {
-                        $claimed_time = date('M d, Y \a\t h:i A', strtotime($member['allowance_claimed_at']));
-                        $error = "❌ REPEAT CLAIM BLOCKED: Member #{$scanned_id} (" . htmlspecialchars($member['full_name']) . ") ALREADY claimed freebies on {$claimed_time}. Double claiming is strictly prohibited!";
-                    } 
                     else {
+                        $is_already_claimed = ($member['allowance_claimed'] == 1);
+
                         $pdo->beginTransaction();
 
-                        // Mark attendance and allowance claim flag
-                        $update = $pdo->prepare("UPDATE members SET allowance_claimed = 1, allowance_claimed_at = NOW(), allowance_processed_by = ? WHERE id = ?");
-                        $update->execute([$current_user_id, $scanned_id]);
+                        // Mark attendance and allowance claim flag if first time
+                        if (!$is_already_claimed) {
+                            $update = $pdo->prepare("UPDATE members SET allowance_claimed = 1, allowance_claimed_at = NOW(), allowance_processed_by = ? WHERE id = ?");
+                            $update->execute([$current_user_id, $scanned_id]);
+                        }
 
-                        // Record freebies claimed while preventing duplicate item entries
-                        if (!empty($selected_items) && is_array($selected_items)) {
+                        // Record freebies claimed while preventing duplicate item database entries
+                        if (!empty($selected_items) && is_array($selected_items) && !$is_already_claimed) {
                             $check_item_stmt = $pdo->prepare("SELECT COUNT(*) FROM member_freebie_claims WHERE member_id = ? AND item_name = ?");
                             $claim_stmt = $pdo->prepare("
                                 INSERT INTO member_freebie_claims (member_id, item_name, claimed_at, processed_by) 
@@ -563,7 +561,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             foreach ($selected_items as $item_name) {
                                 $trimmed_item = trim($item_name);
                                 
-                                // Prevent item duplication
+                                // Prevent item duplication in DB
                                 $check_item_stmt->execute([$scanned_id, $trimmed_item]);
                                 $already_exists = $check_item_stmt->fetchColumn();
 
@@ -575,7 +573,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                         $pdo->commit();
 
-                        header("Location: index.php?route=gate&print_id=" . urlencode($scanned_id));
+                        // Pass duplicate tag if they had already claimed previously
+                        header("Location: index.php?route=gate&print_id=" . urlencode($scanned_id) . "&duplicate=" . ($is_already_claimed ? '1' : '0'));
                         exit;
                     }
                 } else {
@@ -841,6 +840,11 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             background: var(--success-bg); 
             color: var(--success-text); 
             border: 1px solid var(--success-border); 
+        }
+        .alert-warning {
+            background: #fffbe3;
+            color: #b45309;
+            border: 1px solid #fde68a;
         }
 
         /* Search Section */
@@ -1142,10 +1146,17 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
     <?php endif; ?>
 
     <?php if ($print_target_id && $route === 'gate'): ?>
-        <div class="alert alert-success">
-            <span style="font-size: 18px;">🎉</span>
-            <div><strong>SUCCESS:</strong> Attendance & Freebies Logged! Claim stub and e-voting credentials sent to thermal printer.</div>
-        </div>
+        <?php if ($is_duplicate): ?>
+            <div class="alert alert-warning">
+                <span style="font-size: 18px;">⚠️</span>
+                <div><strong>REPRINT NOTICE:</strong> Member #<?= htmlspecialchars($print_target_id) ?> has ALREADY claimed previously. A receipt copy tagged <strong>DUPLICATE / ALREADY CLAIMED</strong> has been printed with freebies section omitted.</div>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-success">
+                <span style="font-size: 18px;">🎉</span>
+                <div><strong>SUCCESS:</strong> Attendance & Freebies Logged! Claim stub and e-voting credentials sent to thermal printer.</div>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 
     <!-- ========================================== -->
@@ -1263,7 +1274,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
 
             <div class="scanner-status">
                 <span class="pulse-dot"></span>
-                Integrated Scanner Ready — Duplicate claims for the same member will be automatically blocked
+                Integrated Scanner Ready — Reprints allowed with duplicate warnings
             </div>
         </div>
 
@@ -1388,7 +1399,6 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             const scanForm = document.getElementById('gate-scan-form');
             const chks = document.querySelectorAll('.item-chk');
 
-            // Save state of checkboxes to localStorage
             function saveFreebieStates() {
                 const states = {};
                 chks.forEach(chk => {
@@ -1398,7 +1408,6 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                 updateToggleAllButtonText();
             }
 
-            // Restore state of checkboxes from localStorage
             function loadFreebieStates() {
                 const saved = localStorage.getItem('freebie_item_states');
                 if (saved !== null) {
@@ -1413,7 +1422,6 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                         console.error('Failed to parse saved freebie states', e);
                     }
                 } else {
-                    // Default to checked if no state saved yet
                     chks.forEach(chk => chk.checked = true);
                 }
                 updateToggleAllButtonText();
@@ -1433,7 +1441,6 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                 if (scanInput) scanInput.focus();
             }
 
-            // Load saved states on page ready
             loadFreebieStates();
 
             chks.forEach(chk => {
@@ -1495,7 +1502,7 @@ if (!empty($print_target_id)):
     <div id="thermal-receipt-view">
         
         <?php if ($is_duplicate): ?>
-            <div class="duplicate-notice">⚠️ DUPLICATE COPY</div>
+            <div class="duplicate-notice">⚠️ DUPLICATE COPY - ALREADY CLAIMED</div>
         <?php endif; ?>
 
         <?php if ($route === 'registration'): ?>
@@ -1528,7 +1535,9 @@ if (!empty($print_target_id)):
 
         <?php else: ?>
             <div class="receipt-header">GENERAL ASSEMBLY</div>
-            <div style="font-size: 11px; font-weight: bold; letter-spacing: 1px; text-align: center; color: #000;">ATTENDANCE & FREEBIES CLAIMED</div>
+            <div style="font-size: 11px; font-weight: bold; letter-spacing: 1px; text-align: center; color: #000;">
+                <?= $is_duplicate ? 'ATTENDANCE RECEIPT (REPRINT)' : 'ATTENDANCE & FREEBIES CLAIMED' ?>
+            </div>
             <div class="receipt-divider"></div>
             
             <table class="receipt-details-table">
@@ -1547,32 +1556,35 @@ if (!empty($print_target_id)):
             </table>
             
             <div class="receipt-divider"></div>
-            <div style="font-size: 10px; font-weight: bold; margin-bottom: 3px; text-align: left; width: 100%; color: #000;">🔐 KIOSK CREDENTIALS:</div>
+            <div style="font-size: 10px; font-weight: bold; margin-bottom: 3px; text-align: left; width: 100%; color: #000;">🔐 E-VOTING CREDENTIALS:</div>
             
             <div class="credential-box">
                 <strong>Username:</strong> <?= htmlspecialchars($print_member['username'] ?? 'None Assigned') ?><br>
                 <strong>Password:</strong> <?= htmlspecialchars($print_member['password'] ?? 'None Assigned') ?>
             </div>
-            
-            <div class="receipt-divider"></div>
-            <div style="font-size: 11px; font-weight: bold; margin-bottom: 4px; text-align: center; width: 100%; color: #000;">🎁 ISSUED FREEBIES & ALLOWANCE</div>
 
-            <div class="freebie-container">
-                <?php 
-                $standard_items = ['GA T-Shirt', 'Cash Allowance', 'Snacks / Meals', 'PMPC Umbrella'];
-                if (strpos($migs_category, 'GOLD') !== false) {
-                    $standard_items[] = 'Water Bottle for Gold Members';
-                }
+            <!-- EXCLUDE FREEBIES ON DUPLICATE / RE-SCAN -->
+            <?php if (!$is_duplicate): ?>
+                <div class="receipt-divider"></div>
+                <div style="font-size: 11px; font-weight: bold; margin-bottom: 4px; text-align: center; width: 100%; color: #000;">🎁 ISSUED FREEBIES & ALLOWANCE</div>
 
-                foreach ($standard_items as $item):
-                    $is_claimed = in_array($item, $claimed_items_db);
-                ?>
-                    <div class="freebie-row">
-                        <div class="freebie-chk-box <?= $is_claimed ? 'checked' : '' ?>"></div>
-                        <div class="freebie-label"><?= htmlspecialchars($item) ?></div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
+                <div class="freebie-container">
+                    <?php 
+                    $standard_items = ['GA T-Shirt', 'Cash Allowance', 'Snacks / Meals', 'PMPC Umbrella'];
+                    if (strpos($migs_category, 'GOLD') !== false) {
+                        $standard_items[] = 'Water Bottle for Gold Members';
+                    }
+
+                    foreach ($standard_items as $item):
+                        $is_claimed = in_array($item, $claimed_items_db);
+                    ?>
+                        <div class="freebie-row">
+                            <div class="freebie-chk-box <?= $is_claimed ? 'checked' : '' ?>"></div>
+                            <div class="freebie-label"><?= htmlspecialchars($item) ?></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
             
             <div class="receipt-divider" style="margin-top: 6px;"></div>
             <div style="font-size: 7px; line-height: 1.3; font-weight: bold; text-align: center; color: #000;">PANABO CO-OP GENERAL ASSEMBLY 2027</div>

@@ -1,7 +1,6 @@
 <?php
 require_once 'session_start.php';
 include '../config/db.php';
-// The rest of your specific page logic continues below...
 
 if(!isset($_SESSION['admin_id'])){
     header("Location: login.php");
@@ -88,6 +87,32 @@ body{
 
 .table th {
     white-space: nowrap;
+}
+
+.avatar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.candidate-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    background-color: #e2e8f0;
+}
+
+.color-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 2px solid #ffffff;
+    position: absolute;
+    bottom: 0;
+    right: -2px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 .custom-badge {
@@ -242,9 +267,31 @@ body{
 
 <?php
 
-$positions = $conn->query(
-    "SELECT * FROM positions ORDER BY id"
-);
+// Expanded, distinct, high-contrast color palette for candidates & charts
+$chart_colors = [
+    '#2563eb', // Royal Blue
+    '#16a34a', // Emerald Green
+    '#d97706', // Warm Amber
+    '#dc2626', // Bright Red
+    '#9333ea', // Deep Purple
+    '#0891b2', // Dark Cyan
+    '#db2777', // Vivid Pink
+    '#ea580c', // Bright Orange
+    '#4f46e5', // Indigo
+    '#059669', // Mint Green
+    '#ca8a04', // Deep Yellow
+    '#be123c', // Crimson
+    '#7c3aed', // Violet
+    '#0d9488', // Teal
+    '#c026d3', // Magenta
+    '#b45309', // Rust Orange
+    '#0284c7', // Sky Blue
+    '#15803d', // Forest Green
+    '#801b9c', // Deep Purple Magenta
+    '#e11d48'  // Rose
+];
+
+$positions = $conn->query("SELECT * FROM positions ORDER BY id");
 
 // Collect data arrays for global Javascript chart definitions
 $chart_js_data = [];
@@ -265,11 +312,11 @@ while($position = $positions->fetch_assoc()){
 <?php
 if($selected_branch !== 'overall') {
     $escaped_branch = $conn->real_escape_string($selected_branch);
-    // Conditional count keeps all candidates listed, but isolates branch vote quantities accurately
     $candidates_query_str = "
         SELECT
             c.id,
             c.full_name,
+            c.photo,
             COUNT(CASE WHEN m.branch_name = '$escaped_branch' THEN v.id END) AS total_votes
         FROM candidates c
         LEFT JOIN votes v ON c.id = v.candidate_id
@@ -282,6 +329,7 @@ if($selected_branch !== 'overall') {
         SELECT
             c.id,
             c.full_name,
+            c.photo,
             COUNT(v.id) AS total_votes
         FROM candidates c
         LEFT JOIN votes v ON c.id = v.candidate_id
@@ -298,7 +346,6 @@ if($candidates && $candidates->num_rows > 0){
     $votes_array = [];
     $table_rows = [];
 
-    $rank = 1;
     while($candidate = $candidates->fetch_assoc()){
         $labels_array[] = $candidate['full_name'];
         $votes_array[] = (int)$candidate['total_votes'];
@@ -318,26 +365,33 @@ if($candidates && $candidates->num_rows > 0){
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th width="15%">Rank</th>
-                        <th>Candidate</th>
+                        <th width="12%">Candidate</th>
+                        <th>Name</th>
                         <th width="30%">Votes Received</th>
                     </tr>
                 </thead>
                 <tbody>
                 <?php 
-                foreach($table_rows as $candidate) { 
+                foreach($table_rows as $index => $candidate) { 
+                    $candidate_img = (!empty($candidate['photo']) && file_exists('../assets/images/' . $candidate['photo'])) 
+                        ? '../assets/images/' . htmlspecialchars($candidate['photo']) 
+                        : 'https://via.placeholder.com/150/cbd5e1/1e293b?text=User';
+                    
+                    // Match assigned unique chart color index
+                    $assigned_color = $chart_colors[$index % count($chart_colors)];
                 ?>
                     <tr>
                         <td>
-                            <?php
-                            if($rank == 1) echo "🥇";
-                            elseif($rank == 2) echo "🥈";
-                            elseif($rank == 3) echo "🥉";
-                            else echo '<span class="px-2 text-custom-muted">' . $rank . '</span>';
-                            ?>
+                            <div class="avatar-wrapper">
+                                <img src="<?php echo $candidate_img; ?>" alt="<?php echo htmlspecialchars($candidate['full_name']); ?>" class="candidate-avatar">
+                                <span class="color-dot" style="background-color: <?php echo $assigned_color; ?>;" title="Chart Color"></span>
+                            </div>
                         </td>
                         <td>
-                            <strong><?php echo htmlspecialchars($candidate['full_name']); ?></strong>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge" style="background-color: <?php echo $assigned_color; ?>; width: 12px; height: 12px; padding: 0; border-radius: 50%; display: inline-block;"></span>
+                                <strong><?php echo htmlspecialchars($candidate['full_name']); ?></strong>
+                            </div>
                         </td>
                         <td>
                             <span class="custom-badge px-3 py-2">
@@ -346,7 +400,6 @@ if($candidates && $candidates->num_rows > 0){
                         </td>
                     </tr>
                 <?php 
-                    $rank++;
                 } 
                 ?>
                 </tbody>
@@ -464,10 +517,7 @@ $turnout_rate = ($total_voters > 0) ? round(($voted_members / $total_voters) * 1
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const chartInstances = {};
-const chartColors = [
-    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', 
-    '#8b5cf6', '#ec4899', '#06b6d4', '#14b8a6'
-];
+const chartColors = <?php echo json_encode($chart_colors); ?>;
 
 const rawChartData = <?php echo json_encode($chart_js_data); ?>;
 

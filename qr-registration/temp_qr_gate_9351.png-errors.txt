@@ -304,3 +304,343 @@
 <b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
 <br />
 <b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-29 02:55:27: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-29 02:56:18: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-29 02:58:11: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-29 02:59:17: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-29 03:00:37: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-29 03:01:45: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-29 03:03:29: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-29 03:13:31: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-29 03:57:50: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+2026-07-29 04:05:12: <br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\frame_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrspec.php</b> on line <b>568</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_0\mask_21_0.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_1\mask_21_1.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_2\mask_21_2.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_3\mask_21_3.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_4\mask_21_4.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_5\mask_21_5.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_6\mask_21_6.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
+<br />
+<b>Warning</b>:  mkdir(): No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>154</b><br />
+<br />
+<b>Warning</b>:  file_put_contents(C:\xampp\htdocs\evoting\qr-registration\cache\mask_7\mask_21_7.dat): Failed to open stream: No such file or directory in <b>C:\xampp\htdocs\evoting\qr-registration\qrmask.php</b> on line <b>155</b><br />
