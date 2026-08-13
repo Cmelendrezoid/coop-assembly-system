@@ -218,20 +218,6 @@ body{
             </a>
 
             <a
-                href="admin/login.php"
-                class="btn btn-portal btn-admin"
-            >
-                ⚙️ Admin Login
-            </a>
-
-            <a
-                href="registration/index.php"
-                class="btn btn-portal btn-register"
-            >
-                📝 Registration System
-            </a>
-
-            <a
                 href="qr-registration/index.php"
                 class="btn btn-portal btn-qr-register"
             >

@@ -3,123 +3,133 @@
 session_start();
 include '../config/db.php';
 
-if(isset($_SESSION['member_id'])){
+// Check existing active sessions
+if (isset($_SESSION['admin_id'])) {
+    header("Location: ../admin/dashboard.php");
+    exit();
+}
+
+if (isset($_SESSION['member_id'])) {
     header("Location: dashboard.php");
     exit();
 }
 
 $error = "";
 
-if(isset($_POST['login'])){
+if (isset($_POST['login'])) {
 
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
 
-    $stmt = $conn->prepare("
-        SELECT *
-        FROM members
-        WHERE username=?
-    ");
+    // 1. Check ONLY for Admin Accounts in the users table
+    $adminStmt = $conn->prepare("SELECT * FROM users WHERE username = ? AND LOWER(role) = 'admin' LIMIT 1");
+    $adminStmt->bind_param("s", $username);
+    $adminStmt->execute();
+    $adminResult = $adminStmt->get_result();
 
-    $stmt->bind_param(
-        "s",
-        $username
-    );
+    $isAdminAccount = false;
 
-    $stmt->execute();
+    if ($adminResult && $adminResult->num_rows > 0) {
+        $user = $adminResult->fetch_assoc();
 
-    $result = $stmt->get_result();
+        $adminPasswordMatches = password_verify($password, $user['password'])
+            || $password === $user['password']
+            || md5($password) === $user['password'];
 
-    if($result->num_rows > 0){
+        if ($adminPasswordMatches) {
+            $isAdminAccount = true;
 
-        $member = null;
-        while($row = $result->fetch_assoc()){
-            if($password === $row['password']){
-                $member = $row;
-                break;
-            }
+            session_regenerate_id(true);
+            unset($_SESSION['member_id'], $_SESSION['full_name'], $_SESSION['branch_name']);
+
+            $_SESSION['admin_id']       = $user['user_id'];
+            $_SESSION['admin_username'] = $user['username'];
+            $_SESSION['role']           = 'admin';
+
+            // Direct Admin to Admin Dashboard
+            header("Location: ../admin/dashboard.php");
+            exit();
+        } else {
+            // Password failed for Admin username
+            $isAdminAccount = true;
+            $error = "Invalid password.";
         }
+    }
 
-        if($member){
-            $alreadyVoted = false;
-            $columnCheck = $conn->query("SHOW COLUMNS FROM members LIKE 'has_voted'");
-            if($columnCheck && $columnCheck->num_rows > 0){
-                $alreadyVoted = !empty($member['has_voted']);
-            } else {
-                $voteCheck = $conn->prepare(
-                    "SELECT COUNT(*) AS total FROM votes WHERE member_id = ?"
-                );
-                $voteCheck->bind_param("i", $member['id']);
-                $voteCheck->execute();
-                $voteResult = $voteCheck->get_result();
-                $voteRow = $voteResult->fetch_assoc();
-                $alreadyVoted = ($voteRow['total'] > 0);
-            }
+    // 2. If not an Admin account, check Member Accounts (Voters)
+    if (!$isAdminAccount) {
 
-            if($alreadyVoted){
-                $error = "This account has already voted.";
-            } else {
-                $branch_name = trim($member['branch_name']);
+        $stmt = $conn->prepare("SELECT * FROM members WHERE username = ?");
+        $stmt->bind_param("s", $username);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-                $schedule_stmt = $conn->prepare(
-                    "SELECT status
-                     FROM election_schedules
-                     WHERE branch_name = ?
-                     LIMIT 1"
-                );
+        if ($result && $result->num_rows > 0) {
 
-                $schedule_stmt->bind_param(
-                    "s",
-                    $branch_name
-                );
-
-                $schedule_stmt->execute();
-
-                $schedule_result =
-                    $schedule_stmt->get_result();
-
-                if($schedule_result->num_rows == 0){
-
-                    $error =
-                    "No election configuration found for your branch.";
-
-                }else{
-
-                    $schedule =
-                        $schedule_result->fetch_assoc();
-
-                    if($schedule['status'] != 'OPEN'){
-
-                        $error =
-                        "Voting is currently closed for your branch.";
-
-                    }else{
-
-                        $_SESSION['member_id']
-                            = $member['id'];
-
-                        $_SESSION['full_name']
-                            = $member['full_name'];
-
-                        $_SESSION['branch_name']
-                            = $member['branch_name'];
-
-                        header("Location: dashboard.php");
-                        exit();
-                    }
+            $member = null;
+            while ($row = $result->fetch_assoc()) {
+                if (password_verify($password, $row['password']) || $password === $row['password'] || md5($password) === $row['password']) {
+                    $member = $row;
+                    break;
                 }
             }
 
-        }else{
+            if ($member) {
+                // Check if member has already cast a vote
+                $alreadyVoted = false;
+                $columnCheck = $conn->query("SHOW COLUMNS FROM members LIKE 'has_voted'");
+                
+                if ($columnCheck && $columnCheck->num_rows > 0) {
+                    $alreadyVoted = !empty($member['has_voted']);
+                } else {
+                    $voteCheck = $conn->prepare("SELECT COUNT(*) AS total FROM votes WHERE member_id = ?");
+                    $voteCheck->bind_param("i", $member['id']);
+                    $voteCheck->execute();
+                    $voteResult = $voteCheck->get_result();
+                    $voteRow = $voteResult->fetch_assoc();
+                    $alreadyVoted = ($voteRow['total'] > 0);
+                }
 
-            $error = "Invalid password";
+                if ($alreadyVoted) {
+                    $error = "This account has already voted.";
+                } else {
+                    $branch_name = trim($member['branch_name']);
 
+                    // Verify election status for member's branch
+                    $schedule_stmt = $conn->prepare("SELECT status FROM election_schedules WHERE branch_name = ? LIMIT 1");
+                    $schedule_stmt->bind_param("s", $branch_name);
+                    $schedule_stmt->execute();
+                    $schedule_result = $schedule_stmt->get_result();
+
+                    if ($schedule_result->num_rows == 0) {
+                        $error = "No election configuration found for your branch.";
+                    } else {
+                        $schedule = $schedule_result->fetch_assoc();
+
+                        if ($schedule['status'] != 'OPEN') {
+                            $error = "Voting is currently closed for your branch.";
+                        } else {
+                            session_regenerate_id(true);
+                            unset($_SESSION['admin_id'], $_SESSION['admin_username'], $_SESSION['role']);
+                            
+                            $_SESSION['member_id']   = $member['id'];
+                            $_SESSION['full_name']   = $member['full_name'];
+                            $_SESSION['branch_name'] = $member['branch_name'];
+
+                            // Direct Member to E-Voting Dashboard/Page
+                            header("Location: dashboard.php");
+                            exit();
+                        }
+                    }
+                }
+
+            } else {
+                $error = "Invalid password.";
+            }
+
+        } else {
+            $error = "Username not found.";
         }
-
-    }else{
-
-        $error = "Username not found";
-
     }
 }
 ?>

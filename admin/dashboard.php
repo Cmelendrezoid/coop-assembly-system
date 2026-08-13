@@ -5,29 +5,97 @@ include '../config/db.php';
 
 /*
 |--------------------------------------------------------------------------
-| Dashboard Statistics
+| Election & Voter Statistics
 |--------------------------------------------------------------------------
 */
 
-$totalVoters = $conn->query("
-    SELECT COUNT(*) as total
-    FROM members
-")->fetch_assoc()['total'];
+$totalVoters = 0;
+$totalCandidates = 0;
+$totalPositions = 0;
+$totalVotes = 0;
 
-$totalCandidates = $conn->query("
-    SELECT COUNT(*) as total
-    FROM candidates
-")->fetch_assoc()['total'];
+$votersRes = $conn->query("SELECT COUNT(*) as total FROM members");
+if ($votersRes) { $totalVoters = $votersRes->fetch_assoc()['total'] ?? 0; }
 
-$totalPositions = $conn->query("
-    SELECT COUNT(*) as total
-    FROM positions
-")->fetch_assoc()['total'];
+$candidatesRes = $conn->query("SELECT COUNT(*) as total FROM candidates");
+if ($candidatesRes) { $totalCandidates = $candidatesRes->fetch_assoc()['total'] ?? 0; }
 
-$totalVotes = $conn->query("
-    SELECT COUNT(*) as total
-    FROM votes
-")->fetch_assoc()['total'];
+$positionsRes = $conn->query("SELECT COUNT(*) as total FROM positions");
+if ($positionsRes) { $totalPositions = $positionsRes->fetch_assoc()['total'] ?? 0; }
+
+$votesRes = $conn->query("SELECT COUNT(*) as total FROM votes");
+if ($votesRes) { $totalVotes = $votesRes->fetch_assoc()['total'] ?? 0; }
+
+/*
+|--------------------------------------------------------------------------
+| Auto-Create Attendance Table if Missing
+|--------------------------------------------------------------------------
+*/
+
+$createTableQuery = "
+CREATE TABLE IF NOT EXISTS `attendance_logs` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `member_id` VARCHAR(50) NOT NULL,
+  `member_name` VARCHAR(255) NOT NULL,
+  `category` VARCHAR(50) DEFAULT 'REGULAR',
+  `claimed_items` TEXT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+";
+$conn->query($createTableQuery);
+
+/*
+|--------------------------------------------------------------------------
+| Attendance & Claims Statistics
+|--------------------------------------------------------------------------
+*/
+
+$filterDate = isset($_GET['filter_date']) ? trim($_GET['filter_date']) : '';
+
+// Base query conditions for attendance logs
+$whereClause = "";
+if (!empty($filterDate)) {
+    $escapedDate = $conn->real_escape_string($filterDate);
+    $whereClause = " WHERE DATE(created_at) = '$escapedDate'";
+}
+
+// 1. Total Attendees Arrived
+$totalAttendees = 0;
+$totalAttendeesRes = $conn->query("SELECT COUNT(*) as total FROM attendance_logs" . $whereClause);
+if ($totalAttendeesRes) {
+    $totalAttendees = $totalAttendeesRes->fetch_assoc()['total'] ?? 0;
+}
+
+// 2. Today's Arrivals
+$todaysArrivals = 0;
+$todaysArrivalsRes = $conn->query("SELECT COUNT(*) as total FROM attendance_logs WHERE DATE(created_at) = CURDATE()");
+if ($todaysArrivalsRes) {
+    $todaysArrivals = $todaysArrivalsRes->fetch_assoc()['total'] ?? 0;
+}
+
+// 3. Category Breakdown (e.g., GOLD members)
+$goldCount = 0;
+$goldCategoryQuery = "SELECT COUNT(*) as total FROM attendance_logs WHERE UPPER(category) = 'GOLD'" . ($whereClause ? " AND DATE(created_at) = '$escapedDate'" : "");
+$goldRes = $conn->query($goldCategoryQuery);
+if ($goldRes) {
+    $goldCount = $goldRes->fetch_assoc()['total'] ?? 0;
+}
+
+// 4. Live Attendance & Claims Log Table
+$attendanceLogs = false;
+$logQuery = "
+    SELECT 
+        member_id, 
+        member_name, 
+        category, 
+        claimed_items, 
+        created_at 
+    FROM attendance_logs 
+    $whereClause 
+    ORDER BY created_at DESC 
+    LIMIT 100
+";
+$attendanceLogs = $conn->query($logQuery);
 
 ?>
 <!DOCTYPE html>
@@ -46,6 +114,7 @@ $totalVotes = $conn->query("
     --text-muted:#64748b;
     --border:#e2e8f0;
     --bg:#f8fafc;
+    --input-bg:#ffffff;
 }
 
 .dark-theme{
@@ -56,6 +125,7 @@ $totalVotes = $conn->query("
     --text-muted:#94a3b8;
     --border:#334155;
     --bg:#0f172a;
+    --input-bg:#0f172a;
 }
 
 body{
@@ -219,7 +289,78 @@ body{
     color:var(--text);
 }
 
-/* Overlay Backdrop backdrop when responsive menu is displayed */
+/* Attendance Cards Custom Styling */
+.card-attend-blue {
+    background: #2563eb;
+    color: white;
+    border-radius: 14px;
+}
+.card-attend-green {
+    background: #10b981;
+    color: white;
+    border-radius: 14px;
+}
+.card-attend-orange {
+    background: #f59e0b;
+    color: white;
+    border-radius: 14px;
+}
+
+.badge-gold {
+    background-color: #d97706;
+    color: #ffffff;
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.badge-status {
+    background-color: #10b981;
+    color: #ffffff;
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.custom-table {
+    color: var(--text);
+    background: transparent;
+}
+
+.custom-table th {
+    background: transparent;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 15px;
+}
+
+.custom-table td {
+    background: transparent;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding: 15px;
+    vertical-align: middle;
+}
+
+.custom-input {
+    background-color: var(--input-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.custom-input:focus {
+    background-color: var(--input-bg);
+    color: var(--text);
+}
+
+/* Overlay Backdrop when responsive menu is displayed */
 .sidebar-overlay {
     display: none;
     position: fixed;
@@ -302,7 +443,7 @@ body{
         <div>
             <h2 class="page-title">Admin Dashboard</h2>
             <p class="welcome mb-0">
-                Welcome back, <strong><?php echo htmlspecialchars($_SESSION['admin_username']); ?></strong>
+                Welcome back, <strong><?php echo htmlspecialchars($_SESSION['admin_username'] ?? 'Admin'); ?></strong>
             </p>
         </div>
         <button class="theme-btn" onclick="toggleTheme()">
@@ -310,6 +451,7 @@ body{
         </button>
     </div>
 
+    <!-- ELECTION STATS ROW -->
     <div class="row g-4 mt-2">
         <div class="col-sm-6 col-xl-3">
             <div class="card stat-card shadow-sm">
@@ -352,12 +494,101 @@ body{
         </div>
     </div>
 
+    <!-- ATTENDANCE & CLAIMS STATISTICS SECTION -->
     <div class="admin-box mt-4 shadow-sm">
-        <h4>Election Management System</h4>
-        <hr>
-        <p>Use the navigation menu to manage candidates, positions, voters, elections, and view election results.</p>
-        <p class="mb-0">This dashboard provides a centralized overview of the current election statistics.</p>
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+            <h4 class="mb-0">📊 Attendance & Claims Statistics</h4>
+            <a href="export_attendance.php" class="btn btn-success btn-sm font-weight-bold">
+                📊 Export Attendance Summary
+            </a>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="p-4 text-center card-attend-blue">
+                    <div class="display-5 fw-bold"><?php echo number_format($totalAttendees); ?></div>
+                    <div class="fw-semibold">Total Attendees Arrived</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 text-center card-attend-green">
+                    <div class="display-5 fw-bold"><?php echo number_format($todaysArrivals); ?></div>
+                    <div class="fw-semibold">Today's Arrivals</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 text-center card-attend-orange">
+                    <div class="display-5 fw-bold"><?php echo number_format($goldCount); ?></div>
+                    <div class="fw-semibold">GOLD</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Statistics by Date -->
+        <div class="pt-2">
+            <label class="form-label text-muted small fw-bold">FILTER STATISTICS BY DATE</label>
+            <form method="GET" action="dashboard.php" class="row g-2 align-items-center">
+                <div class="col-auto flex-grow-1 flex-md-grow-0">
+                    <input type="date" name="filter_date" class="form-control custom-input" value="<?php echo htmlspecialchars($filterDate); ?>">
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <a href="dashboard.php" class="btn btn-secondary">All Time</a>
+                </div>
+            </form>
+        </div>
     </div>
+
+    <!-- LIVE ATTENDANCE & CLAIM LOG SECTION -->
+    <div class="admin-box mt-4 shadow-sm">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+            <h4 class="mb-0">Live Attendance & Claim Log</h4>
+            <a href="export_freebies.php" class="btn btn-primary btn-sm font-weight-bold">
+                📥 Export Freebies Claimants Excel
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table custom-table align-middle">
+                <thead>
+                    <tr>
+                        <th>MEMBER ID</th>
+                        <th>MEMBER NAME</th>
+                        <th>CATEGORY</th>
+                        <th>FREEBIES & CLAIMED ITEMS</th>
+                        <th>ARRIVAL TIME</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($attendanceLogs && $attendanceLogs->num_rows > 0): ?>
+                        <?php while ($log = $attendanceLogs->fetch_assoc()): ?>
+                            <tr>
+                                <td class="fw-bold">#<?php echo htmlspecialchars($log['member_id']); ?></td>
+                                <td class="fw-semibold"><?php echo htmlspecialchars($log['member_name']); ?></td>
+                                <td>
+                                    <span class="badge badge-gold">
+                                        <?php echo htmlspecialchars($log['category'] ?? 'REGULAR'); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge-status">✓ Claimed & Attended</span><br>
+                                    <small class="text-muted">
+                                        <?php echo htmlspecialchars($log['claimed_items'] ?? 'GA T-Shirt, Cash Allowance, Snacks / Meals'); ?>
+                                    </small>
+                                </td>
+                                <td class="text-nowrap"><?php echo htmlspecialchars($log['created_at']); ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">No attendance logs found for this selection.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 <script>

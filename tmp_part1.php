@@ -27,7 +27,6 @@ try {
 $message = '';
 $error = '';
 $print_target_id = $_GET['print_id'] ?? null;
-$gate_print = $_GET['gate_print'] ?? null;
 $is_duplicate = isset($_GET['duplicate']) && $_GET['duplicate'] === '1';
 
 // --- AUTHENTICATION ACTION HANDLERS ---
@@ -54,13 +53,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 header("Location: index.php");
                 exit;
             } else {
-                $error = "Invalid username or password. Please double-check your credentials and try again.";
+                $error = "Invalid username or password credentials.";
             }
         } catch (PDOException $e) {
             $error = "Authentication system error: " . $e->getMessage();
         }
     } else {
-        $error = "Please fill in both username and password fields to sign in.";
+        $error = "Please fill in both username and password fields.";
     }
 }
 
@@ -72,42 +71,34 @@ if (!isset($_SESSION['qr_user_id'])) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Sign In - Panabo Cooperative Assembly Portal</title>
+        <title>Login - GA Registration Portal</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         <style>
             :root {
-                --bg-gradient: radial-gradient(circle at 50% 0%, #f1f5f9 0%, #e2e8f0 100%);
-                --card-bg: #ffffff;
+                --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+                --card-bg: rgba(255, 255, 255, 0.9);
                 --text-main: #0f172a;
                 --text-muted: #64748b;
-                --border-color: #e2e8f0;
-                --input-bg: #f8fafc;
-                --input-border: #cbd5e1;
+                --border-color: #cbd5e1;
+                --input-bg: #ffffff;
                 --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-                --primary-hover: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
                 --primary-shadow: rgba(37, 99, 235, 0.25);
-                --badge-bg: #eff6ff;
-                --badge-text: #1e40af;
             }
 
             [data-theme="dark"] {
-                --bg-gradient: radial-gradient(circle at 50% 0%, #0f172a 0%, #0b0f19 100%);
-                --card-bg: #1e293b;
+                --bg-gradient: linear-gradient(135deg, #0b0f19 0%, #111827 100%);
+                --card-bg: rgba(30, 41, 59, 0.85);
                 --text-main: #f8fafc;
                 --text-muted: #94a3b8;
                 --border-color: #334155;
                 --input-bg: #0f172a;
-                --input-border: #475569;
                 --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-                --primary-hover: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-                --primary-shadow: rgba(59, 130, 246, 0.35);
-                --badge-bg: rgba(59, 130, 246, 0.15);
-                --badge-text: #93c5fd;
+                --primary-shadow: rgba(59, 130, 246, 0.3);
             }
 
-            * { box-sizing: border-box; transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s; }
+            * { box-sizing: border-box; transition: all 0.25s ease; }
             
             body {
                 font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -118,141 +109,82 @@ if (!isset($_SESSION['qr_user_id'])) {
                 justify-content: center;
                 min-height: 100vh;
                 margin: 0;
-                padding: 24px;
+                padding: 20px;
                 -webkit-font-smoothing: antialiased;
             }
 
-            .top-nav-actions {
+            .theme-toggle-login {
                 position: fixed;
                 top: 24px;
-                left: 24px;
                 right: 24px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                z-index: 10;
-            }
-
-            .btn-back, .theme-toggle-login {
                 background: var(--card-bg);
                 border: 1px solid var(--border-color);
                 color: var(--text-main);
                 padding: 10px 18px;
                 border-radius: 30px;
-                font-weight: 700;
+                cursor: pointer;
                 font-size: 13px;
-                text-decoration: none;
-                backdrop-filter: blur(12px);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                font-weight: 700;
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                cursor: pointer;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             }
 
-            .btn-back:hover, .theme-toggle-login:hover {
-                transform: translateY(-2px);
-                border-color: #3b82f6;
-            }
-
-            .login-wrapper {
-                width: 100%;
-                max-width: 880px;
-                background: var(--card-bg);
-                border-radius: 28px;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            .btn-back {
+                position: fixed;
+                top: 24px;
+                left: 24px;
                 border: 1px solid var(--border-color);
-                display: flex;
-                overflow: hidden;
-            }
-
-            .login-hero {
-                flex: 1;
-                background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
-                color: #ffffff;
-                padding: 48px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                position: relative;
-            }
-
-            .login-hero::before {
-                content: '';
-                position: absolute;
-                inset: 0;
-                background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.15), transparent);
-                pointer-events: none;
-            }
-
-            .hero-badge {
-                align-self: flex-start;
-                background: rgba(255, 255, 255, 0.15);
-                backdrop-filter: blur(8px);
-                padding: 6px 14px;
-                border-radius: 20px;
-                font-size: 12px;
+                background: var(--card-bg);
+                color: var(--text-main);
+                padding: 10px 18px;
+                border-radius: 10px;
                 font-weight: 700;
-                letter-spacing: 0.03em;
-                border: 1px solid rgba(255, 255, 255, 0.2);
-            }
-
-            .hero-content h1 {
-                font-size: 28px;
-                font-weight: 800;
-                line-height: 1.25;
-                margin: 20px 0 12px 0;
-                letter-spacing: -0.02em;
-            }
-
-            .hero-content p {
-                font-size: 14px;
-                color: rgba(255, 255, 255, 0.85);
-                line-height: 1.6;
-                margin: 0;
-            }
-
-            .hero-footer {
-                font-size: 12px;
-                color: rgba(255, 255, 255, 0.65);
-                font-weight: 600;
+                font-size: 13px;
+                text-decoration: none;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             }
 
             .login-card {
-                flex: 1;
-                padding: 48px 40px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
+                background: var(--card-bg);
+                backdrop-filter: blur(16px);
+                padding: 44px 36px;
+                border-radius: 24px;
+                box-shadow: 0 20px 40px -15px rgba(0,0,0,0.12);
+                border: 1px solid var(--border-color);
+                width: 100%;
+                max-width: 420px;
             }
 
             .brand-header-login {
-                margin-bottom: 28px;
+                text-align: center;
+                margin-bottom: 32px;
             }
 
             .login-logo {
-                height: 52px;
+                height: 60px;
                 width: auto;
                 margin-bottom: 16px;
                 object-fit: contain;
             }
 
             .login-card h2 {
-                margin: 0 0 6px 0;
+                margin: 0 0 8px 0;
                 font-size: 24px;
                 font-weight: 800;
                 letter-spacing: -0.02em;
-                color: var(--text-main);
             }
 
             .login-card p {
                 color: var(--text-muted);
                 font-size: 13px;
                 margin: 0;
-                font-weight: 500;
             }
 
-            .form-group { margin-bottom: 20px; }
+            .form-group { margin-bottom: 22px; }
 
             label {
                 display: block;
@@ -264,45 +196,24 @@ if (!isset($_SESSION['qr_user_id'])) {
                 color: var(--text-muted);
             }
 
-            .input-wrap {
-                position: relative;
-                display: flex;
-                align-items: center;
-            }
-
-            .input-icon {
-                position: absolute;
-                left: 16px;
-                width: 18px;
-                height: 18px;
-                stroke: var(--text-muted);
-                fill: none;
-                stroke-width: 2;
-                stroke-linecap: round;
-                stroke-linejoin: round;
-                pointer-events: none;
-            }
-
             input[type="text"], input[type="password"] {
                 width: 100%;
-                padding: 14px 16px 14px 46px;
-                border: 1px solid var(--input-border);
+                padding: 14px 18px;
+                border: 1px solid var(--border-color);
                 border-radius: 12px;
                 font-size: 14px;
                 background: var(--input-bg);
                 color: var(--text-main);
                 font-family: inherit;
-                font-weight: 500;
             }
 
             input[type="text"]:focus, input[type="password"]:focus {
                 outline: none;
                 border-color: #3b82f6;
                 box-shadow: 0 0 0 4px var(--primary-shadow);
-                background: var(--card-bg);
             }
 
-            .btn-login {
+            button {
                 width: 100%;
                 background: var(--primary-gradient);
                 color: white;
@@ -314,15 +225,9 @@ if (!isset($_SESSION['qr_user_id'])) {
                 cursor: pointer;
                 font-family: inherit;
                 box-shadow: 0 8px 16px -4px var(--primary-shadow);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                margin-top: 8px;
             }
 
-            .btn-login:hover {
-                background: var(--primary-hover);
+            button:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 12px 20px -4px var(--primary-shadow);
             }
@@ -331,86 +236,40 @@ if (!isset($_SESSION['qr_user_id'])) {
                 background: #fef2f2;
                 color: #991b1b;
                 border: 1px solid #fee2e2;
-                padding: 12px 16px;
+                padding: 14px 18px;
                 border-radius: 12px;
                 font-size: 13px;
-                margin-bottom: 20px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-weight: 600;
-            }
-
-            @media (max-width: 768px) {
-                .login-wrapper { flex-direction: column; }
-                .login-hero { padding: 32px; text-align: center; }
-                .hero-badge { align-self: center; }
-                .login-card { padding: 32px 24px; }
+                margin-bottom: 22px;
             }
         </style>
     </head>
     <body>
-        <div class="top-nav-actions">
-            <a href="../index.php" class="btn-back">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-                Back to Portal
-            </a>
-            <button class="theme-toggle-login" id="theme-toggle">🌙 Dark Mode</button>
-        </div>
+        <button class="theme-toggle-login" id="theme-toggle">🌙 Dark Mode</button>
+        <a href="../index.php" class="btn-back">← Back</a>
         
-        <div class="login-wrapper">
-            <!-- Left Branding Pane -->
-            <div class="login-hero">
-                <div class="hero-badge">Panabo Cooperative</div>
-                <div class="hero-content">
-                    <h1>General Assembly Registration Portal</h1>
-                    <p>Welcome! Please authenticate your terminal operator session to manage member check-ins and freebie distribution.</p>
-                </div>
-                <div class="hero-footer">
-                    &copy; <?= date('Y') ?> Panabo Multi-Purpose Cooperative
-                </div>
+        <div class="login-card">
+            <div class="brand-header-login">
+                <img src="/evoting/assets/images/logo.png" class="login-logo" alt="Company Logo" onerror="this.style.display='none'">
+                <h2>System Sign In</h2>
+                <p>Authorized terminal operator credentials required</p>
             </div>
+            
+            <?php if (!empty($error)): ?>
+                <div class="alert"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
 
-            <!-- Right Form Pane -->
-            <div class="login-card">
-                <div class="brand-header-login">
-                    <img src="/evoting/assets/images/logo.png" class="login-logo" alt="Company Logo" onerror="this.style.display='none'">
-                    <h2>Welcome Back</h2>
-                    <p>Sign in with your authorized terminal credentials</p>
+            <form method="POST" action="index.php">
+                <input type="hidden" name="action" value="login">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" required autofocus placeholder="Enter username">
                 </div>
-                
-                <?php if (!empty($error)): ?>
-                    <div class="alert">
-                        <span>⚠️</span>
-                        <div><?= htmlspecialchars($error) ?></div>
-                    </div>
-                <?php endif; ?>
-
-                <form method="POST" action="index.php">
-                    <input type="hidden" name="action" value="login">
-                    
-                    <div class="form-group">
-                        <label>Username</label>
-                        <div class="input-wrap">
-                            <svg class="input-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                            <input type="text" name="username" required autofocus placeholder="Enter your username">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Password</label>
-                        <div class="input-wrap">
-                            <svg class="input-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                            <input type="password" name="password" required placeholder="••••••••">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-login">
-                        Sign In to Terminal
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </button>
-                </form>
-            </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required placeholder="••••••••">
+                </div>
+                <button type="submit">Sign In to Terminal</button>
+            </form>
         </div>
 
         <script>
@@ -464,7 +323,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
                 m.id AS member_id, 
                 m.full_name, 
                 COALESCE(m.migs_category, 'REGULAR') AS category,
-                COALESCE(m.branch_name, 'N/A') AS branch_name,
                 COALESCE(c.item_name, 'No Freebies Claimed') AS claimed_item,
                 COALESCE(c.claimed_at, m.allowance_claimed_at) AS claim_time,
                 u.username AS processed_by
@@ -487,7 +345,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
             'Member ID', 
             'Member Name', 
             'Category', 
-            'Branch',
             'Claimed Freebie Item', 
             'Claim Date & Time', 
             'Processed By'
@@ -498,7 +355,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
                 $row['member_id'],
                 $row['full_name'],
                 $row['category'],
-                $row['branch_name'],
                 $row['claimed_item'],
                 $row['claim_time'],
                 $row['processed_by'] ?? 'System'
@@ -553,6 +409,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     }
 }
 
+// Terminal B: Real-time attendance endpoint
+if (isset($_GET['action']) && $_GET['action'] === 'get_attendance_data') {
+    header('Content-Type: text/html; charset=utf-8');
+    try {
+        $filter_date = $_GET['filter_date'] ?? '';
+        
+        if (!empty($filter_date)) {
+            $recent_arrivals = $pdo->query("
+                SELECT m.id, m.full_name, m.migs_category, m.allowance_claimed_at,
+                GROUP_CONCAT(c.item_name SEPARATOR ', ') AS items_claimed
+                FROM members m
+                LEFT JOIN member_freebie_claims c ON m.id = c.member_id
+                WHERE m.allowance_claimed = 1 AND DATE(m.allowance_claimed_at) = '" . $pdo->quote($filter_date) . "'
+                GROUP BY m.id
+                ORDER BY m.allowance_claimed_at DESC 
+                LIMIT 20
+            ")->fetchAll();
+        } else {
+            $recent_arrivals = $pdo->query("
+                SELECT m.id, m.full_name, m.migs_category, m.allowance_claimed_at,
+                GROUP_CONCAT(c.item_name SEPARATOR ', ') AS items_claimed
+                FROM members m
+                LEFT JOIN member_freebie_claims c ON m.id = c.member_id
+                WHERE m.allowance_claimed = 1
+                GROUP BY m.id
+                ORDER BY m.allowance_claimed_at DESC 
+                LIMIT 20
+            ")->fetchAll();
+        }
+        
+        if ($recent_arrivals):
+            foreach ($recent_arrivals as $arrival):
+                echo '<tr>';
+                echo '<td><strong>#' . htmlspecialchars($arrival['id']) . '</strong></td>';
+                echo '<td style="font-weight: 700; color: var(--text-main);">' . htmlspecialchars($arrival['full_name']) . '</td>';
+                echo '<td><span class="badge badge-success">' . htmlspecialchars(!empty($arrival['migs_category']) ? $arrival['migs_category'] : 'REGULAR') . '</span></td>';
+                echo '<td><span class="badge badge-success">✓ Claimed & Attended</span><br><small style="color: var(--text-muted);">' . htmlspecialchars($arrival['items_claimed'] ?: 'No items selected') . '</small></td>';
+                echo '<td style="font-size: 12px; color: var(--text-muted);">' . date('Y-m-d H:i:s', strtotime($arrival['allowance_claimed_at'])) . '</td>';
+                echo '</tr>';
+            endforeach;
+        else:
+            echo '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No attendance & freebie claims recorded yet.</td></tr>';
+        endif;
+    } catch (PDOException $e) {
+        echo "<tr><td colspan='5' style='color: #991b1b;'>Error: " . htmlspecialchars($e->getMessage()) . "</td></tr>";
+    }
+    exit;
+}
+
+// Terminal B: Statistics calculation
+if ($route === 'gate') {
+    try {
+        $filter_date = $_GET['filter_date'] ?? '';
+        
+        if (!empty($filter_date)) {
+            $total_arrivals = $pdo->query("SELECT COUNT(*) as total FROM members WHERE allowance_claimed = 1 AND DATE(allowance_claimed_at) = '" . $pdo->quote($filter_date) . "'")->fetch();
+            $by_category = $pdo->query("
+                SELECT COALESCE(migs_category, 'REGULAR') as category, COUNT(*) as count 
+                FROM members 
+                WHERE allowance_claimed = 1 AND DATE(allowance_claimed_at) = '" . $pdo->quote($filter_date) . "'
+                GROUP BY migs_category 
+                ORDER BY count DESC
+            ")->fetchAll();
+            $filter_label = ' (on ' . date('M d, Y', strtotime($filter_date)) . ')';
+        } else {
+            $total_arrivals = $pdo->query("SELECT COUNT(*) as total FROM members WHERE allowance_claimed = 1")->fetch();
+            $today_arrivals = $pdo->query("SELECT COUNT(*) as total FROM members WHERE allowance_claimed = 1 AND DATE(allowance_claimed_at) = DATE(NOW())")->fetch();
+            $by_category = $pdo->query("
+                SELECT COALESCE(migs_category, 'REGULAR') as category, COUNT(*) as count 
+                FROM members 
+                WHERE allowance_claimed = 1 
+                GROUP BY migs_category 
+                ORDER BY count DESC
+            ")->fetchAll();
+            $filter_label = '';
+        }
+    } catch (PDOException $e) {
+        $total_arrivals = ['total' => 0];
+        $today_arrivals = ['total' => 0];
+        $by_category = [];
+        $filter_label = '';
+    }
+}
+
 // Terminal A Action: Pre-Registration
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'register_member') {
     $member_id = $_POST['member_id'] ?? '';
@@ -566,15 +506,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $stmt = $pdo->prepare("UPDATE members SET registered = 1, registered_at = NOW(), registered_by = ? WHERE id = ?");
             $stmt->execute([$current_user_id, $member_id]);
 
-            // Clear any previous pre-registration freebies for this member
-            $del_old = $pdo->prepare("DELETE FROM member_freebie_claims WHERE member_id = ?");
-            $del_old->execute([$member_id]);
-
             if (!empty($claimed_items) && is_array($claimed_items)) {
+                $claim_check = $pdo->prepare("SELECT COUNT(*) FROM member_freebie_claims WHERE member_id = ? AND item_name = ?");
                 $claim_insert = $pdo->prepare("INSERT INTO member_freebie_claims (member_id, item_name, claimed_at, processed_by) VALUES (?, ?, NOW(), ?)");
                 foreach ($claimed_items as $item_name) {
                     $item_name = trim($item_name);
-                    if ($item_name !== '') {
+                    if ($item_name === '') {
+                        continue;
+                    }
+
+                    $claim_check->execute([$member_id, $item_name]);
+                    $already_claimed = $claim_check->fetchColumn();
+                    if ($already_claimed == 0) {
                         $claim_insert->execute([$member_id, $item_name, $current_user_id]);
                     }
                 }
@@ -588,9 +531,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// TERMINAL B: Scan Pre-Registration QR Code & Claim Freebies
+// TERMINAL B: Scan Pre-Registration QR Code & Claim Freebies (ALLOWS REPRINT, TAGS DUPLICATE)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'gate_scan') {
     $scan_input = trim($_POST['scan_input'] ?? '');
+    $selected_items = $_POST['claimed_items'] ?? [];
     $scanned_id = '';
 
     if (empty($scan_input)) {
@@ -609,6 +553,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $member = $stmt->fetch();
 
                 if ($member) {
+                    // Check 1: Member must be pre-registered
                     if ($member['registered'] == 0) {
                         $error = "Access Denied: Member ID #{$scanned_id} (" . htmlspecialchars($member['full_name']) . ") has NOT pre-registered at Terminal A yet!";
                     } 
@@ -617,15 +562,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
                         $pdo->beginTransaction();
 
-                        // Mark attendance on first check-in
+                        // Mark attendance and allowance claim flag if first time
                         if (!$is_already_claimed) {
                             $update = $pdo->prepare("UPDATE members SET allowance_claimed = 1, allowance_claimed_at = NOW(), allowance_processed_by = ? WHERE id = ?");
                             $update->execute([$current_user_id, $scanned_id]);
                         }
 
+                        // Record freebies claimed while preventing duplicate item database entries
+                        if (!empty($selected_items) && is_array($selected_items) && !$is_already_claimed) {
+                            $check_item_stmt = $pdo->prepare("SELECT COUNT(*) FROM member_freebie_claims WHERE member_id = ? AND item_name = ?");
+                            $claim_stmt = $pdo->prepare("
+                                INSERT INTO member_freebie_claims (member_id, item_name, claimed_at, processed_by) 
+                                VALUES (?, ?, NOW(), ?)
+                            ");
+
+                            foreach ($selected_items as $item_name) {
+                                $trimmed_item = trim($item_name);
+                                
+                                // Prevent item duplication in DB
+                                $check_item_stmt->execute([$scanned_id, $trimmed_item]);
+                                $already_exists = $check_item_stmt->fetchColumn();
+
+                                if ($already_exists == 0) {
+                                    $claim_stmt->execute([$scanned_id, $trimmed_item, $current_user_id]);
+                                }
+                            }
+                        }
+
                         $pdo->commit();
 
-                        header("Location: index.php?route=gate&print_id=" . urlencode($scanned_id) . "&gate_print=1" . ($is_already_claimed ? "&duplicate=1" : ""));
+                        // Pass duplicate tag if they had already claimed previously
+                        header("Location: index.php?route=gate&print_id=" . urlencode($scanned_id) . "&duplicate=" . ($is_already_claimed ? '1' : '0'));
                         exit;
                     }
                 } else {
@@ -639,83 +606,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             }
         } else {
             $error = "Please scan a valid Member QR code or enter Member ID.";
-        }
-    }
-}
-
-// TERMINAL B: Interactive Claims & Printing Form Processing
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'gate_print_claims') {
-    $member_id = trim($_POST['member_id'] ?? '');
-    $selected_items = $_POST['selected_items'] ?? [];
-    $print_now = trim($_POST['print_now'] ?? '0');
-    $admin_override = trim($_POST['admin_override'] ?? '0');
-
-    if (!empty($member_id)) {
-        try {
-            $stmt = $pdo->prepare("SELECT * FROM members WHERE id = ?");
-            $stmt->execute([$member_id]);
-            $member = $stmt->fetch();
-
-            if ($member) {
-
-                // ADMIN OVERRIDE / SECOND CHANCE
-                if ($admin_override === '1') {
-                    $pdo->beginTransaction();
-
-                    // Clear freebie claims database records
-                    $del_stmt = $pdo->prepare("DELETE FROM member_freebie_claims WHERE member_id = ?");
-                    $del_stmt->execute([$member_id]);
-
-                    // Reset allowance_claimed flag and timestamp
-                    $reset_stmt = $pdo->prepare("UPDATE members SET allowance_claimed = 0, allowance_claimed_at = NULL, allowance_processed_by = NULL WHERE id = ?");
-                    $reset_stmt->execute([$member_id]);
-
-                    $pdo->commit();
-
-                    $redirect = "index.php?route=gate&print_id=" . urlencode($member_id) . "&gate_print=1&override=1";
-                    header("Location: " . $redirect);
-                    exit;
-                }
-
-                // NORMAL SAVE / CLAIM PROCESS
-                $pdo->beginTransaction();
-
-                // Ensure attendance is marked upon saving claims
-                $update_att = $pdo->prepare("UPDATE members SET allowance_claimed = 1, allowance_claimed_at = COALESCE(allowance_claimed_at, NOW()), allowance_processed_by = ? WHERE id = ?");
-                $update_att->execute([$current_user_id, $member_id]);
-
-                // Synchronize the current Terminal B selection.
-                $del_stmt = $pdo->prepare("DELETE FROM member_freebie_claims WHERE member_id = ?");
-                $del_stmt->execute([$member_id]);
-
-                if (!empty($selected_items) && is_array($selected_items)) {
-                    $claim_stmt = $pdo->prepare("INSERT INTO member_freebie_claims (member_id, item_name, claimed_at, processed_by) VALUES (?, ?, NOW(), ?)");
-
-                    foreach ($selected_items as $item_name) {
-                        $trimmed_item = trim($item_name);
-                        if ($trimmed_item === '') {
-                            continue;
-                        }
-                        $claim_stmt->execute([$member_id, $trimmed_item, $current_user_id]);
-                    }
-                }
-
-                $pdo->commit();
-
-                $redirect = "index.php?route=gate&print_id=" . urlencode($member_id) . "&gate_print=1";
-                if ($print_now === '1') {
-                    $redirect .= "&print_now=1";
-                }
-                header("Location: " . $redirect);
-                exit;
-            } else {
-                $error = "Member not found for print claim update.";
-            }
-        } catch (PDOException $e) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-            $error = "Print claim update error: " . $e->getMessage();
         }
     }
 }
@@ -823,6 +713,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             border: 1px solid var(--border-color);
         }
 
+        /* Header Bar */
         .brand-header {
             display: flex;
             align-items: center;
@@ -874,7 +765,11 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             align-items: center;
             gap: 8px;
         }
+        .btn-theme-toggle:hover {
+            transform: scale(1.03);
+        }
 
+        /* Navigation Tabs */
         .nav-tabs { 
             display: flex; 
             background: var(--nav-bg);
@@ -904,6 +799,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             box-shadow: 0 8px 16px -4px var(--primary-shadow);
         }
 
+        /* Operator Info Bar */
         .debug-bar {
             font-size: 13px;
             color: var(--text-muted);
@@ -917,12 +813,30 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             align-items: center;
             font-weight: 500;
         }
-        .logout-link { color: #ef4444; text-decoration: none; font-weight: 700; }
+        .logout-link { 
+            color: #ef4444; 
+            text-decoration: none; 
+            font-weight: 700; 
+        }
+        .logout-link:hover { color: #dc2626; }
 
+        /* Titles */
         .section-title-wrap { margin-bottom: 20px; }
-        h2 { font-weight: 800; font-size: 20px; color: var(--text-main); margin: 0 0 4px 0; letter-spacing: -0.01em; }
-        .subtitle { color: var(--text-muted); font-size: 13px; margin: 0; font-weight: 500; }
+        h2 { 
+            font-weight: 800; 
+            font-size: 20px; 
+            color: var(--text-main); 
+            margin: 0 0 4px 0; 
+            letter-spacing: -0.01em;
+        }
+        .subtitle { 
+            color: var(--text-muted); 
+            font-size: 13px; 
+            margin: 0; 
+            font-weight: 500;
+        }
 
+        /* Feedback Banner Cards */
         .alert { 
             padding: 16px 20px; 
             border-radius: 14px; 
@@ -935,11 +849,28 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             line-height: 1.4;
             box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
-        .alert-danger { background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-border); }
-        .alert-success { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); }
-        .alert-warning { background: #fffbe3; color: #b45309; border: 1px solid #fde68a; }
+        .alert-danger { 
+            background: var(--danger-bg); 
+            color: var(--danger-text); 
+            border: 1px solid var(--danger-border); 
+        }
+        .alert-success { 
+            background: var(--success-bg); 
+            color: var(--success-text); 
+            border: 1px solid var(--success-border); 
+        }
+        .alert-warning {
+            background: #fffbe3;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
 
-        .search-box-wrap { display: flex; gap: 12px; margin-bottom: 28px; }
+        /* Search Section */
+        .search-box-wrap {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
         input[type="text"] { 
             flex: 1; 
             padding: 14px 18px; 
@@ -950,7 +881,11 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             color: var(--text-main);
             font-family: inherit;
         }
-        input[type="text"]:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 4px var(--primary-shadow); }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px var(--primary-shadow);
+        }
         
         button, .btn-action { 
             background: var(--primary-gradient); 
@@ -968,18 +903,54 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             font-family: inherit;
             box-shadow: 0 8px 16px -4px var(--primary-shadow);
         }
+        button:hover, .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px -4px var(--primary-shadow);
+        }
 
-        .table-responsive { width: 100%; overflow-x: auto; border: 1px solid var(--border-color); border-radius: 14px; }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
+        /* Data Tables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left;
+        }
         th, td { padding: 16px 20px; }
-        th { background: var(--table-header); font-weight: 700; color: var(--text-muted); font-size: 11px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 0.08em; }
-        td { border-bottom: 1px solid var(--border-color); background: var(--card-bg); font-size: 14px; }
+        th { 
+            background: var(--table-header); 
+            font-weight: 700; 
+            color: var(--text-muted); 
+            font-size: 11px; 
+            border-bottom: 1px solid var(--border-color); 
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        td { 
+            border-bottom: 1px solid var(--border-color); 
+            background: var(--card-bg); 
+            font-size: 14px; 
+        }
         tr:last-child td { border-bottom: none; }
 
-        .badge { padding: 6px 12px; border-radius: 30px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.02em; }
+        .badge { 
+            padding: 6px 12px; 
+            border-radius: 30px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.02em;
+        }
         .badge-success { background: #dcfce7; color: #15803d; }
         .badge-secondary { background: var(--input-bg); color: var(--text-muted); }
 
+        /* Gate Scanner HUD */
         .scanner-card { 
             border: 1px solid var(--hud-border); 
             background: var(--hud-bg); 
@@ -990,54 +961,81 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3);
         }
         .scanner-card input[type="text"] { 
-            width: 100%; max-width: 500px; text-align: center; font-weight: 800; font-size: 20px; color: #ffffff; border: 2px solid #3b82f6; background: rgba(15, 23, 42, 0.8); letter-spacing: 0.08em; padding: 18px; border-radius: 14px; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); margin-bottom: 16px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 20px; 
+            color: #ffffff; 
+            border: 2px solid #3b82f6;
+            background: rgba(15, 23, 42, 0.8);
+            letter-spacing: 0.08em;
+            padding: 18px;
+            border-radius: 14px;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+            margin-bottom: 16px;
         }
-
+        .scanner-card input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
+        }
+        
+        /* Checkboxes inside Scanner Panel */
+        .claim-selector-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--hud-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        .claim-selector-title {
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         .claim-status-panel {
             margin-top: 24px;
-            padding: 20px;
+            padding: 18px;
             border-radius: 18px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.08);
             border: 1px solid rgba(255,255,255,0.1);
         }
         .claim-status-title {
             color: #f8fafc;
-            font-size: 15px;
-            font-weight: 800;
-            margin-bottom: 16px;
-            letter-spacing: 0.02em;
-            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: 0.05em;
         }
-
-        .print-item-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .claim-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 12px;
-            padding: 16px 20px;
+        }
+        .status-chip {
+            padding: 14px 16px;
             border-radius: 14px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: 1px solid rgba(0,0,0,0.1);
-            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            color: #ffffff;
             user-select: none;
+            word-break: break-word;
+            line-height: 1.3;
         }
-        .print-item-row.item-claimed { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
-        .print-item-row.item-unclaimed { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
-        .print-item-row input[type="checkbox"] { display: none; }
-        
-        .print-item-state { 
-            padding: 6px 14px; 
-            border-radius: 999px; 
-            font-size: 12px; 
-            font-weight: 800; 
-            min-width: 100px; 
-            text-align: center; 
-            letter-spacing: 0.03em;
+        .status-chip--claimed {
+            background: #16a34a;
         }
-        .print-item-row.item-claimed .print-item-state { background: #10b981; color: white; }
-        .print-item-row.item-unclaimed .print-item-state { background: #ef4444; color: white; }
+        .status-chip--unclaimed {
+            background: #dc2626;
+        }
 
         .scanner-status {
             margin-top: 16px;
@@ -1048,6 +1046,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             justify-content: center;
             gap: 10px;
             font-weight: 600;
+            letter-spacing: 0.03em;
         }
         .pulse-dot {
             width: 10px;
@@ -1064,6 +1063,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
 
+        /* Thermal Receipt View */
         #thermal-receipt-view { 
             display: none; 
             background: white !important; 
@@ -1087,6 +1087,8 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
         .qr-wrapper { margin: 10px auto; text-align: center; }
         .qr-wrapper img { width: 130px; height: 130px; display: block; margin: 0 auto; }
         
+        .credential-box { background: #f1f5f9 !important; border: 1px solid #cbd5e1; padding: 10px; margin: 8px auto; border-radius: 4px; text-align: left; font-family: monospace; font-size: 12px; color: #000 !important; width: 100%; box-sizing: border-box; }
+        
         .freebie-container { width: 100%; margin: 8px auto; padding: 0; text-align: left; box-sizing: border-box; }
         .freebie-row { display: flex; align-items: center; margin-bottom: 6px; width: 100%; }
         
@@ -1096,6 +1098,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
         
         .freebie-label { font-size: 12px; font-weight: bold; color: #000 !important; font-family: sans-serif; line-height: 1.2; display: inline-block; }
 
+        /* Print Layout Rules */
         @media print {
             @page { 
                 margin: 0; 
@@ -1169,6 +1172,20 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
         </div>
     <?php endif; ?>
 
+    <?php if ($print_target_id && $route === 'gate'): ?>
+        <?php if ($is_duplicate): ?>
+            <div class="alert alert-warning">
+                <span style="font-size: 18px;">⚠️</span>
+                <div><strong>REPRINT NOTICE:</strong> Member #<?= htmlspecialchars($print_target_id) ?> has ALREADY claimed previously. A receipt copy tagged <strong>DUPLICATE / ALREADY CLAIMED</strong> has been printed with freebies section omitted.</div>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-success">
+                <span style="font-size: 18px;">🎉</span>
+                <div><strong>SUCCESS:</strong> Attendance & Freebies Logged! Claim stub and e-voting credentials sent to thermal printer.</div>
+            </div>
+        <?php endif; ?>
+    <?php endif; ?>
+
     <!-- ========================================== -->
     <!-- INTERFACE: TERMINAL A (REGISTRATION)       -->
     <!-- ========================================== -->
@@ -1197,7 +1214,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                                     <th style="width: 100px;">ID</th>
                                     <th>Full Name</th>
                                     <th style="width: 160px;">Status</th>
-                                    <th style="width: 280px; text-align: right;">Action</th>
+                                    <th style="width: 180px; text-align: right;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1219,7 +1236,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                                                 <?php if (!$row['registered']): ?>
                                                     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
                                                         <div style="text-align:left; max-width: 260px; font-size: 12px; color: var(--text-muted);">
-                                                            <strong style="display:block; margin-bottom: 6px;">Select Terminal A Pre-Registration Freebies:</strong>
+                                                            <strong style="display:block; margin-bottom: 6px;">Select freebies to record:</strong>
                                                             <label style="display:inline-flex; align-items:center; gap:6px; margin-bottom: 4px;">
                                                                 <input type="checkbox" name="claimed_items[]" value="GA T-Shirt"> GA T-Shirt
                                                             </label>
@@ -1263,19 +1280,20 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
     <?php if ($route === 'gate'): ?>
         <div class="section-title-wrap">
             <h2>Attendance & Freebies Terminal (Terminal B)</h2>
-            <p class="subtitle">Scan member pass to review pre-registered claims and issue on-site items.</p>
+            <p class="subtitle">Scan the member pass to show pre-registration freebie claim status.</p>
         </div>
 
         <div class="scanner-card">
             <form method="POST" action="index.php?route=gate" id="gate-scan-form">
                 <input type="hidden" name="action" value="gate_scan">
+
                 <input type="text" name="scan_input" id="gate-scan-input" placeholder="SCAN MEMBER QR PASS HERE" autocomplete="off" autofocus>
                 <button type="submit" style="display: block; margin: 0 auto; max-width: 500px; width: 100%;">Scan Member Pass</button>
             </form>
 
             <div class="scanner-status">
                 <span class="pulse-dot"></span>
-                Integrated Scanner Ready — Scan a member pass to proceed
+                Integrated Scanner Ready — Scan a member to show claimed items
             </div>
 
             <?php if (!empty($print_target_id)): ?>
@@ -1283,317 +1301,100 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                     $gate_member = null;
                     $gate_claimed_items = [];
                     $gate_freebie_items = ['GA T-Shirt', 'Cash Allowance', 'Snacks / Meals', 'PMPC Umbrella'];
-                    
                     $stmt = $pdo->prepare("SELECT * FROM members WHERE id = ?");
                     $stmt->execute([$print_target_id]);
                     $gate_member = $stmt->fetch();
-
                     if ($gate_member) {
                         if (!empty($gate_member['migs_category']) && stripos($gate_member['migs_category'], 'GOLD') !== false) {
                             $gate_freebie_items[] = 'Water Bottle for Gold Members';
                         }
-
                         $claim_stmt = $pdo->prepare("SELECT item_name FROM member_freebie_claims WHERE member_id = ?");
                         $claim_stmt->execute([$print_target_id]);
                         $gate_claimed_items = array_filter(array_map('trim', $claim_stmt->fetchAll(PDO::FETCH_COLUMN)), 'strlen');
-                        $gate_claimed_items_normalized = array_map(function($name) {
-                            return preg_replace('/\s+/', ' ', mb_strtolower(trim($name)));
-                        }, $gate_claimed_items);
+                        $gate_claimed_items = array_map('mb_strtolower', $gate_claimed_items);
                     }
                 ?>
 
                 <?php if ($gate_member): ?>
                     <div class="claim-status-panel">
-                        <div class="claim-status-title">
-                            Member Claim Status: <strong><?= htmlspecialchars($gate_member['full_name']) ?></strong> 
-                            (#<?= htmlspecialchars($gate_member['id']) ?>) - <?= htmlspecialchars(!empty($gate_member['migs_category']) ? strtoupper($gate_member['migs_category']) : 'REGULAR') ?>
-                            <div style="font-size: 13px; color: #94a3b8; font-weight: 600; margin-top: 4px;">Branch: <?= htmlspecialchars(!empty($gate_member['branch_name']) ? $gate_member['branch_name'] : 'N/A') ?></div>
-                        </div>
-
-                        <!-- Combined Interactive Item List Form -->
-                        <form method="POST" action="index.php?route=gate&print_id=<?= urlencode($print_target_id) ?>&gate_print=1" id="gate-print-form" style="margin-top: 16px; text-align: left;">
-                            <input type="hidden" name="action" value="gate_print_claims">
-                            <input type="hidden" name="member_id" value="<?= htmlspecialchars($print_target_id) ?>">
-                            <input type="hidden" name="print_now" value="1">
-                            <input type="hidden" name="admin_override" id="admin_override_input" value="0">
-
-                            <div style="font-size: 12px; color: #94a3b8; text-align: left; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
-                                Click items below to toggle status & tag for issue:
-                            </div>
-
+                        <div class="claim-status-title">Pre-registration claim status for <?= htmlspecialchars($gate_member['full_name']) ?> (<?= htmlspecialchars(!empty($gate_member['migs_category']) ? strtoupper($gate_member['migs_category']) : 'REGULAR') ?>)</div>
+                        <div class="claim-status-grid">
                             <?php foreach ($gate_freebie_items as $item):
-                                $normalized_item = preg_replace('/\s+/', ' ', mb_strtolower(trim($item)));
-                                $item_claimed = in_array($normalized_item, $gate_claimed_items_normalized, true);
+                                $normalized_item = mb_strtolower(trim($item));
+                                $item_claimed = in_array($normalized_item, $gate_claimed_items, true);
                             ?>
-                                <div class="print-item-row <?= $item_claimed ? 'item-claimed' : 'item-unclaimed' ?>">
-                                    <input type="checkbox" name="selected_items[]" value="<?= htmlspecialchars($item) ?>" <?= $item_claimed ? 'checked' : '' ?> />
-                                    <div style="display: flex; align-items: center; gap: 12px;">
-                                        <span class="freebie-chk-box <?= $item_claimed ? 'checked' : '' ?>"></span>
-                                        <span class="freebie-label" style="color: inherit !important; font-size: 14px;"><?= htmlspecialchars($item) ?></span>
-                                    </div>
-                                    <span class="print-item-state"><?= $item_claimed ? '✓ Claimed' : '✗ Unclaimed' ?></span>
+                                <div class="status-chip <?= $item_claimed ? 'status-chip--claimed' : 'status-chip--unclaimed' ?>">
+                                    <?= htmlspecialchars($item) ?><br><small><?= $item_claimed ? 'Claimed' : 'Not claimed' ?></small>
                                 </div>
                             <?php endforeach; ?>
-
-                            <!-- COMBINED ACTION BUTTONS: STANDARD SAVE & SECOND CHANCE OVERRIDE -->
-                            <div style="display: flex; justify-content: center; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
-                                <button type="submit" id="gate-save-print-btn" style="padding: 14px 32px; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border-radius: 12px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 8px 16px -4px rgba(4, 120, 87, 0.4); display: inline-flex; align-items: center; gap: 8px;">
-                                    💾 Save DB & Print Slip 🖨️
-                                </button>
-                                
-                                <button type="button" id="btnOverride" onclick="requestAdminOverride()" style="padding: 14px 24px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: white; border-radius: 12px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 8px 16px -4px rgba(217, 119, 6, 0.4); display: inline-flex; align-items: center; gap: 8px;">
-                                    🔑 Override & Grant Second Chance
-                                </button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
                 <?php else: ?>
-                    <div style="margin-top: 18px; font-size: 13px; color: #b91c1c; font-weight: 700;">Member record not found.</div>
+                    <div style="margin-top: 18px; font-size: 13px; color: #b91c1c; font-weight: 700;">Member not found for scanned pass.</div>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
-    <?php endif; ?>
-</div>
 
-<!-- ========================================================================= -->
-<!-- 3. RUNTIME THERMAL PRINT RUN STAGE                                        -->
-<!-- ========================================================================= -->
-<?php 
-if (!empty($print_target_id) && ($route !== 'gate' || ($_GET['gate_print'] ?? '') === '1')): 
-    $stmt = $pdo->prepare("SELECT * FROM members WHERE id = ?");
-    $stmt->execute([$print_target_id]);
-    $print_member = $stmt->fetch();
-    
-    if ($print_member):
-        $raw_category = $print_member['migs_category'] ?? $print_member['category'] ?? $print_member['migs_status'] ?? '';
-        $migs_category = strtoupper(trim((string)$raw_category));
-        $branch_name = !empty($print_member['branch_name']) ? trim($print_member['branch_name']) : 'N/A';
-
-        $claims_stmt = $pdo->prepare("SELECT item_name FROM member_freebie_claims WHERE member_id = ?");
-        $claims_stmt->execute([$print_target_id]);
-        $claimed_items_db = array_filter(array_map('trim', array_unique($claims_stmt->fetchAll(PDO::FETCH_COLUMN))));
-
-        $gate_qr_url = "gate_id=" . $print_member['id']; 
-        $gate_qr_file = 'temp_qr_gate_' . $print_member['id'] . '.png';
-        QRcode::png($gate_qr_url, $gate_qr_file, QR_ECLEVEL_M, 4, 2);
-?>
-    <div id="thermal-receipt-view">
-        <?php if ($is_duplicate): ?>
-            <div class="duplicate-notice">⚠️ DUPLICATE COPY - ALREADY CLAIMED</div>
-        <?php endif; ?>
-
-        <?php if ($route === 'registration'): ?>
-            <!-- Terminal A Registration Pass -->
-            <div class="receipt-header">GENERAL ASSEMBLY</div>
-            <div style="font-size: 11px; font-weight: bold; letter-spacing: 1px; text-align: center; color: #000;">PRE-REGISTRATION QR PASS</div>
-            <div class="receipt-divider"></div>
-            
-            <table class="receipt-details-table">
-                <tr>
-                    <td style="width: 45%;"><strong>MEMBER ID:</strong></td>
-                    <td><?= htmlspecialchars($print_member['id']) ?></td>
-                </tr>
-                <tr>
-                    <td><strong>NAME:</strong></td>
-                    <td><?= htmlspecialchars($print_member['full_name']) ?></td>
-                </tr>
-                <tr>
-                    <td><strong>BRANCH:</strong></td>
-                    <td><?= htmlspecialchars($branch_name) ?></td>
-                </tr>
-                <tr>
-                    <td><strong>CATEGORY:</strong></td>
-                    <td><?= htmlspecialchars(!empty($migs_category) ? $migs_category : 'REGULAR') ?></td>
-                </tr>
-            </table>
-            
-            <div class="receipt-divider"></div>
-            <?php if (!empty($claimed_items_db)): ?>
-                <div style="font-size: 11px; font-weight: 700; margin-bottom: 8px; text-align: left; width: 100%; color: #000;">Pre-Registration Freebies</div>
-                <div class="freebie-container">
-                    <?php foreach ($claimed_items_db as $item): ?>
-                        <div class="freebie-row">
-                            <div class="freebie-chk-box checked"></div>
-                            <div class="freebie-label"><?= htmlspecialchars($item) ?></div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-                <div class="receipt-divider"></div>
-            <?php else: ?>
-                <div style="font-size: 10px; color: #000; margin-bottom: 10px; text-align: center;">No pre-registration freebies were selected.</div>
-            <?php endif; ?>
-            
-            <div style="font-size: 9px; font-weight: bold; margin-bottom: 2px; text-align: center; color: #000;">PRESENT THIS AT TERMINAL B</div>
-            <div class="qr-wrapper">
-                <img src="<?= $gate_qr_file ?>?v=<?= time() ?>" alt="Entrance QR Pass">
+        <!-- Attendance Stats Section with Summary Export -->
+        <div style="background: var(--card-bg); padding: 24px; border-radius: 14px; border: 1px solid var(--border-color); margin-top: 28px; margin-bottom: 28px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="margin: 0; color: var(--text-main); font-size: 16px; font-weight: 800;">📊 Attendance & Claims Statistics<?= $filter_label ?></h3>
+                <a href="index.php?route=gate&action=export_attendance_summary" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);">
+                    📊 Export Attendance Summary
+                </a>
             </div>
-            <div style="font-size: 8px; color: #000; text-align: center;">Scan at Terminal B to verify entrance and claim freebies.</div>
-
-        <?php else: ?>
-            <!-- Terminal B Gate Attendance & Freebie Printout -->
-            <div class="receipt-header">GENERAL ASSEMBLY</div>
-            <div style="font-size: 11px; font-weight: bold; letter-spacing: 1px; text-align: center; color: #000;">
-                <?= $is_duplicate ? 'ATTENDANCE RECEIPT (REPRINT)' : 'ATTENDANCE & FREEBIES CLAIMED' ?>
-            </div>
-            <div class="receipt-divider"></div>
             
-            <table class="receipt-details-table">
-                <tr>
-                    <td style="width: 45%;"><strong>MEMBER ID:</strong></td>
-                    <td><?= htmlspecialchars($print_member['id']) ?></td>
-                </tr>
-                <tr>
-                    <td><strong>NAME:</strong></td>
-                    <td><?= htmlspecialchars($print_member['full_name']) ?></td>
-                </tr>
-                <tr>
-                    <td><strong>BRANCH:</strong></td>
-                    <td><?= htmlspecialchars($branch_name) ?></td>
-                </tr>
-                <tr>
-                    <td><strong>CATEGORY:</strong></td>
-                    <td><?= htmlspecialchars(!empty($migs_category) ? $migs_category : 'REGULAR') ?></td>
-                </tr>
-            </table>
-
-            <div class="receipt-divider"></div>
-            <div style="font-size: 11px; font-weight: bold; margin-bottom: 4px; text-align: center; width: 100%; color: #000;">🎁 ISSUED FREEBIES & ALLOWANCE</div>
-
-            <?php if (!empty($claimed_items_db)): ?>
-                <div class="freebie-container">
-                    <?php foreach ($claimed_items_db as $item): ?>
-                        <div class="freebie-row">
-                            <div class="freebie-chk-box checked"></div>
-                            <div class="freebie-label"><?= htmlspecialchars($item) ?></div>
-                        </div>
-                    <?php endforeach; ?>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);">
+                    <div style="font-size: 28px; font-weight: 800; margin-bottom: 6px;"><?= $total_arrivals['total'] ?? 0 ?></div>
+                    <div style="font-size: 12px; font-weight: 600; opacity: 0.9;">Total Attendees Arrived</div>
                 </div>
-            <?php else: ?>
-                <div style="font-size: 10px; color: #000; margin-bottom: 10px; text-align: center;">No freebies were recorded for this member.</div>
-            <?php endif; ?>
-        <?php endif; ?>
-    </div>
-    <?php endif; ?>
-<?php endif; ?>
+                
+                <?php if (empty($_GET['filter_date'])): ?>
+                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);">
+                    <div style="font-size: 28px; font-weight: 800; margin-bottom: 6px;"><?= $today_arrivals['total'] ?? 0 ?></div>
+                    <div style="font-size: 12px; font-weight: 600; opacity: 0.9;">Today's Arrivals</div>
+                </div>
+                <?php endif; ?>
 
-<!-- Auto-Print Trigger Script -->
-<?php if (!empty($print_target_id) && ($route !== 'gate' || ($_GET['gate_print'] ?? '') === '1')): ?>
-<script>
-    window.addEventListener('load', function() {
-        <?php if ($route !== 'gate' || ($_GET['print_now'] ?? '') === '1'): ?>
-        setTimeout(function() {
-            window.print();
-        }, 400);
-        <?php endif; ?>
-    });
-</script>
-<?php endif; ?>
+                <?php if (!empty($by_category)): ?>
+                    <?php foreach ($by_category as $cat): ?>
+                    <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);">
+                        <div style="font-size: 28px; font-weight: 800; margin-bottom: 6px;"><?= $cat['count'] ?></div>
+                        <div style="font-size: 12px; font-weight: 600; opacity: 0.9;"><?= htmlspecialchars($cat['category']) ?></div>
+                    </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
 
-<!-- UI Interactivity & Smooth Scroll Scripts -->
-<script>
-    // Security Passkey for Staff Override
-    const ADMIN_AUTHORIZATION_KEY = "ADMIN123";
+            <div style="background: var(--input-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 8px;">
+                <label for="date-filter" style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 8px;">Filter Statistics By Date</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="date" id="date-filter" value="<?= $_GET['filter_date'] ?? '' ?>" style="flex: 1; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 13px; background: var(--card-bg); color: var(--text-main); font-family: inherit;">
+                    <button type="button" onclick="filterByDate()" style="padding: 10px 18px; background: var(--primary-gradient); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">Filter</button>
+                    <button type="button" onclick="clearDateFilter()" style="padding: 10px 18px; background: var(--nav-bg); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 12px;">All Time</button>
+                </div>
+            </div>
+        </div>
 
-    function requestAdminOverride() {
-        const inputKey = prompt("STAFF ERROR OVERRIDE:\nEnter Admin Authorization Key to allow a second-chance claim modification:");
-        if (inputKey === null) return;
-
-        if (inputKey === ADMIN_AUTHORIZATION_KEY) {
-            document.getElementById('admin_override_input').value = '1';
-            alert('Admin Authorization Granted! Submitting claim adjustment...');
-            document.getElementById('gate-print-form').submit();
-        } else {
-            alert('ERROR: Invalid Authorization Key. Override denied.');
-        }
-    }
-
-    // Restore scroll position on page reload if saved
-    document.addEventListener("DOMContentLoaded", function() {
-        const savedScroll = sessionStorage.getItem("portal_scroll_pos");
-        if (savedScroll !== null) {
-            window.scrollTo(0, parseInt(savedScroll));
-            sessionStorage.removeItem("portal_scroll_pos");
-        }
-    });
-
-    // Save scroll position before submitting forms or unloading
-    window.addEventListener("beforeunload", function() {
-        sessionStorage.setItem("portal_scroll_pos", window.scrollY);
-    });
-
-    const toggleBtn = document.getElementById('theme-toggle');
-    const currentTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    
-    if (currentTheme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        if(toggleBtn) toggleBtn.textContent = '☀️ Light Mode';
-    }
-
-    if(toggleBtn) {
-        toggleBtn.addEventListener('click', () => {
-            let theme = document.documentElement.getAttribute('data-theme');
-            if (theme === 'dark') {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'light');
-                toggleBtn.textContent = '🌙 Dark Mode';
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-                toggleBtn.textContent = '☀️ Light Mode';
-            }
-        });
-    }
-
-    const scanInput = document.getElementById('gate-scan-input');
-    const scanForm = document.getElementById('gate-scan-form');
-
-    if (scanForm) {
-        scanForm.addEventListener('submit', function(e) {
-            if (!scanInput || scanInput.value.trim() === '') {
-                e.preventDefault();
-                if (scanInput) scanInput.focus({ preventScroll: true });
-            }
-        });
-    }
-
-    // Auto-focus scanner input safely without causing page scroll jumps
-    if (scanInput) {
-        scanInput.focus({ preventScroll: true });
-        document.addEventListener('click', function(e) {
-            const isClickInsideInteractive = e.target.closest('input, button, a, label, .print-item-row, .claim-status-panel');
-            if (!isClickInsideInteractive) {
-                scanInput.focus({ preventScroll: true });
-            }
-        });
-    }
-
-    // Dynamic Live Toggle behavior for unified item list
-    const printItemRows = document.querySelectorAll('.print-item-row');
-    printItemRows.forEach((row) => {
-        const checkbox = row.querySelector('input[type="checkbox"]');
-        const stateLabel = row.querySelector('.print-item-state');
-        const checkBoxBox = row.querySelector('.freebie-chk-box');
-
-        row.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent scroll jump
-            if (!checkbox) return;
-
-            checkbox.checked = !checkbox.checked;
-
-            if (checkbox.checked) {
-                row.classList.remove('item-unclaimed');
-                row.classList.add('item-claimed');
-                if (stateLabel) stateLabel.textContent = '✓ Claimed';
-                if (checkBoxBox) checkBoxBox.classList.add('checked');
-            } else {
-                row.classList.remove('item-claimed');
-                row.classList.add('item-unclaimed');
-                if (stateLabel) stateLabel.textContent = '✗ Unclaimed';
-                if (checkBoxBox) checkBoxBox.classList.remove('checked');
-            }
-        });
-    });
-</script>
-
-</body>
-</html>
+        <!-- Attendance & Claim Table with Detailed Excel Export -->
+        <div style="background: var(--card-bg); padding: 24px; border-radius: 14px; border: 1px solid var(--border-color); margin-bottom: 28px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--text-main); font-size: 16px; font-weight: 800;">Live Attendance & Claim Log</h3>
+                <a href="index.php?route=gate&action=export_freebies" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);">
+                    📥 Export Freebies Claimants Excel
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Member ID</th>
+                            <th>Member Name</th>
+                            <th>Category</th>
+                            <th>Freebies & Claimed Items</th>
+                            <th>Arrival Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendance-table-body">
+                        <?php 

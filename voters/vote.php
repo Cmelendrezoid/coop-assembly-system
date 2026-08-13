@@ -83,7 +83,7 @@ foreach($positionsArray as $position){
     ];
 
     $candidateResults = $conn->query(
-        "SELECT id, full_name, description, photo FROM candidates WHERE position_id = $position_id ORDER BY full_name"
+        "SELECT id, full_name, photo FROM candidates WHERE position_id = $position_id ORDER BY full_name"
     );
 
     while($candidate = $candidateResults->fetch_assoc()){
@@ -108,7 +108,6 @@ foreach($positionsArray as $position){
 
         $candidateMetadata[$position_id]['candidates'][$candidate['id']] = [
             'full_name' => $candidate['full_name'],
-            'description' => $candidate['description'] ?? '',
             'imgsrc' => $cleanPath,
             'initials' => $initials
         ];
@@ -373,8 +372,8 @@ h2 {
 .candidate-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 30px;
-    padding: 20px 0;
+    gap: 20px;
+    padding: 10px 0;
     max-width: 500px;
     margin: 0 auto;
 }
@@ -435,7 +434,7 @@ h2 {
 }
 
 .candidate-details-text {
-    padding: 20px;
+    padding: 16px 20px 10px 20px;
 }
 
 .candidate-name {
@@ -443,15 +442,8 @@ h2 {
     font-weight: 700;
     color: var(--body-text);
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 0;
     line-height: 1.3;
-}
-
-.candidate-description {
-    font-size: 1rem;
-    color: var(--text-muted);
-    text-align: center;
-    line-height: 1.6;
 }
 
 .candidate-checkbox {
@@ -617,7 +609,7 @@ h2 {
     }
     .candidate-grid {
         max-width: 100%;
-        gap: 20px;
+        gap: 15px;
     }
     .candidate-avatar-placeholder {
         font-size: 60px;
@@ -711,11 +703,6 @@ h2 {
 
                 <div class="candidate-details-text">
                     <div class="candidate-name"><?php echo htmlspecialchars($candidate['full_name']); ?></div>
-                    <?php if(!empty($candidate['description'])){ ?>
-                        <div class="candidate-description"><?php echo nl2br(htmlspecialchars($candidate['description'])); ?></div>
-                    <?php } else { ?>
-                        <div class="candidate-description text-muted">No profile description available.</div>
-                    <?php } ?>
                 </div>
 
                 <div class="candidate-checkbox">

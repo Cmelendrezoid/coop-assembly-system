@@ -8,6 +8,76 @@ if(!isset($_SESSION['admin_id'])){
     exit();
 }
 
+function parseCandidateDescription($description){
+    $description = trim($description);
+    $sections = [
+        'accomplishments' => [],
+        'platforms' => []
+    ];
+
+    if($description === ''){
+        return $sections;
+    }
+
+    $lines = preg_split('/\r\n|\n|\r/', $description);
+    $current = 'accomplishments';
+    $hasSection = false;
+
+    foreach($lines as $line){
+        $trimmed = trim($line);
+        if($trimmed === ''){
+            continue;
+        }
+
+        if(preg_match('/^accomplishments\s*[:]?$/i', $trimmed)){
+            $current = 'accomplishments';
+            $hasSection = true;
+            continue;
+        }
+
+        if(preg_match('/^platforms\s*[:]?$/i', $trimmed)){
+            $current = 'platforms';
+            $hasSection = true;
+            continue;
+        }
+
+        $item = preg_replace('/^[\-\*•]\s*/u', '', $trimmed);
+        $sections[$current][] = $item;
+    }
+
+    if(!$hasSection && !empty($sections['accomplishments']) && empty($sections['platforms'])){
+        return ['accomplishments' => $sections['accomplishments'], 'platforms' => []];
+    }
+
+    return $sections;
+}
+
+function buildCandidateDescription($accomplishments, $platforms){
+    $parts = [];
+
+    $accomplishments = array_filter(array_map('trim', explode("\n", $accomplishments)), 'strlen');
+    $platforms = array_filter(array_map('trim', explode("\n", $platforms)), 'strlen');
+
+    if(!empty($accomplishments)){
+        $parts[] = 'Accomplishments:';
+        foreach($accomplishments as $item){
+            $parts[] = '- ' . preg_replace('/^[\-\*•]\s*/u', '', $item);
+        }
+    }
+
+    if(!empty($platforms)){
+        if(!empty($parts)){
+            $parts[] = '';
+        }
+        $parts[] = 'Platforms:';
+        foreach($platforms as $item){
+            $parts[] = '- ' . preg_replace('/^[\-\*•]\s*/u', '', $item);
+        }
+    }
+
+    return implode("\n", $parts);
+}
+
 $message = "";
 
 // 1. ADD CANDIDATE LOGIC
@@ -15,7 +85,10 @@ if(isset($_POST['add_candidate'])){
 
     $full_name = trim($_POST['full_name']);
     $position_id = (int)$_POST['position_id'];
-    $description = trim($_POST['description']);
+    $description = buildCandidateDescription(
+        $_POST['description_accomplishments'] ?? '',
+        $_POST['description_platforms'] ?? ''
+    );
 
     $position_stmt = $conn->prepare("
         SELECT position_name
@@ -57,10 +130,10 @@ if(isset($_POST['add_candidate'])){
     }
 
     $stmt = $conn->prepare("
-        INSERT INTO candidates (full_name, position_name, photo, description, position_id)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO candidates (full_name, position_name, photo, description, education, position_id)
+        VALUES (?, ?, ?, ?, ?, ?)
     ");
-    $stmt->bind_param("ssssi", $full_name, $position_name, $photo, $description, $position_id);
+    $stmt->bind_param("sssssi", $full_name, $position_name, $photo, $description, $education, $position_id);
 
     if($stmt->execute()){
         $message = "Candidate added successfully.";
@@ -72,7 +145,11 @@ if(isset($_POST['edit_candidate'])){
     $candidate_id = (int)$_POST['candidate_id'];
     $full_name = trim($_POST['full_name']);
     $position_id = (int)$_POST['position_id'];
-    $description = trim($_POST['description']);
+    $education = trim($_POST['education'] ?? '');
+    $description = buildCandidateDescription(
+        $_POST['description_accomplishments'] ?? '',
+        $_POST['description_platforms'] ?? ''
+    );
     
     // Fetch associated position name
     $position_stmt = $conn->prepare("SELECT position_name FROM positions WHERE id=?");
@@ -112,18 +189,18 @@ if(isset($_POST['edit_candidate'])){
     if(!empty($photo)){
         $stmt = $conn->prepare("
             UPDATE candidates 
-            SET full_name=?, position_name=?, photo=?, description=?, position_id=? 
+            SET full_name=?, position_name=?, photo=?, description=?, education=?, position_id=? 
             WHERE id=?
         ");
-        $stmt->bind_param("ssssii", $full_name, $position_name, $photo, $description, $position_id, $candidate_id);
+        $stmt->bind_param("ssssiii", $full_name, $position_name, $photo, $description, $education, $position_id, $candidate_id);
     } else {
         // Keep the old photo if a new file isn't uploaded
         $stmt = $conn->prepare("
             UPDATE candidates 
-            SET full_name=?, position_name=?, description=?, position_id=? 
+            SET full_name=?, position_name=?, description=?, education=?, position_id=? 
             WHERE id=?
         ");
-        $stmt->bind_param("sssii", $full_name, $position_name, $description, $position_id, $candidate_id);
+        $stmt->bind_param("ssssii", $full_name, $position_name, $description, $education, $position_id, $candidate_id);
     }
 
     if($stmt->execute()){
@@ -526,13 +603,32 @@ while($position = $positions->fetch_assoc()){
 
 </div>
 
-<div class="mb-3">
-<label class="form-label">Description</label>
-<textarea
-name="description"
-class="form-control"
-placeholder="Provide a brief background statement or objectives..."
-rows="4"></textarea>
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Accomplishments</label>
+        <textarea
+            name="description_accomplishments"
+            class="form-control"
+            placeholder="Enter each accomplishment on a new line"
+            rows="5"></textarea>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Platforms</label>
+        <textarea
+            name="description_platforms"
+            class="form-control"
+            placeholder="Enter each platform point on a new line"
+            rows="5"></textarea>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label class="form-label">Highest Educational Attainment</label>
+        <input
+            type="text"
+            name="education"
+            class="form-control"
+            placeholder="Highest educational attainment"
+        >
+    </div>
 </div>
 
 <div class="mb-3">
@@ -586,6 +682,7 @@ Add Candidate
                         <th width="8%">ID</th>
                         <th width="12%">Photo</th>
                         <th width="25%">Name</th>
+                        <th width="18%">Education</th>
                         <th>Description</th>
                         <th width="160">Action</th>
                     </tr>
@@ -602,9 +699,17 @@ Add Candidate
                             <?php } ?>
                         </td>
                         <td><strong class="table-muted-text"><?= htmlspecialchars($row['full_name']); ?></strong></td>
+                        <td><?= htmlspecialchars($row['education'] ?: '—'); ?></td>
                         <td>
                             <?php if(!empty($row['description'])){ ?>
-                                <span class="custom-muted-desc"><?= htmlspecialchars($row['description']); ?></span>
+                                <ul class="mb-0 custom-muted-desc" style="padding-left:1rem;">
+                                    <?php foreach(explode("\n", trim($row['description'])) as $item){
+                                        $item = trim($item);
+                                        if($item !== ''){
+                                    ?>
+                                        <li><?= htmlspecialchars($item); ?></li>
+                                    <?php }} ?>
+                                </ul>
                             <?php } else { ?>
                                 <em class="custom-muted-desc" style="font-size:0.85rem;">No details provided.</em>
                             <?php } ?>
@@ -669,9 +774,22 @@ Add Candidate
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea name="description" id="edit_description" class="form-control" rows="4"></textarea>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Accomplishments</label>
+              <textarea name="description_accomplishments" id="edit_description_accomplishments" class="form-control" rows="5" placeholder="Enter each accomplishment on a new line"></textarea>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Platforms</label>
+              <textarea name="description_platforms" id="edit_description_platforms" class="form-control" rows="5" placeholder="Enter each platform point on a new line"></textarea>
+            </div>
+          </div>
+
+          <div class="row">
+              <div class="col-md-12 mb-3">
+                  <label class="form-label">Education</label>
+                  <input type="text" name="education" id="edit_education" class="form-control" placeholder="Highest educational attainment">
+              </div>
           </div>
 
           <div class="mb-3">
@@ -763,7 +881,35 @@ function openEditModal(candidateData) {
     document.getElementById('edit_id').value = candidateData.id;
     document.getElementById('edit_name').value = candidateData.full_name;
     document.getElementById('edit_position_id').value = candidateData.position_id;
-    document.getElementById('edit_description').value = candidateData.description;
+
+    const raw = candidateData.description || '';
+    const lines = raw.split(/\r\n|\n|\r/);
+    const accomplishments = [];
+    const platforms = [];
+    let section = 'accomplishments';
+
+    lines.forEach(function(line){
+        const trimmed = line.trim();
+        if(trimmed === '') return;
+        if(/^accomplishments\s*[:]?$/i.test(trimmed)){
+            section = 'accomplishments';
+            return;
+        }
+        if(/^platforms\s*[:]?$/i.test(trimmed)){
+            section = 'platforms';
+            return;
+        }
+        const item = trimmed.replace(/^[\-\*•]\s*/u, '');
+        if(section === 'platforms'){
+            platforms.push(item);
+        } else {
+            accomplishments.push(item);
+        }
+    });
+
+    document.getElementById('edit_description_accomplishments').value = accomplishments.join('\n');
+    document.getElementById('edit_description_platforms').value = platforms.join('\n');
+    document.getElementById('edit_education').value = candidateData.education || '';
     
     bootstrapEditModal.show();
 }
