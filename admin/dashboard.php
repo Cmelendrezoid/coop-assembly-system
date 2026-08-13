@@ -103,44 +103,59 @@ $attendanceLogs = $conn->query($logQuery);
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin Dashboard</title>
+<title>Admin Dashboard - PMPC</title>
+<!-- Google Fonts: Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Bootstrap 5 & Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 <style>
-:root{
-    --sidebar:#0f172a;
-    --sidebar-hover:#1e293b;
-    --card:#ffffff;
-    --text:#1e293b;
-    --text-muted:#64748b;
-    --border:#e2e8f0;
-    --bg:#f8fafc;
-    --input-bg:#ffffff;
+:root {
+    --sidebar-bg: #0f172a;
+    --sidebar-hover: #1e293b;
+    --sidebar-text: #94a3b8;
+    --sidebar-text-active: #ffffff;
+    --sidebar-active-bg: #2563eb;
+    --card-bg: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --bg-main: #f8fafc;
+    --input-bg: #ffffff;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
 
-.dark-theme{
-    --sidebar:#020617;
-    --sidebar-hover:#162338;
-    --card:#162338;
-    --text:#f8fafc;
-    --text-muted:#94a3b8;
-    --border:#334155;
-    --bg:#0f172a;
-    --input-bg:#0f172a;
+.dark-theme {
+    --sidebar-bg: #030712;
+    --sidebar-hover: #111827;
+    --sidebar-text: #9ca3af;
+    --sidebar-text-active: #ffffff;
+    --sidebar-active-bg: #2563eb;
+    --card-bg: #111827;
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --border-color: #1f2937;
+    --bg-main: #030712;
+    --input-bg: #1f2937;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 }
 
-body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:'Segoe UI',sans-serif;
-    transition:.3s;
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Responsive Top Header for Mobile Navigation */
+/* Mobile Header */
 .mobile-header {
     display: none;
-    background: var(--sidebar);
+    background: var(--sidebar-bg);
     color: white;
-    padding: 15px 20px;
+    padding: 1rem 1.25rem;
     align-items: center;
     justify-content: space-between;
     position: fixed;
@@ -148,219 +163,278 @@ body{
     left: 0;
     right: 0;
     z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.mobile-brand {
+/* Sidebar Layout */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--sidebar-bg);
+    padding: 1.75rem 1.25rem;
+    overflow-y: auto;
+    z-index: 1010;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    object-fit: contain;
+}
+
+.brand-title {
+    color: #ffffff;
+    font-size: 1.1rem;
     font-weight: 700;
-    font-size: 1.15rem;
+    line-height: 1.2;
     margin: 0;
 }
 
-.menu-toggle-btn {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.2);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 8px;
+.brand-subtitle {
+    color: var(--sidebar-text);
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.nav-section-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #475569;
+    font-weight: 700;
+    margin: 1rem 0 0.5rem 0.75rem;
+}
+
+.nav-link-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
     font-size: 0.9rem;
+    transition: all 0.15s ease-in-out;
 }
 
-/* Sidebar Wrapper Layout */
-.sidebar{
-    position:fixed;
-    left:0;
-    top:0;
-    width:260px;
-    height:100vh;
-    background:var(--sidebar);
-    padding:25px;
-    overflow-y:auto;
-    z-index: 1010;
-    transition: transform 0.3s ease;
+.nav-link-custom i {
+    font-size: 1.1rem;
 }
 
-.logo{
-    width:80px;
-    height:80px;
-    object-fit:contain;
+.nav-link-custom:hover {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-text-active);
 }
 
-.brand{
-    color:white;
-    font-size:1.3rem;
-    font-weight:700;
-    margin-top:15px;
+.nav-link-custom.active {
+    background: var(--sidebar-active-bg);
+    color: #ffffff;
 }
 
-.subtitle{
-    color:#94a3b8;
-    font-size:.9rem;
-    margin-bottom:30px;
+.nav-link-custom.logout {
+    color: #ef4444;
+    margin-top: auto;
 }
 
-.nav-link-custom{
-    display:block;
-    color:#cbd5e1;
-    text-decoration:none;
-    padding:14px 16px;
-    border-radius:12px;
-    margin-bottom:10px;
-    transition:.2s;
+.nav-link-custom.logout:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
 }
 
-.nav-link-custom:hover{
-    background:var(--sidebar-hover);
-    color:white;
-}
-
-.logout{
-    color:#f87171 !important;
-}
-
-/* Main Content Workspace Layout */
-.main{
-    margin-left:260px;
-    padding:40px;
+/* Main Workspace */
+.main {
+    margin-left: 260px;
+    padding: 2.5rem;
     transition: margin-left 0.3s ease, padding 0.3s ease;
 }
 
-.page-title{
-    color:var(--text);
-    font-weight:700;
-    font-size: clamp(1.5rem, 4vw, 2.2rem);
+.page-title {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 1.75rem;
+    letter-spacing: -0.02em;
+    margin: 0;
 }
 
-.welcome{
-    color:var(--text-muted);
+.welcome-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.925rem;
 }
 
-.stat-card{
-    border:none;
-    border-radius:18px;
-    background:var(--card);
-    color:var(--text);
-    border:1px solid var(--border);
-    transition:.2s;
-    height: 100%;
+.theme-toggle-btn {
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: var(--card-shadow);
+    transition: all 0.2s ease;
 }
 
-.stat-card:hover{
-    transform:translateY(-4px);
+.theme-toggle-btn:hover {
+    background: var(--border-color);
 }
 
-.stat-icon{
-    font-size:2rem;
+/* Base Card Style */
+.admin-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.stat-number{
-    font-size:2rem;
-    font-weight:700;
+.stat-card:hover {
+    transform: translateY(-2px);
 }
 
-.stat-label{
-    color:var(--text-muted);
+.stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
 }
 
-.theme-btn{
-    position:fixed;
-    top:20px;
-    right:20px;
-    border:none;
-    border-radius:30px;
-    padding:10px 18px;
-    background:#1e293b;
-    color:white;
-    font-weight:600;
-    z-index:999;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+.stat-number {
+    font-size: 1.85rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 0.35rem;
 }
 
-.dark-theme .theme-btn{
-    background:#334155;
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
 }
 
-.admin-box{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:18px;
-    padding:25px;
-    color:var(--text);
-}
-
-/* Attendance Cards Custom Styling */
-.card-attend-blue {
-    background: #2563eb;
-    color: white;
-    border-radius: 14px;
-}
-.card-attend-green {
-    background: #10b981;
-    color: white;
-    border-radius: 14px;
-}
-.card-attend-orange {
-    background: #f59e0b;
-    color: white;
-    border-radius: 14px;
-}
-
-.badge-gold {
-    background-color: #d97706;
+/* Custom Colored Summary Cards */
+.card-gradient-blue {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
     color: #ffffff;
-    font-size: 0.8rem;
-    padding: 6px 12px;
+    border-radius: 14px;
+}
+
+.card-gradient-green {
+    background: linear-gradient(135deg, #10b981, #047857);
+    color: #ffffff;
+    border-radius: 14px;
+}
+
+.card-gradient-orange {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #ffffff;
+    border-radius: 14px;
+}
+
+/* Badges */
+.badge-gold {
+    background-color: rgba(217, 119, 6, 0.15);
+    color: #d97706;
+    border: 1px solid rgba(217, 119, 6, 0.3);
+    font-size: 0.75rem;
+    padding: 0.35em 0.75em;
     border-radius: 20px;
     font-weight: 600;
 }
 
+.dark-theme .badge-gold {
+    color: #fbbf24;
+}
+
 .badge-status {
-    background-color: #10b981;
-    color: #ffffff;
-    font-size: 0.8rem;
-    padding: 5px 10px;
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    font-size: 0.75rem;
+    padding: 0.35em 0.75em;
     border-radius: 8px;
-    display: inline-block;
-    margin-bottom: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
     font-weight: 600;
 }
 
+.dark-theme .badge-status {
+    color: #34d399;
+}
+
+/* Table Styling */
 .custom-table {
-    color: var(--text);
-    background: transparent;
+    color: var(--text-primary);
+    margin-bottom: 0;
 }
 
 .custom-table th {
     background: transparent;
-    color: var(--text-muted);
-    border-bottom: 1px solid var(--border);
-    font-size: 0.85rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 15px;
+    letter-spacing: 0.05em;
+    padding: 1rem;
 }
 
 .custom-table td {
     background: transparent;
-    color: var(--text);
-    border-bottom: 1px solid var(--border);
-    padding: 15px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
     vertical-align: middle;
+}
+
+.custom-table tbody tr:last-child td {
+    border-bottom: none;
 }
 
 .custom-input {
     background-color: var(--input-bg);
-    color: var(--text);
-    border: 1px solid var(--border);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.5rem 0.85rem;
 }
 
 .custom-input:focus {
     background-color: var(--input-bg);
-    color: var(--text);
+    color: var(--text-primary);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-/* Overlay Backdrop when responsive menu is displayed */
+/* Mobile Sidebar Overlay */
 .sidebar-overlay {
     display: none;
     position: fixed;
@@ -368,19 +442,17 @@ body{
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
     z-index: 1005;
 }
 
-/* Responsive Structural Breakpoints */
 @media (max-width: 991.98px) {
     .mobile-header {
         display: flex;
     }
     .sidebar {
         transform: translateX(-100%);
-        top: 0;
-        height: 100vh;
     }
     .sidebar.show {
         transform: translateX(0);
@@ -390,19 +462,7 @@ body{
     }
     .main {
         margin-left: 0;
-        padding: 90px 20px 40px 20px;
-    }
-    .theme-btn {
-        position: static;
-        margin-bottom: 20px;
-        display: inline-block;
-    }
-    .title-area {
-        display: flex;
-        flex-direction: column-reverse;
-        align-items: flex-start;
-        gap: 10px;
-        margin-bottom: 15px;
+        padding: 6rem 1.25rem 2.5rem 1.25rem;
     }
 }
 </style>
@@ -410,141 +470,154 @@ body{
 <body>
 
 <div class="mobile-header">
-    <h2 class="mobile-brand">PMPC Admin</h2>
-    <button class="menu-toggle-btn" onclick="toggleMenu()">☰ Menu</button>
+    <div class="d-flex align-items-center gap-2">
+        <img src="../assets/images/logo.png" class="logo" style="width: 32px; height: 32px;" alt="Logo" onerror="this.style.display='none';">
+        <h2 class="brand-title">PMPC Admin</h2>
+    </div>
+    <button class="btn btn-outline-light btn-sm rounded-3 px-3" onclick="toggleMenu()">
+        <i class="bi bi-list fs-5"></i>
+    </button>
 </div>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
 
-<div class="sidebar" id="sidebarNav">
-    <div class="text-center">
-        <img
-            src="../assets/images/logo.png"
-            class="logo"
-            alt="PMPC Logo"
-            onerror="this.style.display='none';"
-        >
-        <div class="brand">PMPC Admin</div>
-        <div class="subtitle">Election Management</div>
+<aside class="sidebar" id="sidebarNav">
+    <div class="brand-wrapper">
+        <img src="../assets/images/logo.png" class="logo" alt="PMPC Logo" onerror="this.style.display='none';">
+        <div>
+            <h1 class="brand-title">PMPC Admin</h1>
+            <p class="brand-subtitle">Election System</p>
+        </div>
     </div>
 
-    <a href="dashboard.php" class="nav-link-custom">🏠 Dashboard</a>
-    <a href="candidates.php" class="nav-link-custom">🧑 Candidates</a>
-    <a href="positions.php" class="nav-link-custom">🏆 Positions</a>
-    <a href="voters.php" class="nav-link-custom">👥 Voters</a>
-    <a href="pre-registered.php" class="nav-link-custom">📋 Pre-registered</a>
-    <a href="elections.php" class="nav-link-custom">🗳 Branches</a>
-    <a href="results.php" class="nav-link-custom">📊 Results</a>
-    <a href="logout.php" class="nav-link-custom logout">🚪 Logout</a>
-</div>
+    <div class="nav-section-label">Main Menu</div>
+    <a href="dashboard.php" class="nav-link-custom active"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a href="candidates.php" class="nav-link-custom"><i class="bi bi-person-badge"></i> Candidates</a>
+    <a href="positions.php" class="nav-link-custom"><i class="bi bi-award"></i> Positions</a>
+    <a href="voters.php" class="nav-link-custom"><i class="bi bi-people"></i> Voters</a>
+    <a href="pre-registered.php" class="nav-link-custom"><i class="bi bi-clipboard-check"></i> Pre-registered</a>
+    <a href="elections.php" class="nav-link-custom"><i class="bi bi-building"></i> Branches</a>
+    <a href="results.php" class="nav-link-custom"><i class="bi bi-bar-chart-line"></i> Results</a>
 
-<div class="main">
-    <div class="title-area d-lg-flex justify-content-between align-items-center mb-4">
+    <a href="logout.php" class="nav-link-custom logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+</aside>
+
+<main class="main">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-            <h2 class="page-title">Admin Dashboard</h2>
-            <p class="welcome mb-0">
+            <h2 class="page-title">Dashboard Overview</h2>
+            <p class="welcome-subtitle mb-0">
                 Welcome back, <strong><?php echo htmlspecialchars($_SESSION['admin_username'] ?? 'Admin'); ?></strong>
             </p>
         </div>
-        <button class="theme-btn" onclick="toggleTheme()">
-            <span id="themeText">🌙 Dark Mode</span>
-        </button>
+        <div>
+            <button class="theme-toggle-btn" onclick="toggleTheme()">
+                <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+                <span id="themeText">Dark Mode</span>
+            </button>
+        </div>
     </div>
 
     <!-- ELECTION STATS ROW -->
-    <div class="row g-4 mt-2">
-        <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body p-4">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-number"><?php echo number_format($totalVoters); ?></div>
-                    <div class="stat-label">Registered Voters</div>
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="admin-card stat-card">
+                <div class="stat-icon-wrapper bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-people-fill"></i>
                 </div>
+                <div class="stat-number"><?php echo number_format($totalVoters); ?></div>
+                <div class="stat-label">Registered Voters</div>
             </div>
         </div>
 
-        <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body p-4">
-                    <div class="stat-icon">🧑</div>
-                    <div class="stat-number"><?php echo number_format($totalCandidates); ?></div>
-                    <div class="stat-label">Candidates</div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="admin-card stat-card">
+                <div class="stat-icon-wrapper bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-person-bounding-box"></i>
                 </div>
+                <div class="stat-number"><?php echo number_format($totalCandidates); ?></div>
+                <div class="stat-label">Candidates</div>
             </div>
         </div>
 
-        <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body p-4">
-                    <div class="stat-icon">🏆</div>
-                    <div class="stat-number"><?php echo number_format($totalPositions); ?></div>
-                    <div class="stat-label">Positions</div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="admin-card stat-card">
+                <div class="stat-icon-wrapper bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-trophy-fill"></i>
                 </div>
+                <div class="stat-number"><?php echo number_format($totalPositions); ?></div>
+                <div class="stat-label">Positions</div>
             </div>
         </div>
 
-        <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card shadow-sm">
-                <div class="card-body p-4">
-                    <div class="stat-icon">🗳</div>
-                    <div class="stat-number"><?php echo number_format($totalVotes); ?></div>
-                    <div class="stat-label">Votes Cast</div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="admin-card stat-card">
+                <div class="stat-icon-wrapper bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-check-circle-fill"></i>
                 </div>
+                <div class="stat-number"><?php echo number_format($totalVotes); ?></div>
+                <div class="stat-label">Votes Cast</div>
             </div>
         </div>
     </div>
 
     <!-- ATTENDANCE & CLAIMS STATISTICS SECTION -->
-    <div class="admin-box mt-4 shadow-sm">
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-            <h4 class="mb-0">📊 Attendance & Claims Statistics</h4>
-            <a href="export_attendance.php" class="btn btn-success btn-sm font-weight-bold">
-                📊 Export Attendance Summary
+    <div class="admin-card mb-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+            <div>
+                <h5 class="fw-bold mb-1"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Attendance & Claims Statistics</h5>
+                <p class="text-secondary small mb-0">Overview of member turnout and item distribution</p>
+            </div>
+            <a href="export_attendance.php" class="btn btn-outline-success btn-sm rounded-3 fw-semibold d-inline-flex align-items-center gap-2">
+                <i class="bi bi-file-earmark-excel"></i> Export Attendance
             </a>
         </div>
 
         <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="p-4 text-center card-attend-blue">
-                    <div class="display-5 fw-bold"><?php echo number_format($totalAttendees); ?></div>
-                    <div class="fw-semibold">Total Attendees Arrived</div>
+            <div class="col-12 col-md-4">
+                <div class="p-4 text-center card-gradient-blue shadow-sm">
+                    <div class="display-6 fw-bold mb-1"><?php echo number_format($totalAttendees); ?></div>
+                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Total Attendees Arrived</div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="p-4 text-center card-attend-green">
-                    <div class="display-5 fw-bold"><?php echo number_format($todaysArrivals); ?></div>
-                    <div class="fw-semibold">Today's Arrivals</div>
+            <div class="col-12 col-md-4">
+                <div class="p-4 text-center card-gradient-green shadow-sm">
+                    <div class="display-6 fw-bold mb-1"><?php echo number_format($todaysArrivals); ?></div>
+                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Today's Arrivals</div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="p-4 text-center card-attend-orange">
-                    <div class="display-5 fw-bold"><?php echo number_format($goldCount); ?></div>
-                    <div class="fw-semibold">GOLD</div>
+            <div class="col-12 col-md-4">
+                <div class="p-4 text-center card-gradient-orange shadow-sm">
+                    <div class="display-6 fw-bold mb-1"><?php echo number_format($goldCount); ?></div>
+                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">GOLD Category</div>
                 </div>
             </div>
         </div>
 
         <!-- Filter Statistics by Date -->
-        <div class="pt-2">
-            <label class="form-label text-muted small fw-bold">FILTER STATISTICS BY DATE</label>
+        <div class="pt-3 border-top" style="border-color: var(--border-color) !important;">
+            <label class="form-label text-secondary small fw-bold text-uppercase tracking-wider">Filter Statistics By Date</label>
             <form method="GET" action="dashboard.php" class="row g-2 align-items-center">
                 <div class="col-auto flex-grow-1 flex-md-grow-0">
                     <input type="date" name="filter_date" class="form-control custom-input" value="<?php echo htmlspecialchars($filterDate); ?>">
                 </div>
-                <div class="col-auto">
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                    <a href="dashboard.php" class="btn btn-secondary">All Time</a>
+                <div class="col-auto d-flex gap-2">
+                    <button type="submit" class="btn btn-primary rounded-3 btn-sm px-3 fw-semibold"><i class="bi bi-funnel-fill me-1"></i> Filter</button>
+                    <a href="dashboard.php" class="btn btn-outline-secondary rounded-3 btn-sm px-3 fw-semibold">Reset</a>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- LIVE ATTENDANCE & CLAIM LOG SECTION -->
-    <div class="admin-box mt-4 shadow-sm">
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-            <h4 class="mb-0">Live Attendance & Claim Log</h4>
-            <a href="export_freebies.php" class="btn btn-primary btn-sm font-weight-bold">
-                📥 Export Freebies Claimants Excel
+    <div class="admin-card">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+            <div>
+                <h5 class="fw-bold mb-1"><i class="bi bi-clock-history text-primary me-2"></i>Live Attendance & Claim Log</h5>
+                <p class="text-secondary small mb-0">Real-time log of check-ins and freebie distribution</p>
+            </div>
+            <a href="export_freebies.php" class="btn btn-primary btn-sm rounded-3 fw-semibold d-inline-flex align-items-center gap-2">
+                <i class="bi bi-download"></i> Export Freebies Excel
             </a>
         </div>
 
@@ -552,18 +625,18 @@ body{
             <table class="table custom-table align-middle">
                 <thead>
                     <tr>
-                        <th>MEMBER ID</th>
-                        <th>MEMBER NAME</th>
-                        <th>CATEGORY</th>
-                        <th>FREEBIES & CLAIMED ITEMS</th>
-                        <th>ARRIVAL TIME</th>
+                        <th>Member ID</th>
+                        <th>Member Name</th>
+                        <th>Category</th>
+                        <th>Freebies & Claimed Items</th>
+                        <th>Arrival Time</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if ($attendanceLogs && $attendanceLogs->num_rows > 0): ?>
                         <?php while ($log = $attendanceLogs->fetch_assoc()): ?>
                             <tr>
-                                <td class="fw-bold">#<?php echo htmlspecialchars($log['member_id']); ?></td>
+                                <td class="fw-bold text-primary">#<?php echo htmlspecialchars($log['member_id']); ?></td>
                                 <td class="fw-semibold"><?php echo htmlspecialchars($log['member_name']); ?></td>
                                 <td>
                                     <span class="badge badge-gold">
@@ -571,25 +644,31 @@ body{
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge-status">✓ Claimed & Attended</span><br>
-                                    <small class="text-muted">
+                                    <span class="badge-status mb-1">
+                                        <i class="bi bi-check-circle-fill"></i> Claimed & Attended
+                                    </span>
+                                    <div class="text-secondary small">
                                         <?php echo htmlspecialchars($log['claimed_items'] ?? 'GA T-Shirt, Cash Allowance, Snacks / Meals'); ?>
-                                    </small>
+                                    </div>
                                 </td>
-                                <td class="text-nowrap"><?php echo htmlspecialchars($log['created_at']); ?></td>
+                                <td class="text-nowrap text-secondary small">
+                                    <i class="bi bi-clock me-1"></i><?php echo htmlspecialchars($log['created_at']); ?>
+                                </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">No attendance logs found for this selection.</td>
+                            <td colspan="5" class="text-center text-secondary py-5">
+                                <i class="bi bi-inbox fs-2 d-block mb-2 text-opacity-50"></i>
+                                No attendance logs found for this selection.
+                            </td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
-
-</div>
+</main>
 
 <script>
 function toggleMenu() {
@@ -599,22 +678,31 @@ function toggleMenu() {
     overlay.classList.toggle('show');
 }
 
-function toggleTheme(){
-    document.body.classList.toggle('dark-theme');
-
-    if(document.body.classList.contains('dark-theme')){
-        localStorage.setItem('admin-theme','dark');
-        document.getElementById('themeText').innerHTML='☀️ Light Mode';
-    }else{
-        localStorage.setItem('admin-theme','light');
-        document.getElementById('themeText').innerHTML='🌙 Dark Mode';
+function updateThemeUI(isDark) {
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+    
+    if (isDark) {
+        document.body.classList.add('dark-theme');
+        themeIcon.className = 'bi bi-sun-fill';
+        themeText.innerText = 'Light Mode';
+    } else {
+        document.body.classList.remove('dark-theme');
+        themeIcon.className = 'bi bi-moon-stars-fill';
+        themeText.innerText = 'Dark Mode';
     }
 }
 
-window.onload=function(){
-    if(localStorage.getItem('admin-theme')==='dark'){
-        document.body.classList.add('dark-theme');
-        document.getElementById('themeText').innerHTML='☀️ Light Mode';
+function toggleTheme() {
+    const isDark = !document.body.classList.contains('dark-theme');
+    localStorage.setItem('admin-theme', isDark ? 'dark' : 'light');
+    updateThemeUI(isDark);
+}
+
+window.onload = function() {
+    const savedTheme = localStorage.getItem('admin-theme');
+    if (savedTheme === 'dark') {
+        updateThemeUI(true);
     }
 }
 </script>

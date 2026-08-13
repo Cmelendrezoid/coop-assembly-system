@@ -1,7 +1,6 @@
 <?php
 require_once 'session_start.php';
 include '../config/db.php';
-// The rest of your specific page logic continues below...
 
 if(!isset($_SESSION['admin_id'])){
     header("Location: login.php");
@@ -84,353 +83,507 @@ $positions = $conn->query(
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Manage Positions</title>
+<title>Manage Positions - PMPC Admin</title>
+
+<!-- Google Fonts: Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Bootstrap 5 & Bootstrap Icons -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 <style>
-:root{
-    --bg:#f1f5f9;
-    --card:#ffffff;
-    --text:#1e293b;
-    --placeholder-color: rgba(30, 41, 59, 0.5);
-    --border:#e2e8f0;
-    --input-bg:#ffffff;
-    --input-color:#1e293b;
-    --table-bg:#ffffff;
-    --table-text:#1e293b;
-    --table-header-bg:#f8fafc;
+:root {
+    --card-bg: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --bg-main: #f8fafc;
+    --input-bg: #ffffff;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --placeholder-color: #64748b;
+    --sidebar-bg: #ffffff;
+    --sidebar-hover: #f1f5f9;
+    --sidebar-active-bg: #eff6ff;
+    --sidebar-active-color: #2563eb;
 }
 
-.dark-theme{
-    --bg:#0f172a;
-    --card:#162338;
-    --text:#f8fafc;
-    --placeholder-color: rgba(248, 250, 252, 0.4);
-    --border:#334155;
-    --input-bg:#1e293b;
-    --input-color:#f8fafc;
-    --table-bg:#1e293b;
-    --table-text:#f8fafc;
-    --table-header-bg:#0f172a;
+.dark-theme {
+    --card-bg: #111827;
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --border-color: #1f2937;
+    --bg-main: #030712;
+    --input-bg: #1f2937;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --placeholder-color: #cbd5e1;
+    --sidebar-bg: #111827;
+    --sidebar-hover: #1f2937;
+    --sidebar-active-bg: rgba(37, 99, 235, 0.15);
+    --sidebar-active-color: #3b82f6;
 }
 
-body{
-    background:var(--bg);
-    color:var(--text);
-    transition:.3s;
-    font-size: clamp(0.875rem, 0.22vw + 0.82rem, 1rem);
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    margin: 0;
 }
 
-.container{
-    padding-top: 100px;
-    padding-bottom: 60px;
-    max-width: 1200px;
+/* Layout Wrapper */
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
 }
 
-.card-custom{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:20px;
-    overflow:hidden;
+/* Sidebar Styling */
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease;
 }
 
-/* Explicit Structural Theme Rules targeting clean text visibility */
-.table {
-    background-color: var(--table-bg) !important;
-    color: var(--table-text) !important;
-    border-color: var(--border) !important;
+.sidebar-header {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.table th {
-    background-color: var(--table-header-bg) !important;
-    color: var(--table-text) !important;
-    white-space: nowrap;
+.sidebar-brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    text-decoration: none;
+    letter-spacing: -0.01em;
 }
 
-.table td {
-    background-color: var(--table-bg) !important;
-    color: var(--table-text) !important;
+.sidebar-menu {
+    padding: 0.75rem 0.75rem;
+    list-style: none;
+    margin: 0;
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
-.table td strong,
-.table-muted-text {
-    color: var(--table-text) !important;
+.sidebar-item {
+    margin-bottom: 0.25rem;
 }
 
-.dark-theme .table-striped>tbody>tr:nth-of-type(odd)>td {
-    background-color: rgba(255, 255, 255, 0.02) !important;
-}
-
-.form-label {
-    color: var(--text);
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--text-secondary);
+    text-decoration: none;
     font-weight: 500;
-    transition: color .3s;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    transition: all 0.2s ease;
 }
 
-.form-control,
-.form-select{
-    border-radius:12px;
+.sidebar-link:hover {
+    background-color: var(--sidebar-hover);
+    color: var(--text-primary);
+}
+
+.sidebar-link.active {
+    background-color: var(--sidebar-active-bg);
+    color: var(--sidebar-active-color);
+    font-weight: 600;
+}
+
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Main Content Area */
+.main-content {
+    flex-grow: 1;
+    margin-left: 260px;
+    padding: 2rem 2.5rem;
+    max-width: calc(100% - 260px);
+}
+
+/* Modern Card Styling */
+.admin-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Typography & Headers */
+.page-title {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 1.75rem;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.welcome-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.925rem;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: var(--card-shadow);
+    transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--border-color);
+}
+
+/* Form Controls */
+.form-label {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+}
+
+.custom-input, .form-select {
     background-color: var(--input-bg);
-    border-color: var(--border);
-    color: var(--input-color);
-    transition: background-color .3s, border-color .3s, color .3s;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.9rem;
 }
 
-.form-control:focus,
-.form-select:focus {
-    background-color: var(--input-bg);
-    color: var(--input-color);
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
-}
-
-.form-control::placeholder {
-    color: var(--placeholder-color) !important;
+.custom-input::placeholder,
+.form-control::placeholder,
+.form-select::placeholder {
+    color: var(--placeholder-color);
     opacity: 1;
 }
 
-/* Reusable Modal Dark Theme Overrides */
+.custom-input:focus, .form-select:focus {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Table Styling */
+.custom-table {
+    color: var(--text-primary);
+    margin-bottom: 0;
+}
+
+.custom-table th {
+    background: transparent;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem;
+}
+
+.custom-table td {
+    background: transparent;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+/* Modal Dark Theme Overrides */
 .dark-theme .modal-content {
-    background-color: var(--card);
-    color: var(--text);
-    border: 1px solid var(--border);
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
 }
-.dark-theme .modal-header {
-    border-bottom: 1px solid var(--border);
-}
+
+.dark-theme .modal-header, 
 .dark-theme .modal-footer {
-    border-top: 1px solid var(--border);
+    border-color: var(--border-color);
 }
+
 .dark-theme .btn-close {
     filter: invert(1) grayscale(1) brightness(2);
 }
 
-.theme-btn{
-    position:fixed;
-    top:20px;
-    right:20px;
-    z-index:9999;
-    border:none;
-    border-radius:30px;
-    padding:10px 18px;
-    font-weight:600;
-    background:#1e293b;
-    color:white;
-    box-shadow:0 4px 15px rgba(0,0,0,.2);
-    font-size: 0.9rem;
+/* Mobile Sidebar Toggle */
+.sidebar-toggler {
+    display: none;
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    font-size: 1.25rem;
 }
 
-.dark-theme .theme-btn{
-    background:#334155;
-}
-
-.page-title{
-    font-size: clamp(1.4rem, 3vw, 2rem);
-    font-weight:700;
-    margin:0;
-}
-
-.header-section{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    margin-bottom:30px;
-}
-
-.back-btn{
-    border-radius:12px;
-    padding:8px 16px;
-    font-size: 0.95rem;
-}
-
-.card-header{
-    font-weight:600;
-}
-
-/* Custom Responsive CSS Breakpoints for Tablets and Smartphones */
-@media (max-width: 576px) {
-    .container {
-        padding-top: 85px;
-        padding-left: 12px;
-        padding-right: 12px;
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
     }
-    .header-section {
-        margin-bottom: 20px;
+    .sidebar.show {
+        transform: translateX(0);
     }
-    .card-body {
-        padding: 15px !important;
+    .main-content {
+        margin-left: 0;
+        max-width: 100%;
+        padding: 1.5rem 1rem;
     }
-    .theme-btn {
-        top: 15px;
-        right: 15px;
-        padding: 8px 14px;
-        font-size: 0.8rem;
-    }
-    .d-flex.gap-2 {
-        flex-direction: column;
-        width: 100%;
-    }
-    .d-flex.gap-2 button, 
-    .d-flex.gap-2 a {
-        width: 100%;
-        text-align: center;
+    .sidebar-toggler {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
     }
 }
 </style>
 </head>
 <body>
 
-<button class="theme-btn" onclick="toggleTheme()">
-    <span id="themeText">🌙 Dark Mode</span>
-</button>
+<div class="app-wrapper">
 
-<div class="container">
+    <!-- SIDEBAR NAVIGATION -->
+    <nav class="sidebar" id="appSidebar">
+        <div class="sidebar-header">
+            <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 p-2" style="width: 40px; height: 40px;">
+                <i class="bi bi-shield-lock-fill fs-5"></i>
+            </div>
+            <div>
+                <a href="dashboard.php" class="sidebar-brand d-block lh-sm">PMPC Admin</a>
+                <span class="text-secondary" style="font-size: 0.75rem;">Election System</span>
+            </div>
+        </div>
 
-<div class="header-section">
-    <a href="dashboard.php" class="btn btn-secondary back-btn">
-        ← Dashboard
-    </a>
-    <h1 class="page-title">
-        📋 Manage Positions
-    </h1>
-</div>
+        <div style="padding: 1.25rem 1.5rem 0.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.05em;">MAIN MENU</div>
 
-<?php if($message){ ?>
-<div class="alert alert-success shadow-sm" style="border-radius:12px;">
-    <?= $message ?>
-</div>
-<?php } ?>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="dashboard.php" class="sidebar-link">
+                    <i class="bi bi-grid-fill"></i> Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="candidates.php" class="sidebar-link">
+                    <i class="bi bi-people-fill"></i> Candidates
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="positions.php" class="sidebar-link active">
+                    <i class="bi bi-award-fill"></i> Positions
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="voters.php" class="sidebar-link">
+                    <i class="bi bi-person-badge-fill"></i> Voters
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="pre-registered.php" class="sidebar-link">
+                    <i class="bi bi-clipboard-check"></i> Pre-registered
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="elections.php" class="sidebar-link">
+                    <i class="bi bi-building"></i> Branches
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="results.php" class="sidebar-link">
+                    <i class="bi bi-bar-chart-fill"></i> Results
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-footer">
+            <a href="logout.php" class="sidebar-link text-danger">
+                <i class="bi bi-box-arrow-left"></i> Logout
+            </a>
+        </div>
+    </nav>
 
-<div class="card card-custom shadow-sm mb-5">
-<div class="card-header bg-primary text-white py-3">
-    ➕ Add New Position
-</div>
-<div class="card-body p-4">
-<form method="POST">
-<div class="row">
+    <!-- MAIN CONTENT CONTAINER -->
+    <div class="main-content">
 
-    <div class="col-md-8 mb-3">
-        <label class="form-label">Position Name</label>
-        <input
-            type="text"
-            name="position_name"
-            class="form-control"
-            placeholder="e.g. Board of Director, Auditor, Committee Member"
-            required>
+        <!-- Top Header & Theme Switcher -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <button class="sidebar-toggler" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div>
+                    <h2 class="page-title">Manage Positions</h2>
+                    <p class="welcome-subtitle mb-0">Create and organize election roles and candidate vote allowances</p>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="theme-toggle-btn" onclick="toggleTheme()">
+                    <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+                    <span id="themeText">Dark Mode</span>
+                </button>
+            </div>
+        </div>
+
+        <?php if($message){ ?>
+            <div class="alert alert-success rounded-3 border-0 shadow-sm d-flex align-items-center gap-2 mb-4">
+                <i class="bi bi-check-circle-fill fs-5"></i>
+                <div><?= htmlspecialchars($message) ?></div>
+            </div>
+        <?php } ?>
+
+        <!-- ADD POSITION FORM -->
+        <div class="admin-card mb-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle-fill text-primary me-2"></i>Add New Position</h5>
+            <form method="POST">
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">Position Name</label>
+                        <input
+                            type="text"
+                            name="position_name"
+                            class="form-control custom-input"
+                            placeholder="e.g. Board of Director, Auditor, Committee Member"
+                            required>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Vote Limit</label>
+                        <input
+                            type="number"
+                            name="vote_limit"
+                            class="form-control custom-input"
+                            placeholder="Maximum choices allowed"
+                            required
+                            min="1"
+                            value="1">
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-top d-flex justify-content-end" style="border-color: var(--border-color) !important;">
+                    <button
+                        type="submit"
+                        name="add_position"
+                        class="btn btn-primary rounded-3 px-4 fw-semibold d-inline-flex align-items-center gap-2">
+                        <i class="bi bi-plus-lg"></i> Add Position
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- POSITION OVERVIEW LIST -->
+        <div class="admin-card">
+            <h5 class="fw-bold mb-1"><i class="bi bi-award-fill text-primary me-2"></i>Position Overview List</h5>
+            <p class="text-secondary small mb-3">Configured positions and active voter ballot limits</p>
+
+            <div class="table-responsive">
+                <table class="table custom-table align-middle">
+                    <thead>
+                        <tr>
+                            <th width="100">ID</th>
+                            <th>Position Name</th>
+                            <th>Vote Limit</th>
+                            <th width="160" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php while($row = $positions->fetch_assoc()){ ?>
+                        <tr>
+                            <td class="fw-bold text-secondary">#<?= $row['id']; ?></td>
+                            <td class="fw-bold"><?= htmlspecialchars($row['position_name']); ?></td>
+                            <td>
+                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-1">
+                                    <?= $row['vote_limit']; ?> Candidate(s) Max
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-outline-warning btn-sm rounded-3 px-2 py-1"
+                                        onclick="openEditModal(<?= htmlspecialchars(json_encode($row)); ?>)"
+                                        title="Edit">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+                                    <a
+                                        href="?delete=<?= $row['id']; ?>"
+                                        class="btn btn-outline-danger btn-sm rounded-3 px-2 py-1"
+                                        onclick="return confirm('Delete this position permanently?');"
+                                        title="Delete">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 
-    <div class="col-md-4 mb-3">
-        <label class="form-label">Vote Limit</label>
-        <input
-            type="number"
-            name="vote_limit"
-            class="form-control"
-            placeholder="Maximum choices allowed"
-            required
-            min="1"
-            value="1">
-    </div>
-
 </div>
 
-<div class="d-flex gap-2 mt-2">
-    <button
-        type="submit"
-        name="add_position"
-        class="btn btn-primary px-4 py-2"
-        style="border-radius:10px;">
-        Add Position
-    </button>
-</div>
-</form>
-</div>
-</div>
-
-<div class="card card-custom shadow-sm">
-<div class="card-header bg-dark text-white py-3">
-    Position Overview List
-</div>
-<div class="card-body p-4">
-<div class="table-responsive">
-<table class="table table-hover table-striped align-middle mb-0">
-<thead>
-    <tr>
-        <th width="100">ID</th>
-        <th>Position</th>
-        <th>Vote Limit</th>
-        <th width="160">Actions</th>
-    </tr>
-</thead>
-<tbody>
-<?php while($row = $positions->fetch_assoc()){ ?>
-<tr>
-    <td><strong class="table-muted-text">#<?= $row['id']; ?></strong></td>
-    <td><strong class="table-muted-text"><?= htmlspecialchars($row['position_name']); ?></strong></td>
-    <td>
-        <span class="badge bg-info text-dark px-3 py-2" style="border-radius:8px; font-size:0.9rem;">
-            <?= $row['vote_limit']; ?> Candidate(s) Max
-        </span>
-    </td>
-    <td>
-    <div class="d-flex gap-2">
-        <button 
-            type="button" 
-            class="btn btn-warning btn-sm px-3"
-            style="border-radius:8px;"
-            onclick="openEditModal(<?= htmlspecialchars(json_encode($row)); ?>)">
-            Edit
-        </button>
-        <a
-            href="?delete=<?= $row['id']; ?>"
-            class="btn btn-danger btn-sm px-3"
-            style="border-radius:8px;"
-            onclick="return confirm('Delete this position permanently?');">
-            Delete
-        </a>
-    </div>
-    </td>
-</tr>
-<?php } ?>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-
-</div>
-
+<!-- EDIT POSITION MODAL -->
 <div class="modal fade" id="editPositionModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-md modal-dialog-centered">
-    <div class="modal-content">
+    <div class="modal-content rounded-4 border-0 shadow">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle">✏️ Edit Position Information</h5>
+        <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Position Information</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form method="POST">
-        <div class="modal-body">
+        <div class="modal-body p-4">
           <input type="hidden" name="id" id="edit_id">
           
           <div class="mb-3">
             <label class="form-label">Position Name</label>
-            <input type="text" name="position_name" id="edit_name" class="form-control" required>
+            <input type="text" name="position_name" id="edit_name" class="form-control custom-input" required>
           </div>
           
           <div class="mb-3">
             <label class="form-label">Vote Limit</label>
-            <input type="number" name="vote_limit" id="edit_vote_limit" class="form-control" min="1" required>
+            <input type="number" name="vote_limit" id="edit_vote_limit" class="form-control custom-input" min="1" required>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius:10px;">Cancel</button>
-          <button type="submit" name="update_position" class="btn btn-success" style="border-radius:10px;">Save Changes</button>
+          <button type="button" class="btn btn-outline-secondary rounded-3 btn-sm fw-semibold" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" name="update_position" class="btn btn-primary rounded-3 btn-sm fw-semibold">Save Changes</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Instantiate structural reference targeting the edit modal component
 const bootstrapEditModal = new bootstrap.Modal(document.getElementById('editPositionModal'));
 
 function openEditModal(positionData) {
@@ -441,22 +594,35 @@ function openEditModal(positionData) {
     bootstrapEditModal.show();
 }
 
-function toggleTheme(){
-    document.body.classList.toggle('dark-theme');
+function toggleSidebar() {
+    document.getElementById('appSidebar').classList.toggle('show');
+}
 
-    if(document.body.classList.contains('dark-theme')){
-        localStorage.setItem('admin-theme','dark');
-        document.getElementById('themeText').innerHTML='☀️ Light Mode';
-    }else{
-        localStorage.setItem('admin-theme','light');
-        document.getElementById('themeText').innerHTML='🌙 Dark Mode';
+function updateThemeUI(isDark) {
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+    
+    if (isDark) {
+        document.body.classList.add('dark-theme');
+        themeIcon.className = 'bi bi-sun-fill';
+        themeText.innerText = 'Light Mode';
+    } else {
+        document.body.classList.remove('dark-theme');
+        themeIcon.className = 'bi bi-moon-stars-fill';
+        themeText.innerText = 'Dark Mode';
     }
 }
 
-window.onload=function(){
-    if(localStorage.getItem('admin-theme')==='dark'){
-        document.body.classList.add('dark-theme');
-        document.getElementById('themeText').innerHTML='☀️ Light Mode';
+function toggleTheme() {
+    const isDark = !document.body.classList.contains('dark-theme');
+    localStorage.setItem('admin-theme', isDark ? 'dark' : 'light');
+    updateThemeUI(isDark);
+}
+
+window.onload = function() {
+    const savedTheme = localStorage.getItem('admin-theme');
+    if (savedTheme === 'dark') {
+        updateThemeUI(true);
     }
 }
 </script>

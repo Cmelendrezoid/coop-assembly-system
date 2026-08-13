@@ -1,7 +1,6 @@
 <?php
 require_once 'session_start.php';
 include '../config/db.php';
-// The rest of your specific page logic continues below...
 
 if(!isset($_SESSION['admin_id'])){
     header("Location: login.php");
@@ -85,6 +84,7 @@ if(isset($_POST['add_candidate'])){
 
     $full_name = trim($_POST['full_name']);
     $position_id = (int)$_POST['position_id'];
+    $education = trim($_POST['education'] ?? '');
     $description = buildCandidateDescription(
         $_POST['description_accomplishments'] ?? '',
         $_POST['description_platforms'] ?? ''
@@ -99,7 +99,7 @@ if(isset($_POST['add_candidate'])){
     $position_stmt->execute();
     $position_result = $position_stmt->get_result();
     $position = $position_result->fetch_assoc();
-    $position_name = $position['position_name'];
+    $position_name = $position['position_name'] ?? 'Unassigned';
 
     $photo = "";
     // Prefer cropped photo (base64) if provided, else fallback to uploaded file
@@ -157,8 +157,9 @@ if(isset($_POST['edit_candidate'])){
     $position_stmt->execute();
     $position_result = $position_stmt->get_result();
     $position = $position_result->fetch_assoc();
-    $position_name = $position['position_name'];
+    $position_name = $position['position_name'] ?? 'Unassigned';
 
+    $photo = "";
     // If a cropped photo base64 is provided, use that first
     if(!empty($_POST['cropped_photo'])){
         $cropped = $_POST['cropped_photo'];
@@ -192,7 +193,7 @@ if(isset($_POST['edit_candidate'])){
             SET full_name=?, position_name=?, photo=?, description=?, education=?, position_id=? 
             WHERE id=?
         ");
-        $stmt->bind_param("ssssiii", $full_name, $position_name, $photo, $description, $education, $position_id, $candidate_id);
+        $stmt->bind_param("sssssii", $full_name, $position_name, $photo, $description, $education, $position_id, $candidate_id);
     } else {
         // Keep the old photo if a new file isn't uploaded
         $stmt = $conn->prepare("
@@ -253,515 +254,599 @@ while($row = $candidates_query->fetch_assoc()) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Manage Candidates</title>
+<title>Manage Candidates - PMPC Admin</title>
+
+<!-- Google Fonts: Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Bootstrap 5, Bootstrap Icons & CropperJS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <link href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" rel="stylesheet">
+
 <style>
-:root{
-    --bg:#f1f5f9;
-    --card:#ffffff;
-    --text:#1e293b;
-    --placeholder-color: rgba(30, 41, 59, 0.5);
-    --border:#e2e8f0;
-    --input-bg:#ffffff;
-    --input-color:#1e293b;
-    --table-bg:#ffffff;
-    --table-text:#1e293b;
-    --table-muted:#64748b;
-    --table-header-bg:#f8fafc;
+:root {
+    --sidebar-bg: #0f172a;
+    --sidebar-hover: #1e293b;
+    --sidebar-text: #94a3b8;
+    --sidebar-text-active: #ffffff;
+    --sidebar-active-bg: #2563eb;
+    --card-bg: #ffffff;
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --border-color: #e2e8f0;
+    --bg-main: #f8fafc;
+    --input-bg: #ffffff;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --placeholder-color: #64748b;
 }
 
-.dark-theme{
-    --bg:#0f172a;
-    --card:#162338;
-    --text:#f8fafc;
-    --placeholder-color: rgba(248, 250, 252, 0.4);
-    --border:#334155;
-    --input-bg:#1e293b;
-    --input-color:#f8fafc;
-    --table-bg:#1e293b;
-    --table-text:#f8fafc;
-    --table-muted:#94a3b8;
-    --table-header-bg:#0f172a;
+.dark-theme {
+    --sidebar-bg: #030712;
+    --sidebar-hover: #111827;
+    --sidebar-text: #9ca3af;
+    --sidebar-text-active: #ffffff;
+    --sidebar-active-bg: #2563eb;
+    --card-bg: #111827;
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --border-color: #1f2937;
+    --bg-main: #030712;
+    --input-bg: #1f2937;
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --placeholder-color: #cbd5e1;
 }
 
-body{
-    background:var(--bg);
-    color:var(--text);
-    transition:.3s;
-    font-size: clamp(0.875rem, 0.22vw + 0.82rem, 1rem);
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.container{
-    padding-top: 100px;
-    padding-bottom: 60px;
-    max-width: 1300px;
+/* Mobile Header */
+.mobile-header {
+    display: none;
+    background: var(--sidebar-bg);
+    color: white;
+    padding: 1rem 1.25rem;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.card-custom{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:20px;
-    overflow:hidden;
+/* Sidebar Layout */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 260px;
+    height: 100vh;
+    background: var(--sidebar-bg);
+    padding: 1.75rem 1.25rem;
+    overflow-y: auto;
+    z-index: 1010;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
 }
 
-/* Explicit Table Theme Rules targeting text visibility */
-.table {
-    background-color: var(--table-bg) !important;
-    color: var(--table-text) !important;
-    border-color: var(--border) !important;
+.brand-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.table th {
-    background-color: var(--table-header-bg) !important;
-    color: var(--table-text) !important;
-    white-space: nowrap;
+.logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    object-fit: contain;
 }
 
-.table td {
-    background-color: var(--table-bg) !important;
-    color: var(--table-text) !important;
+.brand-title {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
 }
 
-/* Ensures custom text tags and fallback text styles stay highly clear */
-.table td strong, 
-.table td span,
-.table td em,
-.table-muted-text {
-    color: var(--table-text) !important;
-}
-
-.table .custom-muted-desc {
-    color: var(--table-muted) !important;
-}
-
-.dark-theme .table-striped>tbody>tr:nth-of-type(odd)>td {
-    background-color: rgba(255, 255, 255, 0.02) !important;
-}
-
-.form-label {
-    color: var(--text);
+.brand-subtitle {
+    color: var(--sidebar-text);
+    font-size: 0.75rem;
     font-weight: 500;
-    transition: color .3s;
+    margin: 0;
 }
 
-.form-control,
-.form-select{
-    border-radius:12px;
+.nav-section-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #475569;
+    font-weight: 700;
+    margin: 1rem 0 0.5rem 0.75rem;
+}
+
+.nav-link-custom {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.15s ease-in-out;
+}
+
+.nav-link-custom i {
+    font-size: 1.1rem;
+}
+
+.nav-link-custom:hover {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-text-active);
+}
+
+.nav-link-custom.active {
+    background: var(--sidebar-active-bg);
+    color: #ffffff;
+}
+
+.nav-link-custom.logout {
+    color: #ef4444;
+    margin-top: auto;
+}
+
+.nav-link-custom.logout:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+}
+
+/* Main Workspace */
+.main {
+    margin-left: 260px;
+    padding: 2.5rem;
+    transition: margin-left 0.3s ease, padding 0.3s ease;
+}
+
+.page-title {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 1.75rem;
+    letter-spacing: -0.02em;
+    margin: 0;
+}
+
+.welcome-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.925rem;
+}
+
+.theme-toggle-btn {
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    padding: 0.5rem 1rem;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: var(--card-shadow);
+    transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+    background: var(--border-color);
+}
+
+/* Base Admin Card */
+.admin-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Form Styling */
+.form-label {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+}
+
+.custom-input, .form-select {
     background-color: var(--input-bg);
-    border-color: var(--border);
-    color: var(--input-color);
-    transition: background-color .3s, border-color .3s, color .3s;
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.9rem;
 }
 
-.form-control:focus,
-.form-select:focus {
-    background-color: var(--input-bg);
-    color: var(--input-color);
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
-}
-
-.form-control::file-selector-button {
-    background-color: var(--bg);
-    color: var(--text);
-    border-color: var(--border);
-    transition: .3s;
-}
-
-.form-control::placeholder {
-    color: var(--placeholder-color) !important;
+.custom-input::placeholder,
+.form-control::placeholder,
+.form-select::placeholder {
+    color: var(--placeholder-color);
     opacity: 1;
 }
 
-/* Modal Dark Theme Overrides */
+.custom-input:focus, .form-select:focus {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Table Styling */
+.custom-table {
+    color: var(--text-primary);
+    margin-bottom: 0;
+}
+
+.custom-table th {
+    background: transparent;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem;
+}
+
+.custom-table td {
+    background: transparent;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.candidate-photo {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.candidate-photo-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: rgba(37, 99, 235, 0.1);
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.position-group-header {
+    background-color: rgba(37, 99, 235, 0.08);
+    color: #2563eb;
+    font-weight: 700;
+    padding: 0.85rem 1.25rem;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dark-theme .position-group-header {
+    background-color: rgba(37, 99, 235, 0.15);
+    color: #60a5fa;
+}
+
+/* Modal Dark Theme Styling */
 .dark-theme .modal-content {
-    background-color: var(--card);
-    color: var(--text);
-    border: 1px solid var(--border);
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
 }
-.dark-theme .modal-header {
-    border-bottom: 1px solid var(--border);
-}
+
+.dark-theme .modal-header, 
 .dark-theme .modal-footer {
-    border-top: 1px solid var(--border);
+    border-color: var(--border-color);
 }
+
 .dark-theme .btn-close {
     filter: invert(1) grayscale(1) brightness(2);
 }
 
-.theme-btn{
-    position:fixed;
-    top:20px;
-    right:20px;
-    z-index:9999;
-    border:none;
-    border-radius:30px;
-    padding:10px 18px;
-    font-weight:600;
-    background:#1e293b;
-    color:white;
-    box-shadow:0 4px 15px rgba(0,0,0,.2);
-    font-size: 0.9rem;
-}
-
-.dark-theme .theme-btn{
-    background:#334155;
-}
-
-.candidate-photo{
-    width:60px;
-    height:60px;
-    object-fit:cover;
-    border-radius:12px;
-}
-
-.page-title{
-    font-size: clamp(1.4rem, 3vw, 2rem);
-    font-weight:700;
-    margin:0;
-}
-
-.header-section{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    margin-bottom:30px;
-}
-
-.back-btn{
-    border-radius:12px;
-    padding:8px 16px;
-    font-size: 0.95rem;
-}
-
-.card-header{
-    font-weight:600;
-}
-
-.position-group-header {
-    background-color: rgba(59, 130, 246, 0.1);
-    color: #3b82f6;
-    font-weight: 600;
-    padding: 12px 20px;
-    border-radius: 12px;
-    margin-top: 25px;
-    margin-bottom: 15px;
-    font-size: clamp(1rem, 2vw, 1.15rem);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.dark-theme .position-group-header {
-    background-color: rgba(59, 130, 246, 0.15);
-    color: #60a5fa;
-}
-
-/* Custom CSS Breakpoints for Mobile View */
-@media (max-width: 576px) {
-    .container {
-        padding-top: 85px;
-        padding-left: 12px;
-        padding-right: 12px;
-    }
-    .header-section {
-        margin-bottom: 20px;
-    }
-    .card-body {
-        padding: 15px !important;
-    }
-    .theme-btn {
-        top: 15px;
-        right: 15px;
-        padding: 8px 14px;
-        font-size: 0.8rem;
-    }
-    .d-flex.gap-2 {
-        flex-direction: column;
-        width: 100%;
-    }
-    .d-flex.gap-2 button, 
-    .d-flex.gap-2 a {
-        width: 100%;
-        text-align: center;
-    }
-}
-
-/* Crop Modal Styling - Make it larger */
-#cropModal .modal-dialog {
-    max-width: 95vw;
-    margin: auto;
-}
-
+/* Crop Modal */
 #cropModal .modal-body {
-    padding: 20px;
-    background-color: var(--card);
-    min-height: 70vh;
-    max-height: 80vh;
+    background-color: var(--bg-main);
+    min-height: 60vh;
+    max-height: 75vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: auto;
+    overflow: hidden;
 }
 
 #cropperImage {
-    max-width: 90%;
-    max-height: 90%;
-    width: auto;
-    height: auto;
+    max-width: 100%;
+    max-height: 65vh;
     object-fit: contain;
 }
 
-#cropModal .modal-content {
-    background-color: var(--card);
-    max-height: 90vh;
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1005;
 }
 
-#cropModal .modal-header,
-#cropModal .modal-footer {
-    background-color: var(--card);
-    flex-shrink: 0;
-}
-
-@media (max-width: 768px) {
-    #cropModal .modal-dialog {
-        max-width: 98vw;
+@media (max-width: 991.98px) {
+    .mobile-header {
+        display: flex;
     }
-    #cropModal .modal-body {
-        min-height: 60vh;
-        max-height: 75vh;
-        padding: 15px;
+    .sidebar {
+        transform: translateX(-100%);
     }
-    #cropperImage {
-        max-width: 95%;
-        max-height: 95%;
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    .sidebar-overlay.show {
+        display: block;
+    }
+    .main {
+        margin-left: 0;
+        padding: 6rem 1.25rem 2.5rem 1.25rem;
     }
 }
 </style>
 </head>
 <body>
 
-<button class="theme-btn" onclick="toggleTheme()">
-    <span id="themeText">🌙 Dark Mode</span>
-</button>
-
-<div class="container">
-
-<div class="header-section">
-    <a href="dashboard.php" class="btn btn-secondary back-btn">
-        ← Dashboard
-    </a>
-    <h1 class="page-title">
-        👥 Manage Candidates
-    </h1>
-</div>
-
-<?php if($message){ ?>
-<div class="alert alert-success" style="border-radius:12px;">
-    <?= $message ?>
-</div>
-<?php } ?>
-
-<div class="card card-custom shadow-sm mb-5">
-<div class="card-header bg-primary text-white py-3">
-    Add New Candidate
-</div>
-<div class="card-body p-4">
-<form method="POST" enctype="multipart/form-data">
-<div class="row">
-
-<div class="col-md-6 mb-3">
-<label class="form-label">Full Name</label>
-<input
-type="text"
-name="full_name"
-class="form-control"
-placeholder="e.g. Jane Doe"
-required>
-</div>
-
-<div class="col-md-6 mb-3">
-<label class="form-label">Position</label>
-<select
-name="position_id"
-class="form-select"
-required>
-<option value="">Select Position</option>
-<?php
-$positions->data_seek(0);
-while($position = $positions->fetch_assoc()){
-?>
-<option value="<?= $position['id']; ?>">
-    <?= htmlspecialchars($position['position_name']); ?>
-</option>
-<?php } ?>
-</select>
-</div>
-
-</div>
-
-<div class="row">
-    <div class="col-md-4 mb-3">
-        <label class="form-label">Accomplishments</label>
-        <textarea
-            name="description_accomplishments"
-            class="form-control"
-            placeholder="Enter each accomplishment on a new line"
-            rows="5"></textarea>
+<div class="mobile-header">
+    <div class="d-flex align-items-center gap-2">
+        <img src="../assets/images/logo.png" class="logo" style="width: 32px; height: 32px;" alt="Logo" onerror="this.style.display='none';">
+        <h2 class="brand-title">PMPC Admin</h2>
     </div>
-    <div class="col-md-4 mb-3">
-        <label class="form-label">Platforms</label>
-        <textarea
-            name="description_platforms"
-            class="form-control"
-            placeholder="Enter each platform point on a new line"
-            rows="5"></textarea>
-    </div>
-    <div class="col-md-4 mb-3">
-        <label class="form-label">Highest Educational Attainment</label>
-        <input
-            type="text"
-            name="education"
-            class="form-control"
-            placeholder="Highest educational attainment"
-        >
-    </div>
+    <button class="btn btn-outline-light btn-sm rounded-3 px-3" onclick="toggleMenu()">
+        <i class="bi bi-list fs-5"></i>
+    </button>
 </div>
 
-<div class="mb-3">
-            <label class="form-label">Candidate Photo</label>
-            <input
-            type="file"
-            name="photo"
-            id="photo_add"
-            class="form-control"
-            accept="image/*"
-            onchange="openCropper(this, 'cropped_photo_add')">
-            <input type="hidden" name="cropped_photo" id="cropped_photo_add">
-</div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
 
-<button
-type="submit"
-name="add_candidate"
-class="btn btn-primary px-4 py-2"
-style="border-radius:10px;">
-Add Candidate
-</button>
-</form>
-</div>
-</div>
-
-<div class="card card-custom shadow-sm">
-<div class="card-header bg-dark text-white py-3">
-    Candidate List (Separated by Position)
-</div>
-<div class="card-body p-4">
-
-<?php if(empty($grouped_candidates)){ ?>
-    <div class="alert alert-warning mb-0" style="border-radius:12px;">
-        No candidates registered yet.
-    </div>
-<?php } else { ?>
-
-    <?php foreach($grouped_candidates as $position_title => $candidates_list){ ?>
-        
-        <div class="position-group-header">
-            <span>📁 <?= htmlspecialchars($position_title); ?></span> 
-            <span class="badge bg-secondary" style="font-size:0.8rem; border-radius:6px;">
-                <?= count($candidates_list); ?> Candidate(s)
-            </span>
+<aside class="sidebar" id="sidebarNav">
+    <div class="brand-wrapper">
+        <img src="../assets/images/logo.png" class="logo" alt="PMPC Logo" onerror="this.style.display='none';">
+        <div>
+            <h1 class="brand-title">PMPC Admin</h1>
+            <p class="brand-subtitle">Election System</p>
         </div>
+    </div>
 
-        <div class="table-responsive mb-4">
-            <table class="table table-hover table-striped align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th width="8%">ID</th>
-                        <th width="12%">Photo</th>
-                        <th width="25%">Name</th>
-                        <th width="18%">Education</th>
-                        <th>Description</th>
-                        <th width="160">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach($candidates_list as $row){ ?>
-                    <tr>
-                        <td><strong class="table-muted-text"><?= $row['id']; ?></strong></td>
-                        <td>
-                            <?php if(!empty($row['photo']) && file_exists("../assets/images/" . $row['photo'])){ ?>
-                                <img src="../assets/images/<?= $row['photo']; ?>" class="candidate-photo">
-                            <?php } else { ?>
-                                <span class="custom-muted-desc" style="font-size:0.85rem;">No Photo</span>
-                            <?php } ?>
-                        </td>
-                        <td><strong class="table-muted-text"><?= htmlspecialchars($row['full_name']); ?></strong></td>
-                        <td><?= htmlspecialchars($row['education'] ?: '—'); ?></td>
-                        <td>
-                            <?php if(!empty($row['description'])){ ?>
-                                <ul class="mb-0 custom-muted-desc" style="padding-left:1rem;">
-                                    <?php foreach(explode("\n", trim($row['description'])) as $item){
-                                        $item = trim($item);
-                                        if($item !== ''){
-                                    ?>
-                                        <li><?= htmlspecialchars($item); ?></li>
-                                    <?php }} ?>
-                                </ul>
-                            <?php } else { ?>
-                                <em class="custom-muted-desc" style="font-size:0.85rem;">No details provided.</em>
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <div class="d-flex gap-2">
-                                <button 
-                                    type="button" 
-                                    class="btn btn-warning btn-sm px-3"
-                                    style="border-radius:8px;"
-                                    onclick="openEditModal(<?= htmlspecialchars(json_encode($row)); ?>)">
-                                    Edit
-                                </button>
-                                <a
-                                    href="?delete=<?= $row['id']; ?>"
-                                    class="btn btn-danger btn-sm px-2"
-                                    style="border-radius:8px;"
-                                    onclick="return confirm('Are you sure you want to delete this candidate?')">
-                                    Delete
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                <?php } ?>
-                </tbody>
-            </table>
+    <div class="nav-section-label">Main Menu</div>
+    <a href="dashboard.php" class="nav-link-custom"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a href="candidates.php" class="nav-link-custom active"><i class="bi bi-person-badge"></i> Candidates</a>
+    <a href="positions.php" class="nav-link-custom"><i class="bi bi-award"></i> Positions</a>
+    <a href="voters.php" class="nav-link-custom"><i class="bi bi-people"></i> Voters</a>
+    <a href="pre-registered.php" class="nav-link-custom"><i class="bi bi-clipboard-check"></i> Pre-registered</a>
+    <a href="elections.php" class="nav-link-custom"><i class="bi bi-building"></i> Branches</a>
+    <a href="results.php" class="nav-link-custom"><i class="bi bi-bar-chart-line"></i> Results</a>
+
+    <a href="logout.php" class="nav-link-custom logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+</aside>
+
+<main class="main">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="page-title">Manage Candidates</h2>
+            <p class="welcome-subtitle mb-0">Register, edit, and organize candidate profiles for active elections</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="dashboard.php" class="btn btn-outline-secondary rounded-3 btn-sm fw-semibold d-inline-flex align-items-center gap-2">
+                <i class="bi bi-arrow-left"></i> Dashboard
+            </a>
+            <button class="theme-toggle-btn" onclick="toggleTheme()">
+                <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
+                <span id="themeText">Dark Mode</span>
+            </button>
+        </div>
+    </div>
+
+    <?php if($message){ ?>
+        <div class="alert alert-success rounded-3 border-0 shadow-sm d-flex align-items-center gap-2 mb-4">
+            <i class="bi bi-check-circle-fill fs-5"></i>
+            <div><?= htmlspecialchars($message) ?></div>
         </div>
     <?php } ?>
-<?php } ?>
-</div>
-</div>
-</div>
 
+    <!-- ADD CANDIDATE FORM -->
+    <div class="admin-card mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-person-plus-fill text-primary me-2"></i>Add New Candidate</h5>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="full_name" class="form-control custom-input" placeholder="e.g. Jane Doe" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Position</label>
+                    <select name="position_id" class="form-select custom-input" required>
+                        <option value="">Select Position</option>
+                        <?php
+                        $positions->data_seek(0);
+                        while($position = $positions->fetch_assoc()){
+                        ?>
+                        <option value="<?= $position['id']; ?>">
+                            <?= htmlspecialchars($position['position_name']); ?>
+                        </option>
+                        <?php } ?>
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Accomplishments</label>
+                    <textarea name="description_accomplishments" class="form-control custom-input" placeholder="Enter each accomplishment on a new line" rows="4"></textarea>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Platforms</label>
+                    <textarea name="description_platforms" class="form-control custom-input" placeholder="Enter each platform point on a new line" rows="4"></textarea>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Highest Educational Attainment</label>
+                    <input type="text" name="education" class="form-control custom-input mb-3" placeholder="e.g. Master of Business Administration">
+                    
+                    <label class="form-label">Candidate Photo</label>
+                    <input type="file" name="photo" id="photo_add" class="form-control custom-input" accept="image/*" onchange="openCropper(this, 'cropped_photo_add')">
+                    <input type="hidden" name="cropped_photo" id="cropped_photo_add">
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-top d-flex justify-content-end" style="border-color: var(--border-color) !important;">
+                <button type="submit" name="add_candidate" class="btn btn-primary rounded-3 px-4 fw-semibold d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-plus-lg"></i> Add Candidate
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- CANDIDATE LIST SECTION -->
+    <div class="admin-card">
+        <h5 class="fw-bold mb-1"><i class="bi bi-person-lines-fill text-primary me-2"></i>Candidate Directory</h5>
+        <p class="text-secondary small mb-3">Organized by running positions</p>
+
+        <?php if(empty($grouped_candidates)){ ?>
+            <div class="text-center text-secondary py-5">
+                <i class="bi bi-inbox fs-2 d-block mb-2 text-opacity-50"></i>
+                No candidates registered yet.
+            </div>
+        <?php } else { ?>
+
+            <?php foreach($grouped_candidates as $position_title => $candidates_list){ ?>
+                <div class="position-group-header">
+                    <span><i class="bi bi-folder-fill me-2"></i><?= htmlspecialchars($position_title); ?></span> 
+                    <span class="badge bg-primary bg-opacity-20 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-1">
+                        <?= count($candidates_list); ?> Candidate(s)
+                    </span>
+                </div>
+
+                <div class="table-responsive mb-2">
+                    <table class="table custom-table align-middle">
+                        <thead>
+                            <tr>
+                                <th width="6%">ID</th>
+                                <th width="10%">Photo</th>
+                                <th width="22%">Name</th>
+                                <th width="20%">Education</th>
+                                <th>Description</th>
+                                <th width="140" class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach($candidates_list as $row){ ?>
+                            <tr>
+                                <td class="fw-bold text-secondary">#<?= $row['id']; ?></td>
+                                <td>
+                                    <?php if(!empty($row['photo']) && file_exists("../assets/images/" . $row['photo'])){ ?>
+                                        <img src="../assets/images/<?= $row['photo']; ?>" class="candidate-photo" alt="Photo">
+                                    <?php } else { ?>
+                                        <div class="candidate-photo-placeholder">
+                                            <?= strtoupper(substr($row['full_name'], 0, 1)); ?>
+                                        </div>
+                                    <?php } ?>
+                                </td>
+                                <td class="fw-bold"><?= htmlspecialchars($row['full_name']); ?></td>
+                                <td class="text-secondary small"><?= htmlspecialchars($row['education'] ?: '—'); ?></td>
+                                <td>
+                                    <?php if(!empty($row['description'])){ ?>
+                                        <ul class="mb-0 text-secondary small ps-3">
+                                            <?php foreach(explode("\n", trim($row['description'])) as $item){
+                                                $item = trim($item);
+                                                if($item !== ''){
+                                            ?>
+                                                <li><?= htmlspecialchars($item); ?></li>
+                                            <?php }} ?>
+                                        </ul>
+                                    <?php } else { ?>
+                                        <span class="text-secondary small opacity-75"><em>No details provided.</em></span>
+                                    <?php } ?>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button 
+                                            type="button" 
+                                            class="btn btn-outline-warning btn-sm rounded-3 px-2 py-1"
+                                            onclick="openEditModal(<?= htmlspecialchars(json_encode($row)); ?>)"
+                                            title="Edit">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
+                                        <a
+                                            href="?delete=<?= $row['id']; ?>"
+                                            class="btn btn-outline-danger btn-sm rounded-3 px-2 py-1"
+                                            onclick="return confirm('Are you sure you want to delete this candidate?')"
+                                            title="Delete">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php } ?>
+        <?php } ?>
+    </div>
+</main>
+
+<!-- EDIT CANDIDATE MODAL -->
 <div class="modal fade" id="editCandidateModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
+    <div class="modal-content rounded-4 border-0 shadow">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalTitle">✏️ Edit Candidate Information</h5>
+        <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Candidate Information</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form method="POST" enctype="multipart/form-data">
-        <div class="modal-body">
+        <div class="modal-body p-4">
           <input type="hidden" name="candidate_id" id="edit_id">
           
-          <div class="row">
-            <div class="col-md-6 mb-3">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
               <label class="form-label">Full Name</label>
-              <input type="text" name="full_name" id="edit_name" class="form-control" required>
+              <input type="text" name="full_name" id="edit_name" class="form-control custom-input" required>
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-6">
               <label class="form-label">Position</label>
-              <select name="position_id" id="edit_position_id" class="form-select" required>
+              <select name="position_id" id="edit_position_id" class="form-select custom-input" required>
                 <?php
                 $positions->data_seek(0);
                 while($position = $positions->fetch_assoc()){
@@ -774,107 +859,136 @@ Add Candidate
             </div>
           </div>
 
-          <div class="row">
-            <div class="col-md-6 mb-3">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
               <label class="form-label">Accomplishments</label>
-              <textarea name="description_accomplishments" id="edit_description_accomplishments" class="form-control" rows="5" placeholder="Enter each accomplishment on a new line"></textarea>
+              <textarea name="description_accomplishments" id="edit_description_accomplishments" class="form-control custom-input" rows="4" placeholder="Enter each accomplishment on a new line"></textarea>
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-6">
               <label class="form-label">Platforms</label>
-              <textarea name="description_platforms" id="edit_description_platforms" class="form-control" rows="5" placeholder="Enter each platform point on a new line"></textarea>
+              <textarea name="description_platforms" id="edit_description_platforms" class="form-control custom-input" rows="4" placeholder="Enter each platform point on a new line"></textarea>
             </div>
           </div>
 
-          <div class="row">
-              <div class="col-md-12 mb-3">
+          <div class="row g-3">
+              <div class="col-md-12 mb-2">
                   <label class="form-label">Education</label>
-                  <input type="text" name="education" id="edit_education" class="form-control" placeholder="Highest educational attainment">
+                  <input type="text" name="education" id="edit_education" class="form-control custom-input" placeholder="Highest educational attainment">
               </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label">Update Candidate Photo (Leave blank to retain current)</label>
-                        <input type="file" name="photo" id="photo_edit" class="form-control" accept="image/*" onchange="openCropper(this, 'cropped_photo_edit')">
-                        <input type="hidden" name="cropped_photo" id="cropped_photo_edit">
+          <div>
+            <label class="form-label">Update Photo <span class="text-secondary fw-normal">(Leave blank to retain current)</span></label>
+            <input type="file" name="photo" id="photo_edit" class="form-control custom-input" accept="image/*" onchange="openCropper(this, 'cropped_photo_edit')">
+            <input type="hidden" name="cropped_photo" id="cropped_photo_edit">
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius:10px;">Cancel</button>
-          <button type="submit" name="edit_candidate" class="btn btn-success" style="border-radius:10px;">Save Changes</button>
+          <button type="button" class="btn btn-outline-secondary rounded-3 btn-sm fw-semibold" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" name="edit_candidate" class="btn btn-primary rounded-3 btn-sm fw-semibold">Save Changes</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
-
+<!-- CROPPER MODAL -->
 <div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content">
+        <div class="modal-content rounded-4 border-0">
             <div class="modal-header">
-                <h5 class="modal-title">Crop Photo</h5>
+                <h5 class="modal-title fw-bold"><i class="bi bi-crop text-primary me-2"></i>Crop Photo</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center">
-                <img id="cropperImage" src="">
+            <div class="modal-body p-0">
+                <img id="cropperImage" src="" alt="To Crop">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" id="cropSaveBtn" class="btn btn-primary">Use Cropped Image</button>
+                <button type="button" class="btn btn-outline-secondary rounded-3 btn-sm fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="cropSaveBtn" class="btn btn-primary rounded-3 btn-sm fw-semibold">Use Cropped Image</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
+
 <script>
+function toggleMenu() {
+    const sidebar = document.getElementById('sidebarNav');
+    const overlay = document.getElementById('sidebarOverlay');
+    sidebar.classList.toggle('show');
+    overlay.classList.toggle('show');
+}
+
+function updateThemeUI(isDark) {
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+    
+    if (isDark) {
+        document.body.classList.add('dark-theme');
+        themeIcon.className = 'bi bi-sun-fill';
+        themeText.innerText = 'Light Mode';
+    } else {
+        document.body.classList.remove('dark-theme');
+        themeIcon.className = 'bi bi-moon-stars-fill';
+        themeText.innerText = 'Dark Mode';
+    }
+}
+
+function toggleTheme() {
+    const isDark = !document.body.classList.contains('dark-theme');
+    localStorage.setItem('admin-theme', isDark ? 'dark' : 'light');
+    updateThemeUI(isDark);
+}
+
+// Cropper Logic
 let cropper = null;
 let currentFileUrl = null;
 let currentHiddenFieldId = null;
 const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
 
 function openCropper(inputElem, hiddenFieldId){
-        if(!inputElem.files || !inputElem.files.length) return;
-        const file = inputElem.files[0];
-        currentHiddenFieldId = hiddenFieldId;
-        if(currentFileUrl) URL.revokeObjectURL(currentFileUrl);
-        currentFileUrl = URL.createObjectURL(file);
-        const img = document.getElementById('cropperImage');
-        img.src = currentFileUrl;
-        img.onload = function(){
-                if(cropper) cropper.destroy();
-                cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1, autoCropArea: 1 });
-                cropModal.show();
-        }
+    if(!inputElem.files || !inputElem.files.length) return;
+    const file = inputElem.files[0];
+    currentHiddenFieldId = hiddenFieldId;
+    if(currentFileUrl) URL.revokeObjectURL(currentFileUrl);
+    currentFileUrl = URL.createObjectURL(file);
+    const img = document.getElementById('cropperImage');
+    img.src = currentFileUrl;
+    img.onload = function(){
+        if(cropper) cropper.destroy();
+        cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1, autoCropArea: 1 });
+        cropModal.show();
+    }
 }
 
 document.getElementById('cropSaveBtn').addEventListener('click', function(){
-        if(!cropper) return;
-        
-        // REMOVED fixed width/height constraints to retain the original high resolution
-        const canvas = cropper.getCroppedCanvas({
-            imageSmoothingEnabled: true,
-            imageSmoothingQuality: 'high'
-        });
-        
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
-        const hidden = document.getElementById(currentHiddenFieldId);
-        if(hidden) hidden.value = dataUrl;
-        cropModal.hide();
-        // clean up
-        if(currentFileUrl) { URL.revokeObjectURL(currentFileUrl); currentFileUrl = null; }
-        if(cropper){ cropper.destroy(); cropper = null; }
+    if(!cropper) return;
+    
+    const canvas = cropper.getCroppedCanvas({
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high'
+    });
+    
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+    const hidden = document.getElementById(currentHiddenFieldId);
+    if(hidden) hidden.value = dataUrl;
+    cropModal.hide();
+    
+    if(currentFileUrl) { URL.revokeObjectURL(currentFileUrl); currentFileUrl = null; }
+    if(cropper){ cropper.destroy(); cropper = null; }
 });
 
-// Ensure modal cleanup on close
 document.getElementById('cropModal').addEventListener('hidden.bs.modal', function(){
-        if(cropper){ cropper.destroy(); cropper = null; }
-        const img = document.getElementById('cropperImage');
-        img.src = '';
+    if(cropper){ cropper.destroy(); cropper = null; }
+    const img = document.getElementById('cropperImage');
+    img.src = '';
 });
-</script>
-<script>
+
+// Edit Candidate Modal Logic
 const bootstrapEditModal = new bootstrap.Modal(document.getElementById('editCandidateModal'));
 
 function openEditModal(candidateData) {
@@ -914,22 +1028,10 @@ function openEditModal(candidateData) {
     bootstrapEditModal.show();
 }
 
-function toggleTheme(){
-    document.body.classList.toggle('dark-theme');
-
-    if(document.body.classList.contains('dark-theme')){
-        localStorage.setItem('admin-theme','dark');
-        document.getElementById('themeText').innerHTML='☀️ Light Mode';
-    }else{
-        localStorage.setItem('admin-theme','light');
-        document.getElementById('themeText').innerHTML='🌙 Dark Mode';
-    }
-}
-
-window.onload=function(){
-    if(localStorage.getItem('admin-theme')==='dark'){
-        document.body.classList.add('dark-theme');
-        document.getElementById('themeText').innerHTML='☀️ Light Mode';
+window.onload = function(){
+    const savedTheme = localStorage.getItem('admin-theme');
+    if (savedTheme === 'dark') {
+        updateThemeUI(true);
     }
 }
 </script>
