@@ -82,7 +82,7 @@ $message = "";
 // 1. ADD CANDIDATE LOGIC
 if(isset($_POST['add_candidate'])){
 
-    $full_name = trim($_POST['full_name']);
+    $fullname = trim($_POST['full_name']);
     $position_id = (int)$_POST['position_id'];
     $education = trim($_POST['education'] ?? '');
     $description = buildCandidateDescription(
@@ -102,10 +102,8 @@ if(isset($_POST['add_candidate'])){
     $position_name = $position['position_name'] ?? 'Unassigned';
 
     $photo = "";
-    // Prefer cropped photo (base64) if provided, else fallback to uploaded file
     if(!empty($_POST['cropped_photo'])){
         $cropped = $_POST['cropped_photo'];
-        // Expect data URI like: data:image/png;base64,XXXX
         if(preg_match('/^data:(image\/[a-zA-Z]+);base64,(.+)$/', $cropped, $matches)){
             $mime = $matches[1];
             $data = base64_decode($matches[2]);
@@ -130,10 +128,10 @@ if(isset($_POST['add_candidate'])){
     }
 
     $stmt = $conn->prepare("
-        INSERT INTO candidates (full_name, position_name, photo, description, education, position_id)
+        INSERT INTO candidates (fullname, position_name, photo, description, education, position_id)
         VALUES (?, ?, ?, ?, ?, ?)
     ");
-    $stmt->bind_param("sssssi", $full_name, $position_name, $photo, $description, $education, $position_id);
+    $stmt->bind_param("sssssi", $fullname, $position_name, $photo, $description, $education, $position_id);
 
     if($stmt->execute()){
         $message = "Candidate added successfully.";
@@ -143,7 +141,7 @@ if(isset($_POST['add_candidate'])){
 // 2. EDIT CANDIDATE LOGIC
 if(isset($_POST['edit_candidate'])){
     $candidate_id = (int)$_POST['candidate_id'];
-    $full_name = trim($_POST['full_name']);
+    $fullname = trim($_POST['full_name']);
     $position_id = (int)$_POST['position_id'];
     $education = trim($_POST['education'] ?? '');
     $description = buildCandidateDescription(
@@ -151,7 +149,6 @@ if(isset($_POST['edit_candidate'])){
         $_POST['description_platforms'] ?? ''
     );
     
-    // Fetch associated position name
     $position_stmt = $conn->prepare("SELECT position_name FROM positions WHERE id=?");
     $position_stmt->bind_param("i", $position_id);
     $position_stmt->execute();
@@ -160,7 +157,6 @@ if(isset($_POST['edit_candidate'])){
     $position_name = $position['position_name'] ?? 'Unassigned';
 
     $photo = "";
-    // If a cropped photo base64 is provided, use that first
     if(!empty($_POST['cropped_photo'])){
         $cropped = $_POST['cropped_photo'];
         if(preg_match('/^data:(image\/[a-zA-Z]+);base64,(.+)$/', $cropped, $matches)){
@@ -186,22 +182,20 @@ if(isset($_POST['edit_candidate'])){
         move_uploaded_file($_FILES['photo']['tmp_name'], $upload_dir . $photo);
     }
 
-    // Prepare update statement based on whether we have a new photo
     if(!empty($photo)){
         $stmt = $conn->prepare("
             UPDATE candidates 
-            SET full_name=?, position_name=?, photo=?, description=?, education=?, position_id=? 
+            SET fullname=?, position_name=?, photo=?, description=?, education=?, position_id=? 
             WHERE id=?
         ");
-        $stmt->bind_param("sssssii", $full_name, $position_name, $photo, $description, $education, $position_id, $candidate_id);
+        $stmt->bind_param("sssssii", $fullname, $position_name, $photo, $description, $education, $position_id, $candidate_id);
     } else {
-        // Keep the old photo if a new file isn't uploaded
         $stmt = $conn->prepare("
             UPDATE candidates 
-            SET full_name=?, position_name=?, description=?, education=?, position_id=? 
+            SET fullname=?, position_name=?, description=?, education=?, position_id=? 
             WHERE id=?
         ");
-        $stmt->bind_param("ssssii", $full_name, $position_name, $description, $education, $position_id, $candidate_id);
+        $stmt->bind_param("ssssii", $fullname, $position_name, $description, $education, $position_id, $candidate_id);
     }
 
     if($stmt->execute()){
@@ -233,19 +227,24 @@ $positions = $conn->query("
 
 $candidates_query = $conn->query("
     SELECT
-        c.*,
-        p.position_name
+        c.id,
+        c.fullname,
+        c.photo,
+        c.description,
+        c.education,
+        c.position_id,
+        COALESCE(p.position_name, NULLIF(c.position_name, ''), 'Unassigned Position') AS position_name
     FROM candidates c
-    LEFT JOIN positions p
-    ON c.position_id = p.id
-    ORDER BY p.position_name ASC, c.full_name ASC
+    LEFT JOIN positions p ON c.position_id = p.id
+    ORDER BY position_name ASC, c.fullname ASC
 ");
 
-// Restructure candidates into position groups array
 $grouped_candidates = [];
-while($row = $candidates_query->fetch_assoc()) {
-    $pos_name = !empty($row['position_name']) ? $row['position_name'] : 'Unassigned Position';
-    $grouped_candidates[$pos_name][] = $row;
+if($candidates_query){
+    while($row = $candidates_query->fetch_assoc()) {
+        $pos_name = !empty($row['position_name']) ? $row['position_name'] : 'Unassigned Position';
+        $grouped_candidates[$pos_name][] = $row;
+    }
 }
 
 ?>
@@ -306,7 +305,6 @@ body {
     transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Mobile Header */
 .mobile-header {
     display: none;
     background: var(--sidebar-bg);
@@ -322,7 +320,6 @@ body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Sidebar Layout */
 .sidebar {
     position: fixed;
     left: 0;
@@ -416,7 +413,6 @@ body {
     color: #f87171;
 }
 
-/* Main Workspace */
 .main {
     margin-left: 260px;
     padding: 2.5rem;
@@ -455,7 +451,6 @@ body {
     background: var(--border-color);
 }
 
-/* Base Admin Card */
 .admin-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -465,7 +460,6 @@ body {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Form Styling */
 .form-label {
     color: var(--text-primary);
     font-weight: 600;
@@ -496,7 +490,6 @@ body {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-/* Table Styling */
 .custom-table {
     color: var(--text-primary);
     margin-bottom: 0;
@@ -561,7 +554,6 @@ body {
     color: #60a5fa;
 }
 
-/* Modal Dark Theme Styling */
 .dark-theme .modal-content {
     background-color: var(--card-bg);
     color: var(--text-primary);
@@ -577,7 +569,6 @@ body {
     filter: invert(1) grayscale(1) brightness(2);
 }
 
-/* Crop Modal */
 #cropModal .modal-body {
     background-color: var(--bg-main);
     min-height: 60vh;
@@ -779,11 +770,11 @@ body {
                                         <img src="../assets/images/<?= $row['photo']; ?>" class="candidate-photo" alt="Photo">
                                     <?php } else { ?>
                                         <div class="candidate-photo-placeholder">
-                                            <?= strtoupper(substr($row['full_name'], 0, 1)); ?>
+                                            <?= strtoupper(substr($row['fullname'], 0, 1)); ?>
                                         </div>
                                     <?php } ?>
                                 </td>
-                                <td class="fw-bold"><?= htmlspecialchars($row['full_name']); ?></td>
+                                <td class="fw-bold"><?= htmlspecialchars($row['fullname']); ?></td>
                                 <td class="text-secondary small"><?= htmlspecialchars($row['education'] ?: '—'); ?></td>
                                 <td>
                                     <?php if(!empty($row['description'])){ ?>
@@ -804,7 +795,7 @@ body {
                                         <button 
                                             type="button" 
                                             class="btn btn-outline-warning btn-sm rounded-3 px-2 py-1"
-                                            onclick="openEditModal(<?= htmlspecialchars(json_encode($row)); ?>)"
+                                            onclick='openEditModal(<?= htmlspecialchars(json_encode($row), ENT_QUOTES, "UTF-8"); ?>)'
                                             title="Edit">
                                             <i class="bi bi-pencil-fill"></i>
                                         </button>
@@ -870,8 +861,8 @@ body {
             </div>
           </div>
 
-          <div class="row g-3">
-              <div class="col-md-12 mb-2">
+          <div class="row g-3 mb-3">
+              <div class="col-md-12">
                   <label class="form-label">Education</label>
                   <input type="text" name="education" id="edit_education" class="form-control custom-input" placeholder="Highest educational attainment">
               </div>
@@ -911,7 +902,6 @@ body {
     </div>
 </div>
 
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
 
@@ -944,7 +934,6 @@ function toggleTheme() {
     updateThemeUI(isDark);
 }
 
-// Cropper Logic
 let cropper = null;
 let currentFileUrl = null;
 let currentHiddenFieldId = null;
@@ -988,12 +977,11 @@ document.getElementById('cropModal').addEventListener('hidden.bs.modal', functio
     img.src = '';
 });
 
-// Edit Candidate Modal Logic
 const bootstrapEditModal = new bootstrap.Modal(document.getElementById('editCandidateModal'));
 
 function openEditModal(candidateData) {
     document.getElementById('edit_id').value = candidateData.id;
-    document.getElementById('edit_name').value = candidateData.full_name;
+    document.getElementById('edit_name').value = candidateData.fullname;
     document.getElementById('edit_position_id').value = candidateData.position_id;
 
     const raw = candidateData.description || '';

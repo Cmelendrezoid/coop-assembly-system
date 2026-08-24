@@ -568,9 +568,24 @@ body {
                 <h5 class="fw-bold mb-1"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Attendance & Claims Statistics</h5>
                 <p class="text-secondary small mb-0">Overview of member turnout and item distribution</p>
             </div>
-            <a href="export_attendance.php" class="btn btn-outline-success btn-sm rounded-3 fw-semibold d-inline-flex align-items-center gap-2">
-                <i class="bi bi-file-earmark-excel"></i> Export Attendance
-            </a>
+            <!-- Export Dropdown Menu -->
+            <div class="dropdown">
+                <button class="btn btn-outline-success btn-sm rounded-3 fw-semibold dropdown-toggle d-inline-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-download"></i> Export Attendance
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2" href="export_attendance.php?type=excel<?php echo !empty($filterDate) ? '&filter_date=' . urlencode($filterDate) : ''; ?>">
+                            <i class="bi bi-file-earmark-excel text-success"></i> Export as Excel (.xls)
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2" href="export_attendance.php?type=pdf<?php echo !empty($filterDate) ? '&filter_date=' . urlencode($filterDate) : ''; ?>" target="_blank">
+                            <i class="bi bi-file-earmark-pdf text-danger"></i> Export as PDF
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <div class="row g-3 mb-4">
@@ -616,9 +631,24 @@ body {
                 <h5 class="fw-bold mb-1"><i class="bi bi-clock-history text-primary me-2"></i>Live Attendance & Claim Log</h5>
                 <p class="text-secondary small mb-0">Real-time log of check-ins and freebie distribution</p>
             </div>
-            <a href="export_freebies.php" class="btn btn-primary btn-sm rounded-3 fw-semibold d-inline-flex align-items-center gap-2">
-                <i class="bi bi-download"></i> Export Freebies Excel
-            </a>
+            <!-- Export Dropdown Menu -->
+            <div class="dropdown">
+                <button class="btn btn-primary btn-sm rounded-3 fw-semibold dropdown-toggle d-inline-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-download"></i> Export Freebies Log
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2" href="export_freebies.php?type=excel<?php echo !empty($filterDate) ? '&filter_date=' . urlencode($filterDate) : ''; ?>">
+                            <i class="bi bi-file-earmark-excel text-success"></i> Export as Excel (.xls)
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2" href="export_freebies.php?type=pdf<?php echo !empty($filterDate) ? '&filter_date=' . urlencode($filterDate) : ''; ?>" target="_blank">
+                            <i class="bi bi-file-earmark-pdf text-danger"></i> Export as PDF
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
 
         <div class="table-responsive">
@@ -669,6 +699,9 @@ body {
         </div>
     </div>
 </main>
+
+<!-- Bootstrap 5 JavaScript Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 function toggleMenu() {

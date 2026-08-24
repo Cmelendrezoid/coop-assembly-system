@@ -129,11 +129,11 @@ body{
 
 .dark-theme .position-section {
     background: rgba(30, 43, 79, 0.96);
-    border-color: rgba(245, 158, 11, 0.55);
+    border-color: rgba(204, 130, 2, 0.85);
 }
 
 .dark-theme .position-gold {
-    background: rgba(245, 158, 11, 0.3);
+    background: rgba(255, 178, 46, 0.82);
     border-color: rgba(245, 158, 11, 0.9);
 }
 
@@ -378,7 +378,7 @@ $candidates = $conn->query("
     SELECT *
     FROM candidates
     WHERE position_id = $position_id
-    ORDER BY full_name
+    ORDER BY fullname
 ");
 
 ?>
@@ -429,9 +429,9 @@ $candidates = $conn->query("
 
     $initials = "NA";
 
-    if(!empty($candidate['full_name'])){
+    if(!empty($candidate['fullname'])){
 
-        $parts = explode(' ', $candidate['full_name']);
+        $parts = explode(' ', $candidate['fullname']);
 
         $initials = strtoupper(substr($parts[0],0,1));
 
@@ -472,7 +472,7 @@ $candidates = $conn->query("
             <div class="candidate-body">
 
                 <div class="candidate-name">
-                    <?php echo htmlspecialchars($candidate['full_name']); ?>
+                    <?php echo htmlspecialchars($candidate['fullname']); ?>
                 </div>
 
                 <?php if(!empty($candidate['education'])){ ?>
