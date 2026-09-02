@@ -7,8 +7,44 @@ if(!isset($_SESSION['admin_id'])){
     exit();
 }
 
-// 1. Fetch distinct branches from the members table using the correct 'branch_name' column
-$branches_query = $conn->query("SELECT DISTINCT branch_name FROM members WHERE branch_name IS NOT NULL AND branch_name != '' ORDER BY branch_name ASC");
+// 1. Detect branch column name dynamically ('branch_name' or 'branch')
+$member_branch_col = 'branch_name';
+$cols = $conn->query("SHOW COLUMNS FROM members");
+if ($cols) {
+    while ($c = $cols->fetch_assoc()) {
+        if (in_array(strtolower($c['Field']), ['branch_name', 'branch'])) {
+            $member_branch_col = $c['Field'];
+            break;
+        }
+    }
+}
+
+// 2. Detect candidate name column dynamically ('candidate_name', 'fullname', 'name', or 'full_name')
+$candidate_name_col = 'full_name';
+$cand_cols = $conn->query("SHOW COLUMNS FROM candidates");
+if ($cand_cols) {
+    while ($c = $cand_cols->fetch_assoc()) {
+        if (in_array(strtolower($c['Field']), ['candidate_name', 'fullname', 'name', 'full_name'])) {
+            $candidate_name_col = $c['Field'];
+            break;
+        }
+    }
+}
+
+// 3. Detect voter reference column dynamically ('member_id', 'voter_id', or 'voters_id')
+$votes_voter_col = 'voter_id';
+$v_cols = $conn->query("SHOW COLUMNS FROM votes");
+if ($v_cols) {
+    while ($c = $v_cols->fetch_assoc()) {
+        if (in_array(strtolower($c['Field']), ['member_id', 'voter_id', 'voters_id'])) {
+            $votes_voter_col = $c['Field'];
+            break;
+        }
+    }
+}
+
+// Fetch distinct branches from members table
+$branches_query = $conn->query("SELECT DISTINCT TRIM(`{$member_branch_col}`) AS branch_name FROM members WHERE `{$member_branch_col}` IS NOT NULL AND TRIM(`{$member_branch_col}`) != '' ORDER BY `{$member_branch_col}` ASC");
 $branches = [];
 if($branches_query) {
     while($b_row = $branches_query->fetch_assoc()) {
@@ -16,8 +52,10 @@ if($branches_query) {
     }
 }
 
-// 2. Identify current active filter selection context
-$selected_branch = isset($_GET['branch']) ? trim($_GET['branch']) : 'overall';
+// Identify current active filter selection context
+$raw_branch = isset($_GET['branch']) ? trim($_GET['branch']) : 'overall';
+$selected_branches = ($raw_branch === 'overall' || empty($raw_branch)) ? ['overall'] : array_map('trim', explode(',', urldecode($raw_branch)));
+$is_overall = in_array('overall', $selected_branches);
 
 function esc($s) { return htmlspecialchars($s ?? ''); }
 ?>
@@ -87,7 +125,6 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             -webkit-font-smoothing: antialiased;
         }
 
-        /* App Layout with Sidebar */
         .app-layout {
             display: flex;
             min-height: 100vh;
@@ -189,7 +226,6 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             font-size: 1.15rem;
         }
 
-        /* Main Content wrapper */
         .main-content {
             flex-grow: 1;
             margin-left: 270px;
@@ -214,7 +250,6 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             margin-top: 0.35rem;
         }
 
-        /* Buttons */
         .btn {
             border-radius: 0.75rem;
             font-weight: 500;
@@ -250,7 +285,6 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             transform: translateY(-1px);
         }
 
-        /* Cards */
         .card {
             background-color: var(--card) !important;
             border: 1px solid var(--border) !important;
@@ -272,29 +306,18 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             border-top-left-radius: 1rem !important;
             border-top-right-radius: 1rem !important;
         }
-        .card-title {
-            font-weight: 700;
-            color: var(--text) !important;
-            font-size: 1.2rem;
-            letter-spacing: -0.01em;
-        }
 
-        /* Filter Select */
         .filter-select {
             border-radius: 0.75rem;
             padding: 0.6rem 1rem;
             font-weight: 500;
-            background-color: var(--surface);
-            color: var(--text);
             border: 1px solid var(--border);
-            max-width: 280px;
         }
         .filter-select:focus {
             border-color: var(--btn-bg);
             box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.15);
         }
 
-        /* Tables & Visibility Fixes */
         .table {
             --bs-table-bg: var(--table-row-bg) !important;
             --bs-table-color: var(--table-row-text) !important;
@@ -331,7 +354,6 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             color: var(--text) !important;
         }
 
-        /* Candidate Avatar & Custom Badge (Theme-adaptive Placeholder Fallback) */
         .avatar-wrapper {
             position: relative;
             display: inline-block;
@@ -377,7 +399,6 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             transform: translateY(-2px);
         }
 
-        /* Modal Customization for Theme compatibility */
         .modal-content {
             background-color: var(--modal-bg) !important;
             color: var(--text) !important;
@@ -499,15 +520,40 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                 <div class="section-subtitle">Real-time candidate tally and cooperative voting turnout overview</div>
             </div>
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <!-- Branch Filtering Selection Dropdown Component -->
-                <select class="form-select filter-select" id="branchFilter" onchange="filterBranch(this.value)">
-                    <option value="overall" <?php echo ($selected_branch === 'overall') ? 'selected' : ''; ?>>🌐 Overall Results</option>
-                    <?php foreach($branches as $b): ?>
-                        <option value="<?php echo esc($b); ?>" <?php echo ($selected_branch === $b) ? 'selected' : ''; ?>>
-                            📍 Branch: <?php echo esc($b); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <!-- Multi-Branch Checkbox Dropdown -->
+                <div class="dropdown">
+                    <button class="btn filter-select dropdown-toggle d-flex justify-content-between align-items-center" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" style="width: 250px; background: var(--surface); color: var(--text); text-align: left;">
+                        <span class="text-truncate">
+                            <?php 
+                            if ($is_overall) {
+                                echo '🌐 Overall Results';
+                            } else {
+                                echo '📍 ' . count($selected_branches) . ' Branch(es) Selected';
+                            }
+                            ?>
+                        </span>
+                    </button>
+                    <ul class="dropdown-menu p-3 shadow" style="width: 250px; max-height: 400px; overflow-y: auto; background-color: var(--card); border-color: var(--border);">
+                        <li>
+                            <div class="form-check">
+                                <input class="form-check-input branch-cb" type="checkbox" value="overall" id="cb_overall" <?php echo $is_overall ? 'checked' : ''; ?> onchange="handleOverallChange()">
+                                <label class="form-check-label fw-bold" for="cb_overall" style="color: var(--text); cursor: pointer;">🌐 Overall Results</label>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider" style="border-color: var(--border);"></li>
+                        <?php foreach($branches as $index => $b): ?>
+                        <li>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input branch-cb specific-branch" type="checkbox" value="<?php echo esc($b); ?>" id="cb_<?php echo $index; ?>" <?php echo in_array($b, $selected_branches) && !$is_overall ? 'checked' : ''; ?> onchange="handleBranchChange()">
+                                <label class="form-check-label text-truncate" for="cb_<?php echo $index; ?>" style="color: var(--text); display: block; cursor: pointer;">📍 <?php echo esc($b); ?></label>
+                            </div>
+                        </li>
+                        <?php endforeach; ?>
+                        <li class="mt-3">
+                            <button class="btn btn-primary btn-sm w-100" onclick="applyBranchFilter()">Apply Filter</button>
+                        </li>
+                    </ul>
+                </div>
 
                 <button id="theme-toggle" type="button" class="btn btn-theme btn-sm d-flex align-items-center gap-2">
                     <i class="bi bi-moon-stars"></i> Light Mode
@@ -519,7 +565,6 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
         </div>
 
         <?php
-        // Expanded, distinct, high-contrast color palette for candidates & charts
         $chart_colors = [
             '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', 
             '#06b6d4', '#ec4899', '#f97316', '#6366f1', '#14b8a6', 
@@ -544,40 +589,48 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             </div>
             <div class="card-body">
                 <?php
-                if($selected_branch !== 'overall') {
-                    $escaped_branch = $conn->real_escape_string($selected_branch);
+                if(!$is_overall) {
+                    $escaped_branches_array = [];
+                    foreach($selected_branches as $sb) {
+                        $escaped_branches_array[] = "'" . $conn->real_escape_string($sb) . "'";
+                    }
+                    $in_clause = implode(',', $escaped_branches_array);
+
+                    // Falls back to joining via member_name or direct v.branch if voter_id = 0
                     $candidates_query_str = "
                         SELECT
                             c.id,
-                            c.full_name,
+                            c.`{$candidate_name_col}` AS full_name,
                             c.photo,
-                            COUNT(CASE WHEN m.branch_name = '$escaped_branch' THEN v.id END) AS total_votes
+                            COUNT(CASE 
+                                WHEN TRIM(m.`{$member_branch_col}`) IN ($in_clause) OR TRIM(v.branch) IN ($in_clause) THEN v.id 
+                            END) AS total_votes
                         FROM candidates c
                         LEFT JOIN votes v ON c.id = v.candidate_id
-                        LEFT JOIN members m ON v.member_id = m.id
+                        LEFT JOIN members m ON (v.`{$votes_voter_col}` = m.id OR (v.`{$votes_voter_col}` = 0 AND CONCAT(TRIM(m.first_name), ' ', TRIM(m.last_name)) = TRIM(v.member_name)))
                         WHERE c.position_id = $position_id
                         GROUP BY c.id
-                        ORDER BY total_votes DESC, c.full_name ASC";
+                        ORDER BY total_votes DESC, c.`{$candidate_name_col}` ASC";
                 } else {
                     $candidates_query_str = "
                         SELECT
                             c.id,
-                            c.full_name,
+                            c.`{$candidate_name_col}` AS full_name,
                             c.photo,
                             COUNT(v.id) AS total_votes
                         FROM candidates c
                         LEFT JOIN votes v ON c.id = v.candidate_id
                         WHERE c.position_id = $position_id
                         GROUP BY c.id
-                        ORDER BY total_votes DESC, c.full_name ASC";
+                        ORDER BY total_votes DESC, c.`{$candidate_name_col}` ASC";
                 }
 
                 $candidates = $conn->query($candidates_query_str);
+                $table_rows = [];
 
                 if($candidates && $candidates->num_rows > 0){
                     $labels_array = [];
                     $votes_array = [];
-                    $table_rows = [];
 
                     while($candidate = $candidates->fetch_assoc()){
                         $labels_array[] = $candidate['full_name'];
@@ -655,7 +708,7 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body p-4">
-                        <?php if($candidates && count(array_filter($table_rows)) > 0){ ?>
+                        <?php if(!empty($table_rows)){ ?>
                         <div class="row align-items-center">
                             <div class="col-lg-7 mb-4 mb-lg-0">
                                 <div class="table-responsive">
@@ -723,25 +776,24 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             </div>
             <div class="card-body">
                 <?php
-                if($selected_branch !== 'overall') {
-                    $escaped_branch = $conn->real_escape_string($selected_branch);
-                    $total_voters = $conn->query("SELECT COUNT(*) AS total FROM members WHERE branch_name = '$escaped_branch'")->fetch_assoc()['total'];
+                if(!$is_overall) {
+                    $total_voters = $conn->query("SELECT COUNT(*) AS total FROM members WHERE TRIM(`{$member_branch_col}`) IN ($in_clause)")->fetch_assoc()['total'];
                     
                     $total_votes = $conn->query("
                         SELECT COUNT(v.id) AS total 
                         FROM votes v 
-                        INNER JOIN members m ON v.member_id = m.id 
-                        WHERE m.branch_name = '$escaped_branch'
+                        LEFT JOIN members m ON (v.`{$votes_voter_col}` = m.id OR (v.`{$votes_voter_col}` = 0 AND CONCAT(TRIM(m.first_name), ' ', TRIM(m.last_name)) = TRIM(v.member_name)))
+                        WHERE TRIM(m.`{$member_branch_col}`) IN ($in_clause) OR TRIM(v.branch) IN ($in_clause)
                     ")->fetch_assoc()['total'];
 
                     if($conn->query("SHOW COLUMNS FROM members LIKE 'has_voted'")->num_rows > 0){
-                        $voted_members = $conn->query("SELECT COUNT(*) AS total FROM members WHERE has_voted = 1 AND branch_name = '$escaped_branch'")->fetch_assoc()['total'];
+                        $voted_members = $conn->query("SELECT COUNT(*) AS total FROM members WHERE has_voted = 1 AND TRIM(`{$member_branch_col}`) IN ($in_clause)")->fetch_assoc()['total'];
                     } else {
                         $voted_members = $conn->query("
-                            SELECT COUNT(DISTINCT v.member_id) AS total 
+                            SELECT COUNT(DISTINCT CASE WHEN v.`{$votes_voter_col}` > 0 THEN v.`{$votes_voter_col}` ELSE v.member_name END) AS total 
                             FROM votes v
-                            INNER JOIN members m ON v.member_id = m.id
-                            WHERE m.branch_name = '$escaped_branch'
+                            LEFT JOIN members m ON (v.`{$votes_voter_col}` = m.id OR (v.`{$votes_voter_col}` = 0 AND CONCAT(TRIM(m.first_name), ' ', TRIM(m.last_name)) = TRIM(v.member_name)))
+                            WHERE TRIM(m.`{$member_branch_col}`) IN ($in_clause) OR TRIM(v.branch) IN ($in_clause)
                         ")->fetch_assoc()['total'];
                     }
                 } else {
@@ -751,7 +803,7 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                     if($conn->query("SHOW COLUMNS FROM members LIKE 'has_voted'")->num_rows > 0){
                         $voted_members = $conn->query("SELECT COUNT(*) AS total FROM members WHERE has_voted = 1")->fetch_assoc()['total'];
                     } else {
-                        $voted_members = $conn->query("SELECT COUNT(DISTINCT member_id) AS total FROM votes")->fetch_assoc()['total'];
+                        $voted_members = $conn->query("SELECT COUNT(DISTINCT CASE WHEN `{$votes_voter_col}` > 0 THEN `{$votes_voter_col}` ELSE member_name END) AS total FROM votes")->fetch_assoc()['total'];
                     }
                 }
 
@@ -796,11 +848,38 @@ const modalChartInstances = {};
 const chartColors = <?php echo json_encode($chart_colors); ?>;
 const rawChartData = <?php echo json_encode($chart_js_data); ?>;
 
-function filterBranch(val) {
-    if (val === 'overall') {
+function handleOverallChange() {
+    const overallCb = document.getElementById('cb_overall');
+    const branchCbs = document.querySelectorAll('.specific-branch');
+    if (overallCb.checked) {
+        branchCbs.forEach(cb => cb.checked = false);
+    } else if (!Array.from(branchCbs).some(cb => cb.checked)) {
+        overallCb.checked = true;
+    }
+}
+
+function handleBranchChange() {
+    const overallCb = document.getElementById('cb_overall');
+    const branchCbs = document.querySelectorAll('.specific-branch');
+    if (Array.from(branchCbs).some(cb => cb.checked)) {
+        overallCb.checked = false;
+    } else {
+        overallCb.checked = true;
+    }
+}
+
+function applyBranchFilter() {
+    const overallCb = document.getElementById('cb_overall');
+    if (overallCb.checked) {
+        window.location.href = 'results.php';
+        return;
+    }
+    
+    const selected = Array.from(document.querySelectorAll('.specific-branch:checked')).map(cb => cb.value);
+    if (selected.length === 0) {
         window.location.href = 'results.php';
     } else {
-        window.location.href = 'results.php?branch=' + encodeURIComponent(val);
+        window.location.href = 'results.php?branch=' + encodeURIComponent(selected.join(','));
     }
 }
 
@@ -818,7 +897,6 @@ function getResponsiveLegendPosition() {
 
 function buildCharts() {
     Object.keys(rawChartData).forEach(positionId => {
-        // Main Card Chart
         const canvasElement = document.getElementById(`chart_pos_${positionId}`);
         if(canvasElement) {
             const ctx = canvasElement.getContext('2d');
@@ -865,7 +943,6 @@ function buildCharts() {
             });
         }
 
-        // Modal Maximize Chart initialization on show
         const modalElement = document.getElementById(`maximizeModal${positionId}`);
         if(modalElement) {
             modalElement.addEventListener('shown.bs.modal', function () {

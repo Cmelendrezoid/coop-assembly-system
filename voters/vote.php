@@ -4,77 +4,253 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start();
-include '../config/db.php';
 
-if(!isset($_SESSION['member_id'])){
+// Support multiple relative paths for db configuration to prevent missing file crashes
+if (file_exists('../config/db.php')) {
+    require_once '../config/db.php';
+} elseif (file_exists('../config/conn.php')) {
+    require_once '../config/conn.php';
+}
+
+// Fallback to active global connection object
+$conn = isset($conn) && $conn ? $conn : (isset($pdo) && $pdo ? $pdo : null);
+
+// Check all voter session parameters set during login
+if (!isset($_SESSION['member_id']) && !isset($_SESSION['voter_id']) && !isset($_SESSION['voters_id'])) {
     header("Location: login.php");
     exit();
 }
 
-$member_id = $_SESSION['member_id'];
+$member_id = (int)($_SESSION['member_id'] ?? $_SESSION['voter_id'] ?? $_SESSION['voters_id']);
+
+// Detect database connection mode (mysqli or PDO)
+$is_pdo = ($conn instanceof PDO);
+
+// Dynamically detect voter column name in votes table
+$voterCol = 'voter_id';
+if ($is_pdo) {
+    try {
+        $stmt = $conn->query("SHOW COLUMNS FROM votes LIKE 'voter_id'");
+        $colCheckVotes = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$colCheckVotes) {
+            $stmt2 = $conn->query("SHOW COLUMNS FROM votes LIKE 'member_id'");
+            if ($stmt2->fetch(PDO::FETCH_ASSOC)) {
+                $voterCol = 'member_id';
+            }
+        }
+    } catch (Exception $e) {}
+} else {
+    $colCheckVotes = $conn->query("SHOW COLUMNS FROM votes LIKE 'voter_id'");
+    if (!$colCheckVotes || $colCheckVotes->num_rows === 0) {
+        $colCheckMemberId = $conn->query("SHOW COLUMNS FROM votes LIKE 'member_id'");
+        if ($colCheckMemberId && $colCheckMemberId->num_rows > 0) {
+            $voterCol = 'member_id';
+        }
+    }
+}
+
+// Ensure member_name and branch columns exist in votes table
+if ($is_pdo) {
+    try {
+        $check1 = $conn->query("SHOW COLUMNS FROM votes LIKE 'member_name'")->fetch();
+        if (!$check1) {
+            $conn->exec("ALTER TABLE votes ADD COLUMN member_name VARCHAR(255) NULL AFTER {$voterCol}");
+        }
+        $check2 = $conn->query("SHOW COLUMNS FROM votes LIKE 'branch'")->fetch();
+        if (!$check2) {
+            $conn->exec("ALTER TABLE votes ADD COLUMN branch VARCHAR(100) NULL AFTER member_name");
+        }
+    } catch (Exception $e) {}
+} else {
+    $colCheckName = $conn->query("SHOW COLUMNS FROM votes LIKE 'member_name'");
+    if (!$colCheckName || $colCheckName->num_rows === 0) {
+        $conn->query("ALTER TABLE votes ADD COLUMN member_name VARCHAR(255) NULL AFTER {$voterCol}");
+    }
+    $colCheckBranch = $conn->query("SHOW COLUMNS FROM votes LIKE 'branch'");
+    if (!$colCheckBranch || $colCheckBranch->num_rows === 0) {
+        $conn->query("ALTER TABLE votes ADD COLUMN branch VARCHAR(100) NULL AFTER member_name");
+    }
+}
+
+// Inspect actual columns in members table to prevent SQL errors
+$memberColumns = [];
+if ($is_pdo) {
+    try {
+        $columnsResult = $conn->query("SHOW COLUMNS FROM members");
+        while ($col = $columnsResult->fetch(PDO::FETCH_ASSOC)) {
+            $memberColumns[] = strtolower($col['Field']);
+        }
+    } catch (Exception $e) {}
+} else {
+    $columnsResult = $conn->query("SHOW COLUMNS FROM members");
+    if ($columnsResult) {
+        while ($col = $columnsResult->fetch_assoc()) {
+            $memberColumns[] = strtolower($col['Field']);
+        }
+    }
+}
+
+// Determine existing name column in members table
+$nameCol = null;
+if (in_array('fullname', $memberColumns)) {
+    $nameCol = 'fullname';
+} elseif (in_array('full_name', $memberColumns)) {
+    $nameCol = 'full_name';
+} elseif (in_array('name', $memberColumns)) {
+    $nameCol = 'name';
+} elseif (in_array('member_name', $memberColumns)) {
+    $nameCol = 'member_name';
+}
+
+$hasBranchCol = in_array('branch', $memberColumns);
+
+// Fetch member details safely with session fallbacks
+$member_name = $_SESSION['full_name'] ?? $_SESSION['voter_name'] ?? $_SESSION['fullname'] ?? $_SESSION['name'] ?? '';
+$member_branch = $_SESSION['branch_name'] ?? $_SESSION['branch'] ?? '';
+
+if ($nameCol || $hasBranchCol) {
+    $selectFields = [];
+    if ($nameCol) $selectFields[] = "{$nameCol} AS member_display_name";
+    if ($hasBranchCol) $selectFields[] = "branch";
+
+    $selectClause = implode(', ', $selectFields);
+    
+    if ($is_pdo) {
+        try {
+            $memStmt = $conn->prepare("SELECT {$selectClause} FROM members WHERE id = :id OR member_id = :id LIMIT 1");
+            $memStmt->execute(['id' => $member_id]);
+            if ($memRow = $memStmt->fetch(PDO::FETCH_ASSOC)) {
+                if (!empty($memRow['member_display_name'])) {
+                    $member_name = $memRow['member_display_name'];
+                }
+                if (!empty($memRow['branch'])) {
+                    $member_branch = $memRow['branch'];
+                }
+            }
+        } catch (Exception $e) {}
+    } else {
+        $memStmt = $conn->prepare("SELECT {$selectClause} FROM members WHERE id = ? OR member_id = ? LIMIT 1");
+        if ($memStmt) {
+            $memStmt->bind_param("ii", $member_id, $member_id);
+            $memStmt->execute();
+            $memRes = $memStmt->get_result();
+            if ($memRow = $memRes->fetch_assoc()) {
+                if (!empty($memRow['member_display_name'])) {
+                    $member_name = $memRow['member_display_name'];
+                }
+                if (!empty($memRow['branch'])) {
+                    $member_branch = $memRow['branch'];
+                }
+            }
+            $memStmt->close();
+        }
+    }
+}
 
 $hasVotedColumnExists = false;
 $memberHasVoted = false;
 
-$columnCheck = $conn->query("SHOW COLUMNS FROM members LIKE 'has_voted'");
-if($columnCheck && $columnCheck->num_rows === 0){
-    $conn->query("ALTER TABLE members ADD COLUMN has_voted tinyint(1) NOT NULL DEFAULT 0");
+if ($is_pdo) {
+    try {
+        $columnCheck = $conn->query("SHOW COLUMNS FROM members LIKE 'has_voted'")->fetch();
+        if (!$columnCheck) {
+            $conn->exec("ALTER TABLE members ADD COLUMN has_voted tinyint(1) NOT NULL DEFAULT 0");
+        }
+        $statusStmt = $conn->prepare("SELECT has_voted FROM members WHERE id = :id OR member_id = :id LIMIT 1");
+        $statusStmt->execute(['id' => $member_id]);
+        $statusRow = $statusStmt->fetch(PDO::FETCH_ASSOC);
+        $memberHasVoted = !empty($statusRow['has_voted']);
+    } catch (Exception $e) {}
+} else {
     $columnCheck = $conn->query("SHOW COLUMNS FROM members LIKE 'has_voted'");
+    if ($columnCheck && $columnCheck->num_rows === 0) {
+        $conn->query("ALTER TABLE members ADD COLUMN has_voted tinyint(1) NOT NULL DEFAULT 0");
+    }
+    $statusStmt = $conn->prepare("SELECT has_voted FROM members WHERE id = ? OR member_id = ?");
+    if ($statusStmt) {
+        $statusStmt->bind_param("ii", $member_id, $member_id);
+        $statusStmt->execute();
+        $statusResult = $statusStmt->get_result();
+        if ($statusRow = $statusResult->fetch_assoc()) {
+            $memberHasVoted = !empty($statusRow['has_voted']);
+        }
+        $statusStmt->close();
+    }
 }
 
-if($columnCheck && $columnCheck->num_rows > 0){
-    $hasVotedColumnExists = true;
-    $statusStmt = $conn->prepare(
-        "SELECT has_voted FROM members WHERE id = ?"
-    );
-    $statusStmt->bind_param("i", $member_id);
-    $statusStmt->execute();
-    $statusResult = $statusStmt->get_result();
-    $statusRow = $statusResult->fetch_assoc();
-    $memberHasVoted = !empty($statusRow['has_voted']);
-    $statusStmt->close();
-}
-
-if($memberHasVoted){
+if ($memberHasVoted) {
     header("Location: thankyou.php");
     exit();
 }
 
-$check = $conn->prepare(
-    "SELECT COUNT(*) AS total
-     FROM votes
-     WHERE member_id=?"
-);
+if ($is_pdo) {
+    try {
+        $check = $conn->prepare("SELECT COUNT(*) AS total FROM votes WHERE {$voterCol} = :id");
+        $check->execute(['id' => $member_id]);
+        $row = $check->fetch(PDO::FETCH_ASSOC);
+        if ($row && $row['total'] > 0) {
+            header("Location: thankyou.php");
+            exit();
+        }
+    } catch (Exception $e) {}
+} else {
+    $check = $conn->prepare("SELECT COUNT(*) AS total FROM votes WHERE {$voterCol} = ?");
+    if ($check) {
+        $check->bind_param("i", $member_id);
+        $check->execute();
+        $result = $check->get_result();
+        $row = $result->fetch_assoc();
+        $check->close();
+        if ($row['total'] > 0) {
+            header("Location: thankyou.php");
+            exit();
+        }
+    }
+}
 
-$check->bind_param("i",$member_id);
-$check->execute();
-
-$result = $check->get_result();
-$row = $result->fetch_assoc();
-$check->close();
-
-if($row['total'] > 0){
-    header("Location: thankyou.php");
-    exit();
+// Explicit candidate name column based on database structure
+$candidateNameCol = 'fullname';
+if ($is_pdo) {
+    try {
+        $candCheck = $conn->query("SHOW COLUMNS FROM candidates LIKE 'fullname'")->fetch();
+        if (!$candCheck) {
+            $candCheck2 = $conn->query("SHOW COLUMNS FROM candidates LIKE 'full_name'")->fetch();
+            $candidateNameCol = $candCheck2 ? 'full_name' : 'name';
+        }
+    } catch (Exception $e) {}
+} else {
+    $candColCheck = $conn->query("SHOW COLUMNS FROM candidates LIKE 'fullname'");
+    if (!$candColCheck || $candColCheck->num_rows === 0) {
+        $candColCheck2 = $conn->query("SHOW COLUMNS FROM candidates LIKE 'full_name'");
+        if ($candColCheck2 && $candColCheck2->num_rows > 0) {
+            $candidateNameCol = 'full_name';
+        } else {
+            $candidateNameCol = 'name';
+        }
+    }
 }
 
 $error = "";
 $action = $_POST['action'] ?? '';
 
-$positions = $conn->query(
-    "SELECT *
-     FROM positions
-     ORDER BY id"
-);
-
 $positionsArray = [];
-while($position = $positions->fetch_assoc()){
-    $positionsArray[] = $position;
+if ($is_pdo) {
+    try {
+        $positions = $conn->query("SELECT * FROM positions ORDER BY id");
+        $positionsArray = $positions->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {}
+} else {
+    $positions = $conn->query("SELECT * FROM positions ORDER BY id");
+    if ($positions) {
+        while ($position = $positions->fetch_assoc()) {
+            $positionsArray[] = $position;
+        }
+    }
 }
 $totalPositions = count($positionsArray);
 
 $candidateMetadata = [];
-foreach($positionsArray as $position){
+foreach ($positionsArray as $position) {
     $position_id = $position['id'];
     $candidateMetadata[$position_id] = [
         'position_name' => $position['position_name'],
@@ -82,46 +258,65 @@ foreach($positionsArray as $position){
         'candidates' => []
     ];
 
-    $candidateResults = $conn->query(
-        "SELECT id, full_name, photo FROM candidates WHERE position_id = $position_id ORDER BY full_name"
-    );
-
-    while($candidate = $candidateResults->fetch_assoc()){
-        $imageFilename = '';
-        if (!empty($candidate['photo'])) {
-            $imageFilename = $candidate['photo'];
-        } elseif (!empty($candidate['picture'])) {
-            $imageFilename = $candidate['picture'];
-        } elseif (!empty($candidate['image'])) {
-            $imageFilename = $candidate['image'];
-        }
-
-        $cleanPath = !empty($imageFilename) ? '../assets/images/' . basename($imageFilename) : '';
-        $initials = '';
-        if (!empty($candidate['full_name'])) {
-            $parts = explode(' ', $candidate['full_name']);
-            $initials = strtoupper(substr($parts[0], 0, 1));
-            if (count($parts) > 1) {
-                $initials .= strtoupper(substr($parts[count($parts) - 1], 0, 1));
+    if ($is_pdo) {
+        try {
+            $stmt = $conn->prepare("SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = :pid ORDER BY candidate_display_name");
+            $stmt->execute(['pid' => $position_id]);
+            $candidateResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($candidateResults as $candidate) {
+                $imageFilename = $candidate['photo'] ?? '';
+                $cleanPath = !empty($imageFilename) ? '../assets/images/' . basename($imageFilename) : '';
+                $initials = '';
+                $displayName = $candidate['candidate_display_name'] ?? '';
+                if (!empty($displayName)) {
+                    $parts = explode(' ', $displayName);
+                    $initials = strtoupper(substr($parts[0], 0, 1));
+                    if (count($parts) > 1) {
+                        $initials .= strtoupper(substr($parts[count($parts) - 1], 0, 1));
+                    }
+                }
+                $candidateMetadata[$position_id]['candidates'][$candidate['id']] = [
+                    'full_name' => $displayName,
+                    'imgsrc' => $cleanPath,
+                    'initials' => $initials
+                ];
+            }
+        } catch (Exception $e) {}
+    } else {
+        $candidateResults = $conn->query(
+            "SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = $position_id ORDER BY candidate_display_name"
+        );
+        if ($candidateResults) {
+            while ($candidate = $candidateResults->fetch_assoc()) {
+                $imageFilename = $candidate['photo'] ?? '';
+                $cleanPath = !empty($imageFilename) ? '../assets/images/' . basename($imageFilename) : '';
+                $initials = '';
+                $displayName = $candidate['candidate_display_name'] ?? '';
+                if (!empty($displayName)) {
+                    $parts = explode(' ', $displayName);
+                    $initials = strtoupper(substr($parts[0], 0, 1));
+                    if (count($parts) > 1) {
+                        $initials .= strtoupper(substr($parts[count($parts) - 1], 0, 1));
+                    }
+                }
+                $candidateMetadata[$position_id]['candidates'][$candidate['id']] = [
+                    'full_name' => $displayName,
+                    'imgsrc' => $cleanPath,
+                    'initials' => $initials
+                ];
             }
         }
-
-        $candidateMetadata[$position_id]['candidates'][$candidate['id']] = [
-            'full_name' => $candidate['full_name'],
-            'imgsrc' => $cleanPath,
-            'initials' => $initials
-        ];
     }
 }
 
 $currentPage = 0;
-if(isset($_POST['current_page'])){
+if (isset($_POST['current_page'])) {
     $currentPage = max(0, min($totalPositions - 1, intval($_POST['current_page'])));
-} elseif(isset($_GET['page'])){
+} elseif (isset($_GET['page'])) {
     $currentPage = max(0, min($totalPositions - 1, intval($_GET['page'])));
 } else {
-    foreach($positionsArray as $idx => $position){
-        if(strtolower(trim($position['position_name'])) === 'board of directors'){
+    foreach ($positionsArray as $idx => $position) {
+        if (strtolower(trim($position['position_name'])) === 'board of directors') {
             $currentPage = $idx;
             break;
         }
@@ -130,99 +325,121 @@ if(isset($_POST['current_page'])){
 
 $voteData = $_POST['vote'] ?? [];
 
-if($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'submit'){
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'submit') {
     $totalVotesSelected = 0;
-    foreach($positionsArray as $position){
+    foreach ($positionsArray as $position) {
         $position_id = $position['id'];
         $vote_limit = $position['vote_limit'];
         $selected = isset($voteData[$position_id]) && is_array($voteData[$position_id]) ? count($voteData[$position_id]) : 0;
         $totalVotesSelected += $selected;
 
-        if($selected > $vote_limit){
+        if ($selected > $vote_limit) {
             $error = "Maximum allowed for " . $position['position_name'] . " is " . $vote_limit . " candidate(s).";
             break;
         }
     }
 
-    if(empty($error)){
-        // TRAFFIC PROTECTION: Begin an all-or-nothing database transaction
-        $conn->begin_transaction();
+    if (empty($error)) {
+        if ($is_pdo) {
+            try {
+                $conn->beginTransaction();
 
-        $stmt = null;
-        $updateStmt = null;
-
-        try {
-            if(!empty($voteData)){
-                // TRAFFIC PROTECTION: Prepare the query ONCE outside the loop to minimize overhead
-                $stmt = $conn->prepare(
-                    "INSERT INTO votes (member_id, position_id, candidate_id) VALUES (?, ?, ?)"
-                );
-
-                if ($stmt === false) {
-                    throw new Exception("Failed to prepare ballot processing elements.");
-                }
-
-                foreach($voteData as $position_id => $candidate_ids){
-                    if (is_array($candidate_ids)) {
-                        foreach($candidate_ids as $candidate_id){
-                            $stmt->bind_param("iii", $member_id, $position_id, $candidate_id);
-                            $stmt->execute();
+                if (!empty($voteData)) {
+                    $stmt = $conn->prepare("INSERT INTO votes ({$voterCol}, member_name, branch, position_id, candidate_id) VALUES (:voter_id, :mname, :branch, :pid, :cid)");
+                    foreach ($voteData as $position_id => $candidate_ids) {
+                        if (is_array($candidate_ids)) {
+                            foreach ($candidate_ids as $candidate_id) {
+                                $stmt->execute([
+                                    'voter_id' => $member_id,
+                                    'mname'    => $member_name,
+                                    'branch'   => $member_branch,
+                                    'pid'      => $position_id,
+                                    'cid'      => $candidate_id
+                                ]);
+                            }
                         }
                     }
                 }
-            }
 
-            if($hasVotedColumnExists){
-                $updateStmt = $conn->prepare(
-                    "UPDATE members SET has_voted = 1 WHERE id = ?"
-                );
-                if ($updateStmt === false) {
-                    throw new Exception("Failed to prepare layout tracking variables.");
+                $updateStmt = $conn->prepare("UPDATE members SET has_voted = 1 WHERE id = :id OR member_id = :id");
+                $updateStmt->execute(['id' => $member_id]);
+
+                $conn->commit();
+                header("Location: thankyou.php");
+                exit();
+
+            } catch (Exception $e) {
+                if ($conn->inTransaction()) {
+                    $conn->rollBack();
                 }
-                $updateStmt->bind_param("i", $member_id);
-                $updateStmt->execute();
+                $error = "System Error: " . $e->getMessage();
             }
+        } else {
+            $conn->begin_transaction();
+            $stmt = null;
+            $updateStmt = null;
 
-            // TRAFFIC PROTECTION: Commit everything safely at the exact same instant
-            $conn->commit();
-            
-            header("Location: thankyou.php");
-            exit();
+            try {
+                if (!empty($voteData)) {
+                    $stmt = $conn->prepare("INSERT INTO votes ({$voterCol}, member_name, branch, position_id, candidate_id) VALUES (?, ?, ?, ?, ?)");
+                    if ($stmt === false) {
+                        throw new Exception("Failed to prepare ballot processing statement.");
+                    }
 
-        } catch (Exception $e) {
-            // TRAFFIC PROTECTION: Undo everything if connection limits or server errors interrupt the process
-            $conn->rollback();
-            $error = "The server is currently busy handling traffic. Your vote was not recorded. Please try again. System Error: " . $e->getMessage();
-        } finally {
-            // TRAFFIC PROTECTION: Explicitly kill the processes immediately to make space for the next voter
-            if ($stmt) $stmt->close();
-            if ($updateStmt) $updateStmt->close();
+                    foreach ($voteData as $position_id => $candidate_ids) {
+                        if (is_array($candidate_ids)) {
+                            foreach ($candidate_ids as $candidate_id) {
+                                $stmt->bind_param("issii", $member_id, $member_name, $member_branch, $position_id, $candidate_id);
+                                $stmt->execute();
+                            }
+                        }
+                    }
+                }
+
+                $updateStmt = $conn->prepare("UPDATE members SET has_voted = 1 WHERE id = ? OR member_id = ?");
+                if ($updateStmt === false) {
+                    throw new Exception("Failed to update voter status.");
+                }
+                $updateStmt->bind_param("ii", $member_id, $member_id);
+                $updateStmt->execute();
+
+                $conn->commit();
+                header("Location: thankyou.php");
+                exit();
+
+            } catch (Exception $e) {
+                $conn->rollback();
+                $error = "System Error: " . $e->getMessage();
+            } finally {
+                if ($stmt) $stmt->close();
+                if ($updateStmt) $updateStmt->close();
+            }
         }
     }
 }
 
-if($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'submit'){
-    if($action === 'next' && $currentPage < $totalPositions - 1){
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action !== 'submit') {
+    if ($action === 'next' && $currentPage < $totalPositions - 1) {
         $currentPage++;
-    } elseif($action === 'previous' && $currentPage > 0){
+    } elseif ($action === 'previous' && $currentPage > 0) {
         $currentPage--;
     }
 }
 
 $currentPosition = $positionsArray[$currentPage] ?? null;
 $currentPositionVotes = [];
-if($currentPosition && isset($voteData[$currentPosition['id']]) && is_array($voteData[$currentPosition['id']])){
+if ($currentPosition && isset($voteData[$currentPosition['id']]) && is_array($voteData[$currentPosition['id']])) {
     $currentPositionVotes = $voteData[$currentPosition['id']];
 }
 
-function renderHiddenVoteInputs($voteData, $currentPositionId){
+function renderHiddenVoteInputs($voteData, $currentPositionId) {
     $html = '';
-    foreach($voteData as $positionId => $candidateIds){
-        if((int)$positionId === (int)$currentPositionId){
+    foreach ($voteData as $positionId => $candidateIds) {
+        if ((int)$positionId === (int)$currentPositionId) {
             continue;
         }
         if (is_array($candidateIds)) {
-            foreach($candidateIds as $candidateId){
+            foreach ($candidateIds as $candidateId) {
                 $html .= '<input type="hidden" name="vote[' . htmlspecialchars($positionId) . '][]" value="' . htmlspecialchars($candidateId) . '">';
             }
         }
@@ -638,7 +855,7 @@ h2 {
 <h2 class="mb-1">Cast Your Vote</h2>
 
 <p class="user-welcome-text mb-4">
-    Welcome, <strong><?php echo htmlspecialchars($_SESSION['full_name'] ?? 'Voter'); ?></strong>
+    Welcome, <strong><?php echo htmlspecialchars($member_name ?: 'Voter'); ?></strong>
 </p>
 
 <?php if(!empty($error)){ ?>
@@ -664,29 +881,35 @@ h2 {
         <div class="candidate-grid">
             <?php
             $position_id = $currentPosition['id'];
-            $candidates = $conn->query(
-                "SELECT * FROM candidates WHERE position_id = $position_id ORDER BY full_name"
-            );
+            $candidatesList = [];
 
-            while($candidate = $candidates->fetch_assoc()){
+            if ($is_pdo) {
+                try {
+                    $cStmt = $conn->prepare("SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = :pid ORDER BY candidate_display_name");
+                    $cStmt->execute(['pid' => $position_id]);
+                    $candidatesList = $cStmt->fetchAll(PDO::FETCH_ASSOC);
+                } catch (Exception $e) {}
+            } else {
+                $cRes = $conn->query("SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = $position_id ORDER BY candidate_display_name");
+                if ($cRes) {
+                    while ($cRow = $cRes->fetch_assoc()) {
+                        $candidatesList[] = $cRow;
+                    }
+                }
+            }
+
+            foreach($candidatesList as $candidate){
+                $displayName = $candidate['candidate_display_name'] ?? '';
                 $initials = '';
-                if (!empty($candidate['full_name'])) {
-                    $parts = explode(' ', $candidate['full_name']);
+                if (!empty($displayName)) {
+                    $parts = explode(' ', $displayName);
                     $initials = strtoupper(substr($parts[0], 0, 1));
                     if (count($parts) > 1) {
                         $initials .= strtoupper(substr($parts[count($parts) - 1], 0, 1));
                     }
                 }
 
-                $imageFilename = '';
-                if (!empty($candidate['photo'])) {
-                    $imageFilename = $candidate['photo'];
-                } elseif (!empty($candidate['picture'])) {
-                    $imageFilename = $candidate['picture'];
-                } elseif (!empty($candidate['image'])) {
-                    $imageFilename = $candidate['image'];
-                }
-
+                $imageFilename = $candidate['photo'] ?? '';
                 $cleanPath = !empty($imageFilename) ? '../assets/images/' . htmlspecialchars(basename($imageFilename)) : '';
                 $checked = in_array($candidate['id'], $currentPositionVotes) ? 'checked' : '';
             ?>
@@ -702,7 +925,7 @@ h2 {
                 </div>
 
                 <div class="candidate-details-text">
-                    <div class="candidate-name"><?php echo htmlspecialchars($candidate['full_name']); ?></div>
+                    <div class="candidate-name"><?php echo htmlspecialchars($displayName); ?></div>
                 </div>
 
                 <div class="candidate-checkbox">

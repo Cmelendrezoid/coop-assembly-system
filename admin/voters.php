@@ -11,40 +11,51 @@ $message = "";
 
 /*
 |--------------------------------------------------------------------------
-| RESET VOTER'S BALLOT (2ND CHANCE LOGIC)
+| BASE CONDITION FOR COMPLETED VOTERS (STRICT HAS_VOTED CHECK)
 |--------------------------------------------------------------------------
 */
-if(isset($_GET['reset_vote'])){
+$voterMatchCondition = "members.has_voted = 1";
 
-    $id = (int)$_GET['reset_vote'];
+/*
+|--------------------------------------------------------------------------
+| EXPORT TO EXCEL / CSV LOGIC
+|--------------------------------------------------------------------------
+*/
+if(isset($_GET['export']) && $_GET['export'] === 'excel'){
+    $filename = "completed_voters_" . date('Y-m-d_H-i-s') . ".csv";
 
-    $conn->begin_transaction();
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=' . $filename);
 
-    try {
-        $stmt1 = $conn->prepare("
-            DELETE FROM votes 
-            WHERE member_id = ?
-        ");
-        $stmt1->bind_param("i", $id);
-        $stmt1->execute();
+    $output = fopen('php://output', 'w');
 
-        $stmt2 = $conn->prepare("
-            UPDATE members 
-            SET has_voted = 0 
-            WHERE id = ?
-        ");
-        $stmt2->bind_param("i", $id);
-        $stmt2->execute();
+    // Add UTF-8 BOM for Excel to render accents/special characters correctly
+    fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
 
-        $conn->commit();
-        
-        header("Location: voters.php");
-        exit();
+    // CSV Column Headers
+    fputcsv($output, ['ID', 'Full Name', 'Branch', 'Category', 'Status']);
 
-    } catch (Exception $e) {
-        $conn->rollback();
-        $message = "Error resetting voter ballot: " . $e->getMessage();
+    $exportQuery = $conn->query("
+        SELECT id, full_name, branch_name, migs_category
+        FROM members
+        WHERE {$voterMatchCondition}
+        ORDER BY full_name ASC
+    ");
+
+    if($exportQuery && $exportQuery->num_rows > 0){
+        while($row = $exportQuery->fetch_assoc()){
+            fputcsv($output, [
+                $row['id'],
+                $row['full_name'],
+                $row['branch_name'] ?? '',
+                $row['migs_category'] ?? '',
+                'Done Voting'
+            ]);
+        }
     }
+
+    fclose($output);
+    exit();
 }
 
 /*
@@ -52,11 +63,23 @@ if(isset($_GET['reset_vote'])){
 | SORTING LOGIC
 |--------------------------------------------------------------------------
 */
-$allowedSortColumns = ['id', 'full_name', 'branch_name', 'migs_category'];
-$sort = isset($_GET['sort']) && in_array($_GET['sort'], $allowedSortColumns) ? $_GET['sort'] : 'full_name';
+$sortKey = $_GET['sort'] ?? 'name';
+$allowedSortKeys = ['id', 'name', 'branch_name', 'migs_category'];
+if (!in_array($sortKey, $allowedSortKeys)) {
+    $sortKey = 'name';
+}
+
+$sortDbMap = [
+    'id'            => 'id',
+    'name'          => 'full_name',
+    'branch_name'   => 'branch_name',
+    'migs_category' => 'migs_category'
+];
+$sortColumn = $sortDbMap[$sortKey];
+
 $order = isset($_GET['order']) && strtoupper($_GET['order']) === 'DESC' ? 'DESC' : 'ASC';
 $nextOrder = ($order === 'ASC') ? 'desc' : 'asc';
-$branchArrow = ($sort === 'branch_name') ? ($order === 'ASC' ? ' <i class="bi bi-arrow-up"></i>' : ' <i class="bi bi-arrow-down"></i>') : '';
+$branchArrow = ($sortKey === 'branch_name') ? ($order === 'ASC' ? ' <i class="bi bi-arrow-up"></i>' : ' <i class="bi bi-arrow-down"></i>') : '';
 
 /*
 |--------------------------------------------------------------------------
@@ -68,20 +91,21 @@ $search = $_GET['search'] ?? '';
 if(!empty($search)){
     $searchTerm = "%".$search."%";
     $stmt = $conn->prepare("
-        SELECT *
+        SELECT id, full_name, branch_name, migs_category, has_voted
         FROM members
-        WHERE has_voted = 1 AND full_name LIKE ?
-        ORDER BY {$sort} {$order}
+        WHERE {$voterMatchCondition}
+          AND full_name LIKE ?
+        ORDER BY {$sortColumn} {$order}
     ");
-    $stmt->bind_param("s",$searchTerm);
+    $stmt->bind_param("s", $searchTerm);
     $stmt->execute();
     $voters = $stmt->get_result();
 }else{
     $voters = $conn->query("
-        SELECT *
+        SELECT id, full_name, branch_name, migs_category, has_voted
         FROM members
-        WHERE has_voted = 1
-        ORDER BY {$sort} {$order}
+        WHERE {$voterMatchCondition}
+        ORDER BY {$sortColumn} {$order}
     ");
 }
 
@@ -90,30 +114,17 @@ if(!empty($search)){
 | STATISTICS
 |--------------------------------------------------------------------------
 */
-$totalMembers = $conn->query("
+$totalMembersQuery = $conn->query("
     SELECT COUNT(*) total
     FROM members
-")->fetch_assoc()['total'];
+");
+$totalMembers = $totalMembersQuery ? $totalMembersQuery->fetch_assoc()['total'] : 0;
 
-$totalAwardees = $conn->query("
-    SELECT COUNT(*) total
-    FROM members
-    WHERE awardee IS NOT NULL
-    AND awardee <> ''
-    AND awardee <> 'N/A'
-")->fetch_assoc()['total'];
+$totalVotedQuery = $conn->query("
+    SELECT COUNT(DISTINCT id) total FROM members WHERE {$voterMatchCondition}
+");
+$totalVoted = $totalVotedQuery ? $totalVotedQuery->fetch_assoc()['total'] : 0;
 
-$totalPrinted = $conn->query("
-    SELECT COUNT(*) total
-    FROM members
-    WHERE printed = 1
-")->fetch_assoc()['total'];
-
-$totalAllowance = $conn->query("
-    SELECT COUNT(*) total
-    FROM members
-    WHERE allowance_claimed = 1
-")->fetch_assoc()['total'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -501,7 +512,7 @@ body {
 
         <!-- STATISTICS WIDGETS -->
         <div class="row g-3 mb-4">
-            <div class="col-md-3">
+            <div class="col-md-6">
                 <div class="stat-widget">
                     <div class="stat-icon bg-primary bg-opacity-10 text-primary">
                         <i class="bi bi-people-fill"></i>
@@ -512,36 +523,14 @@ body {
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
                 <div class="stat-widget">
                     <div class="stat-icon bg-success bg-opacity-10 text-success">
-                        <i class="bi bi-award-fill"></i>
+                        <i class="bi bi-check-circle-fill"></i>
                     </div>
                     <div>
-                        <div class="fs-4 fw-bold"><?= $totalAwardees ?></div>
-                        <div class="text-secondary small fw-medium">Awardees</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-widget">
-                    <div class="stat-icon bg-info bg-opacity-10 text-info">
-                        <i class="bi bi-printer-fill"></i>
-                    </div>
-                    <div>
-                        <div class="fs-4 fw-bold"><?= $totalPrinted ?></div>
-                        <div class="text-secondary small fw-medium">Printed IDs</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="stat-widget">
-                    <div class="stat-icon bg-warning bg-opacity-10 text-warning">
-                        <i class="bi bi-cash-stack"></i>
-                    </div>
-                    <div>
-                        <div class="fs-4 fw-bold"><?= $totalAllowance ?></div>
-                        <div class="text-secondary small fw-medium">Allowance Claimed</div>
+                        <div class="fs-4 fw-bold"><?= $totalVoted ?></div>
+                        <div class="text-secondary small fw-medium">Total Completed Voters</div>
                     </div>
                 </div>
             </div>
@@ -550,7 +539,7 @@ body {
         <!-- SEARCH BAR -->
         <div class="admin-card mb-4">
             <form method="GET">
-                <input type="hidden" name="sort" value="<?= htmlspecialchars($sort); ?>">
+                <input type="hidden" name="sort" value="<?= htmlspecialchars($sortKey); ?>">
                 <input type="hidden" name="order" value="<?= htmlspecialchars($order); ?>">
                 <div class="row g-3">
                     <div class="col-md-10">
@@ -572,16 +561,21 @@ body {
 
         <!-- VOTERS TABLE -->
         <div class="admin-card">
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
                 <div>
                     <h5 class="fw-bold mb-1"><i class="bi bi-person-check-fill text-primary me-2"></i>Members Done Voting</h5>
                     <p class="text-secondary small mb-0">List of verified voters who have successfully cast their votes</p>
                 </div>
-                <?php if($sort === 'branch_name'){ ?>
-                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-1">
-                        Sorted by Branch (<?= strtoupper($order) ?>)
-                    </span>
-                <?php } ?>
+                <div class="d-flex align-items-center gap-2">
+                    <?php if($sortKey === 'branch_name'){ ?>
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-2">
+                            Sorted by Branch (<?= strtoupper($order) ?>)
+                        </span>
+                    <?php } ?>
+                    <a href="?export=excel" class="btn btn-success fw-semibold rounded-3 px-3 py-2 d-inline-flex align-items-center gap-2">
+                        <i class="bi bi-file-earmark-excel-fill fs-6"></i> Export to Excel
+                    </a>
+                </div>
             </div>
 
             <div class="table-responsive">
@@ -595,59 +589,28 @@ body {
                                     Branch <?= $branchArrow; ?> <i class="bi bi-arrow-down-up small"></i>
                                 </a>
                             </th>
-                            <th>MIGS Category</th>
-                            <th>Awardee</th>
-                            <th>Printed</th>
-                            <th>Allowance</th>
-                            <th width="140" class="text-end">Action</th>
+                            <th>Category</th>
+                            <th class="text-end">Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                    <?php if($voters->num_rows > 0){ ?>
+                    <?php if($voters && $voters->num_rows > 0){ ?>
                         <?php while($row = $voters->fetch_assoc()){ ?>
                             <tr>
                                 <td class="fw-bold text-secondary">#<?= $row['id']; ?></td>
-                                <td class="fw-bold"><?= htmlspecialchars($row['full_name']); ?></td>
-                                <td><?= htmlspecialchars($row['branch_name']); ?></td>
-                                <td><?= htmlspecialchars($row['migs_category']); ?></td>
-                                <td>
-                                    <?php
-                                    $awardee = trim($row['awardee'] ?? '');
-                                    if(!empty($awardee) && strtoupper($awardee) !== 'N/A'){
-                                    ?>
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 rounded-pill px-3 py-1">Awardee</span>
-                                    <?php } else { ?>
-                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-20 rounded-pill px-3 py-1">Regular</span>
-                                    <?php } ?>
-                                </td>
-                                <td>
-                                    <?php if($row['printed']){ ?>
-                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-1">Printed</span>
-                                    <?php } else { ?>
-                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 rounded-pill px-3 py-1">Not Printed</span>
-                                    <?php } ?>
-                                </td>
-                                <td>
-                                    <?php if($row['allowance_claimed']){ ?>
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 rounded-pill px-3 py-1">Claimed</span>
-                                    <?php } else { ?>
-                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-20 rounded-pill px-3 py-1">Pending</span>
-                                    <?php } ?>
-                                </td>
+                                <td class="fw-bold"><?= htmlspecialchars($row['full_name'] ?? ''); ?></td>
+                                <td><?= htmlspecialchars($row['branch_name'] ?? ''); ?></td>
+                                <td><?= htmlspecialchars($row['migs_category'] ?? ''); ?></td>
                                 <td class="text-end">
-                                    <a
-                                        href="?reset_vote=<?= $row['id']; ?>"
-                                        class="btn btn-outline-warning btn-sm rounded-3 px-2 py-1 fw-semibold"
-                                        onclick="return confirm('Are you sure you want to completely wipe out this user\'s ballot record and grant them a second chance to vote?')"
-                                        title="Reset Vote">
-                                        <i class="bi bi-arrow-counterclockwise"></i> Reset
-                                    </a>
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 rounded-pill px-3 py-1 fw-semibold">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Done Voting
+                                    </span>
                                 </td>
                             </tr>
                         <?php } ?>
                     <?php } else { ?>
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-secondary">
+                            <td colspan="5" class="text-center py-4 text-secondary">
                                 No records found for members who have completed voting.
                             </td>
                         </tr>

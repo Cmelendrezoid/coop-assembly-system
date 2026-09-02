@@ -28,21 +28,24 @@ if ($votesRes) { $totalVotes = $votesRes->fetch_assoc()['total'] ?? 0; }
 
 /*
 |--------------------------------------------------------------------------
-| Auto-Create Attendance Table if Missing
+| Check Schema Column Existence (Safe Handling)
 |--------------------------------------------------------------------------
 */
 
-$createTableQuery = "
-CREATE TABLE IF NOT EXISTS `attendance_logs` (
-  `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `member_id` VARCHAR(50) NOT NULL,
-  `member_name` VARCHAR(255) NOT NULL,
-  `category` VARCHAR(50) DEFAULT 'REGULAR',
-  `claimed_items` TEXT NULL,
-  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-";
-$conn->query($createTableQuery);
+$hasCategoryCol = false;
+$checkColQuery = $conn->query("SHOW COLUMNS FROM members LIKE 'category'");
+if ($checkColQuery && $checkColQuery->num_rows > 0) {
+    $hasCategoryCol = true;
+}
+
+$hasBranchCol = false;
+$checkBranchQuery = $conn->query("SHOW COLUMNS FROM members LIKE 'branch'");
+if ($checkBranchQuery && $checkBranchQuery->num_rows > 0) {
+    $hasBranchCol = true;
+}
+
+$categorySelect = $hasCategoryCol ? "m.category" : "'REGULAR'";
+$branchSelect = $hasBranchCol ? "m.branch" : "'Main Branch'";
 
 /*
 |--------------------------------------------------------------------------
@@ -52,47 +55,91 @@ $conn->query($createTableQuery);
 
 $filterDate = isset($_GET['filter_date']) ? trim($_GET['filter_date']) : '';
 
-// Base query conditions for attendance logs
+// Base query conditions for member_freebie_claims filtering
 $whereClause = "";
 if (!empty($filterDate)) {
     $escapedDate = $conn->real_escape_string($filterDate);
-    $whereClause = " WHERE DATE(created_at) = '$escapedDate'";
+    $whereClause = " WHERE DATE(c.claimed_at) = '$escapedDate'";
 }
 
-// 1. Total Attendees Arrived
+// 1. Total Unique Members Arrived / Claimed
 $totalAttendees = 0;
-$totalAttendeesRes = $conn->query("SELECT COUNT(*) as total FROM attendance_logs" . $whereClause);
+$totalAttendeesRes = $conn->query("SELECT COUNT(DISTINCT member_id) as total FROM member_freebie_claims c" . $whereClause);
 if ($totalAttendeesRes) {
     $totalAttendees = $totalAttendeesRes->fetch_assoc()['total'] ?? 0;
 }
 
-// 2. Today's Arrivals
+// 2. Today's Arrivals / Claims
 $todaysArrivals = 0;
-$todaysArrivalsRes = $conn->query("SELECT COUNT(*) as total FROM attendance_logs WHERE DATE(created_at) = CURDATE()");
+$todaysArrivalsRes = $conn->query("SELECT COUNT(DISTINCT member_id) as total FROM member_freebie_claims c WHERE DATE(c.claimed_at) = CURDATE()");
 if ($todaysArrivalsRes) {
     $todaysArrivals = $todaysArrivalsRes->fetch_assoc()['total'] ?? 0;
 }
 
-// 3. Category Breakdown (e.g., GOLD members)
-$goldCount = 0;
-$goldCategoryQuery = "SELECT COUNT(*) as total FROM attendance_logs WHERE UPPER(category) = 'GOLD'" . ($whereClause ? " AND DATE(created_at) = '$escapedDate'" : "");
-$goldRes = $conn->query($goldCategoryQuery);
-if ($goldRes) {
-    $goldCount = $goldRes->fetch_assoc()['total'] ?? 0;
+// 3. Category Breakdown Queries (Gold, Silver, Bronze, Non-MIGS)
+$categoryCounts = [
+    'GOLD' => 0,
+    'SILVER' => 0,
+    'BRONZE' => 0,
+    'NON-MIGS' => 0
+];
+
+$catQuery = "
+    SELECT 
+        UPPER(TRIM(" . $categorySelect . ")) as member_cat, 
+        COUNT(DISTINCT c.member_id) as total 
+    FROM member_freebie_claims c
+    LEFT JOIN members m ON c.member_id = m.id
+    " . $whereClause . "
+    GROUP BY UPPER(TRIM(" . $categorySelect . "))
+";
+
+$catRes = $conn->query($catQuery);
+if ($catRes) {
+    while ($row = $catRes->fetch_assoc()) {
+        $cat = $row['member_cat'];
+        if (array_key_exists($cat, $categoryCounts)) {
+            $categoryCounts[$cat] = (int)$row['total'];
+        } elseif ($cat === 'NON MIGS' || $cat === 'NONMIGS') {
+            $categoryCounts['NON-MIGS'] += (int)$row['total'];
+        }
+    }
 }
 
-// 4. Live Attendance & Claims Log Table
-$attendanceLogs = false;
+// 4. Quantity Summary Breakdown per Item
+$itemTotalsQuery = "
+    SELECT 
+        SUM(CASE WHEN item_name LIKE '%T-Shirt%' THEN 1 ELSE 0 END) AS total_tshirts,
+        SUM(CASE WHEN item_name LIKE '%Cash Allowance%' THEN 1 ELSE 0 END) AS total_cash,
+        SUM(CASE WHEN item_name LIKE '%Snacks%' OR item_name LIKE '%Meals%' THEN 1 ELSE 0 END) AS total_snacks,
+        SUM(CASE WHEN item_name LIKE '%Umbrella%' THEN 1 ELSE 0 END) AS total_umbrellas,
+        SUM(CASE WHEN item_name LIKE '%Water Bottle%' OR item_name LIKE '%Gold%' THEN 1 ELSE 0 END) AS total_bottles
+    FROM member_freebie_claims c
+    $whereClause
+";
+$itemTotalsRes = $conn->query($itemTotalsQuery);
+$itemTotals = $itemTotalsRes ? $itemTotalsRes->fetch_assoc() : [
+    'total_tshirts' => 0, 'total_cash' => 0, 'total_snacks' => 0, 'total_umbrellas' => 0, 'total_bottles' => 0
+];
+
+// 5. Live Attendance & Claims Log Table (Includes Member Branch)
 $logQuery = "
     SELECT 
-        member_id, 
-        member_name, 
-        category, 
-        claimed_items, 
-        created_at 
-    FROM attendance_logs 
+        c.member_id, 
+        c.member_name, 
+        COALESCE(" . $categorySelect . ", 'REGULAR') as category, 
+        COALESCE(" . $branchSelect . ", 'Main Branch') as branch,
+        SUM(CASE WHEN c.item_name LIKE '%T-Shirt%' THEN 1 ELSE 0 END) AS qty_tshirt,
+        SUM(CASE WHEN c.item_name LIKE '%Cash Allowance%' THEN 1 ELSE 0 END) AS qty_cash,
+        SUM(CASE WHEN c.item_name LIKE '%Snacks%' OR c.item_name LIKE '%Meals%' THEN 1 ELSE 0 END) AS qty_snacks,
+        SUM(CASE WHEN c.item_name LIKE '%Umbrella%' THEN 1 ELSE 0 END) AS qty_umbrella,
+        SUM(CASE WHEN c.item_name LIKE '%Water Bottle%' OR c.item_name LIKE '%Gold%' THEN 1 ELSE 0 END) AS qty_gold_bottle,
+        DATE(MAX(c.claimed_at)) AS arrival_date 
+    FROM member_freebie_claims c
+    LEFT JOIN members m ON c.member_id = m.id
     $whereClause 
-    ORDER BY created_at DESC 
+    GROUP BY c.member_id, c.member_name, " . $categorySelect . ", " . $branchSelect . "
+    ORDER BY arrival_date DESC, c.member_id DESC 
     LIMIT 100
 ";
 $attendanceLogs = $conn->query($logQuery);
@@ -352,10 +399,50 @@ body {
     border-radius: 14px;
 }
 
-.card-gradient-orange {
+.card-gradient-gold {
     background: linear-gradient(135deg, #f59e0b, #d97706);
     color: #ffffff;
     border-radius: 14px;
+}
+
+.card-gradient-silver {
+    background: linear-gradient(135deg, #94a3b8, #64748b);
+    color: #ffffff;
+    border-radius: 14px;
+}
+
+.card-gradient-bronze {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    color: #ffffff;
+    border-radius: 14px;
+}
+
+.card-gradient-nonmigs {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    color: #ffffff;
+    border-radius: 14px;
+}
+
+/* Item Summary Cards */
+.item-qty-card {
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.item-qty-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.item-qty-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
 }
 
 /* Badges */
@@ -373,21 +460,29 @@ body {
     color: #fbbf24;
 }
 
-.badge-status {
+/* Item Claim Status Badges */
+.badge-claimed {
     background-color: rgba(16, 185, 129, 0.15);
     color: #059669;
     border: 1px solid rgba(16, 185, 129, 0.3);
     font-size: 0.75rem;
-    padding: 0.35em 0.75em;
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    font-weight: 600;
+    padding: 0.25em 0.6em;
+    border-radius: 6px;
+    font-weight: 700;
 }
 
-.dark-theme .badge-status {
+.dark-theme .badge-claimed {
     color: #34d399;
+}
+
+.badge-unclaimed {
+    background-color: rgba(148, 163, 184, 0.15);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    font-size: 0.75rem;
+    padding: 0.25em 0.5em;
+    border-radius: 6px;
+    font-weight: 500;
 }
 
 /* Table Styling */
@@ -566,7 +661,7 @@ body {
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
             <div>
                 <h5 class="fw-bold mb-1"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Attendance & Claims Statistics</h5>
-                <p class="text-secondary small mb-0">Overview of member turnout and item distribution</p>
+                <p class="text-secondary small mb-0">Overview of member turnout and total item quantities distributed</p>
             </div>
             <!-- Export Dropdown Menu -->
             <div class="dropdown">
@@ -588,23 +683,82 @@ body {
             </div>
         </div>
 
-        <div class="row g-3 mb-4">
-            <div class="col-12 col-md-4">
+        <!-- Overall Attendance Totals -->
+        <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
                 <div class="p-4 text-center card-gradient-blue shadow-sm">
                     <div class="display-6 fw-bold mb-1"><?php echo number_format($totalAttendees); ?></div>
                     <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Total Attendees Arrived</div>
                 </div>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6">
                 <div class="p-4 text-center card-gradient-green shadow-sm">
                     <div class="display-6 fw-bold mb-1"><?php echo number_format($todaysArrivals); ?></div>
                     <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Today's Arrivals</div>
                 </div>
             </div>
-            <div class="col-12 col-md-4">
-                <div class="p-4 text-center card-gradient-orange shadow-sm">
-                    <div class="display-6 fw-bold mb-1"><?php echo number_format($goldCount); ?></div>
-                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">GOLD Category</div>
+        </div>
+
+        <!-- Category Breakdown Row (Gold, Silver, Bronze, Non-MIGS) -->
+        <h6 class="fw-bold text-secondary text-uppercase small tracking-wider mb-2">Member Category Breakdown</h6>
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="p-3 text-center card-gradient-gold shadow-sm">
+                    <div class="fs-2 fw-bold mb-1"><?php echo number_format($categoryCounts['GOLD']); ?></div>
+                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Gold Category</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 text-center card-gradient-silver shadow-sm">
+                    <div class="fs-2 fw-bold mb-1"><?php echo number_format($categoryCounts['SILVER']); ?></div>
+                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Silver Category</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 text-center card-gradient-bronze shadow-sm">
+                    <div class="fs-2 fw-bold mb-1"><?php echo number_format($categoryCounts['BRONZE']); ?></div>
+                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Bronze Category</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 text-center card-gradient-nonmigs shadow-sm">
+                    <div class="fs-2 fw-bold mb-1"><?php echo number_format($categoryCounts['NON-MIGS']); ?></div>
+                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Non-MIGS</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Quantities Claimed per Item Card Row -->
+        <h6 class="fw-bold text-secondary text-uppercase small tracking-wider mb-3">Total Quantities Claimed Per Item</h6>
+        <div class="row g-2 mb-4">
+            <div class="col-6 col-sm-4 col-md">
+                <div class="item-qty-card">
+                    <div class="item-qty-number text-primary"><?php echo number_format($itemTotals['total_tshirts']); ?></div>
+                    <div class="item-qty-label">GA T-Shirts</div>
+                </div>
+            </div>
+            <div class="col-6 col-sm-4 col-md">
+                <div class="item-qty-card">
+                    <div class="item-qty-number text-success"><?php echo number_format($itemTotals['total_cash']); ?></div>
+                    <div class="item-qty-label">Cash Allowance</div>
+                </div>
+            </div>
+            <div class="col-6 col-sm-4 col-md">
+                <div class="item-qty-card">
+                    <div class="item-qty-number text-info"><?php echo number_format($itemTotals['total_snacks']); ?></div>
+                    <div class="item-qty-label">Snacks / Meals</div>
+                </div>
+            </div>
+            <div class="col-6 col-sm-4 col-md">
+                <div class="item-qty-card">
+                    <div class="item-qty-number text-warning"><?php echo number_format($itemTotals['total_umbrellas']); ?></div>
+                    <div class="item-qty-label">PMPC Umbrellas</div>
+                </div>
+            </div>
+            <div class="col-6 col-sm-4 col-md">
+                <div class="item-qty-card">
+                    <div class="item-qty-number text-danger"><?php echo number_format($itemTotals['total_bottles']); ?></div>
+                    <div class="item-qty-label">Water Bottles</div>
                 </div>
             </div>
         </div>
@@ -629,7 +783,7 @@ body {
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
             <div>
                 <h5 class="fw-bold mb-1"><i class="bi bi-clock-history text-primary me-2"></i>Live Attendance & Claim Log</h5>
-                <p class="text-secondary small mb-0">Real-time log of check-ins and freebie distribution</p>
+                <p class="text-secondary small mb-0">Real-time log of check-ins and quantities claimed</p>
             </div>
             <!-- Export Dropdown Menu -->
             <div class="dropdown">
@@ -652,43 +806,70 @@ body {
         </div>
 
         <div class="table-responsive">
-            <table class="table custom-table align-middle">
+            <table class="table custom-table align-middle text-center">
                 <thead>
                     <tr>
-                        <th>Member ID</th>
-                        <th>Member Name</th>
+                        <th class="text-start">Member ID</th>
+                        <th class="text-start">Member Name</th>
                         <th>Category</th>
-                        <th>Freebies & Claimed Items</th>
-                        <th>Arrival Time</th>
+                        <th>Branch</th>
+                        <th>T-Shirt</th>
+                        <th>Cash</th>
+                        <th>Snacks</th>
+                        <th>Umbrella</th>
+                        <th>Water Bottle</th>
+                        <th>Arrival Date</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if ($attendanceLogs && $attendanceLogs->num_rows > 0): ?>
                         <?php while ($log = $attendanceLogs->fetch_assoc()): ?>
                             <tr>
-                                <td class="fw-bold text-primary">#<?php echo htmlspecialchars($log['member_id']); ?></td>
-                                <td class="fw-semibold"><?php echo htmlspecialchars($log['member_name']); ?></td>
+                                <td class="fw-bold text-primary text-start">#<?php echo htmlspecialchars($log['member_id']); ?></td>
+                                <td class="fw-semibold text-start"><?php echo htmlspecialchars($log['member_name']); ?></td>
                                 <td>
                                     <span class="badge badge-gold">
-                                        <?php echo htmlspecialchars($log['category'] ?? 'REGULAR'); ?>
+                                        <?php echo htmlspecialchars($log['category']); ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge-status mb-1">
-                                        <i class="bi bi-check-circle-fill"></i> Claimed & Attended
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-20 rounded-pill px-2 py-1 small">
+                                        <?php echo htmlspecialchars($log['branch']); ?>
                                     </span>
-                                    <div class="text-secondary small">
-                                        <?php echo htmlspecialchars($log['claimed_items'] ?? 'GA T-Shirt, Cash Allowance, Snacks / Meals'); ?>
-                                    </div>
+                                </td>
+                                <td>
+                                    <span class="<?php echo $log['qty_tshirt'] > 0 ? 'badge-claimed' : 'badge-unclaimed'; ?>">
+                                        <?php echo $log['qty_tshirt'] > 0 ? $log['qty_tshirt'] : '-'; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="<?php echo $log['qty_cash'] > 0 ? 'badge-claimed' : 'badge-unclaimed'; ?>">
+                                        <?php echo $log['qty_cash'] > 0 ? $log['qty_cash'] : '-'; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="<?php echo $log['qty_snacks'] > 0 ? 'badge-claimed' : 'badge-unclaimed'; ?>">
+                                        <?php echo $log['qty_snacks'] > 0 ? $log['qty_snacks'] : '-'; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="<?php echo $log['qty_umbrella'] > 0 ? 'badge-claimed' : 'badge-unclaimed'; ?>">
+                                        <?php echo $log['qty_umbrella'] > 0 ? $log['qty_umbrella'] : '-'; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="<?php echo $log['qty_gold_bottle'] > 0 ? 'badge-claimed' : 'badge-unclaimed'; ?>">
+                                        <?php echo $log['qty_gold_bottle'] > 0 ? $log['qty_gold_bottle'] : '-'; ?>
+                                    </span>
                                 </td>
                                 <td class="text-nowrap text-secondary small">
-                                    <i class="bi bi-clock me-1"></i><?php echo htmlspecialchars($log['created_at']); ?>
+                                    <i class="bi bi-calendar-event me-1"></i><?php echo htmlspecialchars($log['arrival_date']); ?>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="5" class="text-center text-secondary py-5">
+                            <td colspan="10" class="text-center text-secondary py-5">
                                 <i class="bi bi-inbox fs-2 d-block mb-2 text-opacity-50"></i>
                                 No attendance logs found for this selection.
                             </td>

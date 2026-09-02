@@ -15,53 +15,68 @@ $message = "";
 |--------------------------------------------------------------------------
 */
 
-$member_branches = $conn->query("
-    SELECT DISTINCT branch_name
-    FROM members
-    WHERE branch_name IS NOT NULL
-    AND branch_name <> ''
-");
+$branch_col = null;
+$cols = $conn->query("SHOW COLUMNS FROM members");
+if ($cols) {
+    while ($c = $cols->fetch_assoc()) {
+        if (in_array(strtolower($c['Field']), ['branch_name', 'branch'])) {
+            $branch_col = $c['Field'];
+            break;
+        }
+    }
+}
 
-while($branch = $member_branches->fetch_assoc()){
-
-    $branch_name = $branch['branch_name'];
-
-    $check = $conn->prepare("
-        SELECT id
-        FROM election_schedules
-        WHERE branch_name=?
+if ($branch_col) {
+    $member_branches = $conn->query("
+        SELECT DISTINCT `{$branch_col}` AS branch_name
+        FROM members
+        WHERE `{$branch_col}` IS NOT NULL
+        AND `{$branch_col}` <> ''
     ");
 
-    $check->bind_param(
-        "s",
-        $branch_name
-    );
+    if ($member_branches) {
+        while($branch = $member_branches->fetch_assoc()){
 
-    $check->execute();
+            $branch_name = $branch['branch_name'];
 
-    $result = $check->get_result();
+            $check = $conn->prepare("
+                SELECT id
+                FROM election_schedules
+                WHERE branch_name=?
+            ");
 
-    if($result->num_rows == 0){
+            $check->bind_param(
+                "s",
+                $branch_name
+            );
 
-        $insert = $conn->prepare("
-            INSERT INTO election_schedules
-            (
-                branch_name,
-                status
-            )
-            VALUES
-            (
-                ?,
-                'CLOSED'
-            )
-        ");
+            $check->execute();
 
-        $insert->bind_param(
-            "s",
-            $branch_name
-        );
+            $result = $check->get_result();
 
-        $insert->execute();
+            if($result->num_rows == 0){
+
+                $insert = $conn->prepare("
+                    INSERT INTO election_schedules
+                    (
+                        branch_name,
+                        status
+                    )
+                    VALUES
+                    (
+                        ?,
+                        'CLOSED'
+                    )
+                ");
+
+                $insert->bind_param(
+                    "s",
+                    $branch_name
+                );
+
+                $insert->execute();
+            }
+        }
     }
 }
 

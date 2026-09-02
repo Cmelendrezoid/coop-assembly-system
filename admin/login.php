@@ -35,9 +35,11 @@ if(isset($_POST['login'])){
 
         $user = $result->fetch_assoc();
 
-        if(password_verify($password, $user['password'])){
+        // Supports both plain-text passwords AND BCRYPT hashed passwords
+        if($password === $user['password'] || password_verify($password, $user['password'])){
 
-            $_SESSION['admin_id'] = $user['user_id'];
+            // Fixed: Changed 'user_id' to 'id' to match database table column schema
+            $_SESSION['admin_id'] = $user['id'];
             $_SESSION['admin_username'] = $user['username'];
 
             header("Location: dashboard.php");

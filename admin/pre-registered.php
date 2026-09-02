@@ -5,7 +5,7 @@ include '../config/db.php';
 // Input params for sorting and filtering
 $sort_by = $_GET['sort_by'] ?? 'count'; // 'count' or 'name'
 $order = strtolower($_GET['order'] ?? 'desc') === 'asc' ? 'ASC' : 'DESC';
-$branch_filter = isset($_GET['branch_name']) ? trim($_GET['branch_name']) : null;
+$branch_filter = isset($_GET['branch']) ? trim($_GET['branch']) : (isset($_GET['branch_name']) ? trim($_GET['branch_name']) : null);
 
 // Total pre-registered (printed = 1 OR registered = 1) members
 $total_pre = (int)$conn->query("SELECT COUNT(*) AS total FROM members WHERE printed = 1 OR registered = 1")->fetch_assoc()['total'];
@@ -569,7 +569,7 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                         <form method="get" class="d-flex gap-2 align-items-center flex-wrap">
                             <div>
                                 <label class="form-label mb-1">Branch</label>
-                                <select name="branch_name" class="form-select form-select-sm" style="min-width:180px;">
+                                <select name="branch" class="form-select form-select-sm" style="min-width:180px;">
                                     <option value="">All Branches</option>
                                     <?php foreach ($branches as $row): ?>
                                         <option value="<?= esc($row['branch_display']) ?>" <?= $selected_branch_info === $row['branch_display'] ? 'selected' : '' ?>><?= esc($row['branch_display']) ?></option>
@@ -616,7 +616,7 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                                 <td class="text-end fw-semibold text-success"><?= number_format((int)$row['pre_registered_count']) ?></td>
                                 <td class="text-end text-muted"><?= number_format((int)$row['unregistered_count']) ?></td>
                                 <td class="text-end">
-                                    <a href="pre-registered.php?branch_name=<?= rawurlencode($row['branch_display']) ?>&sort_by=<?= esc($sort_by) ?>&order=<?= esc(strtolower($order)) ?>#branchDetails" class="btn btn-sm btn-outline-primary py-1 px-2">
+                                    <a href="pre-registered.php?branch=<?= rawurlencode($row['branch_display']) ?>&sort_by=<?= esc($sort_by) ?>&order=<?= esc(strtolower($order)) ?>#branchDetails" class="btn btn-sm btn-outline-primary py-1 px-2">
                                         <i class="bi bi-eye"></i> View
                                     </a>
                                 </td>

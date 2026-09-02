@@ -1,51 +1,58 @@
 <?php
 
 session_start();
-include '../config/db.php';
 
-if(!isset($_SESSION['member_id'])){
+// Include database configuration
+if (file_exists('../config/db.php')) {
+    require_once '../config/db.php';
+} elseif (file_exists('../config/conn.php')) {
+    require_once '../config/conn.php';
+}
+
+if (!isset($_SESSION['member_id']) && !isset($_SESSION['voter_id'])) {
     header("Location: login.php");
     exit();
 }
 
-$member_id = $_SESSION['member_id'];
+// Detect database connection object ($conn or $pdo)
+$db = isset($conn) ? $conn : (isset($pdo) ? $pdo : null);
+$member_id = $_SESSION['member_id'] ?? $_SESSION['voter_id'];
 
-$stmt = $conn->prepare("
-    SELECT full_name, awardee
-    FROM members
-    WHERE id = ?
-");
-
-$stmt->bind_param("i", $member_id);
-$stmt->execute();
-
-$result = $stmt->get_result();
-$member = $result->fetch_assoc();
-
-$full_name = $member['full_name'] ?? 'Member';
-$awardee = trim($member['awardee'] ?? '');
-
-/*
-|--------------------------------------------------------------------------
-| Awardee Validation
-|--------------------------------------------------------------------------
-|
-| Hide awardee card if value is:
-| NULL
-| Empty
-| N/A
-| NA
-|
-*/
-
+$full_name = $_SESSION['full_name'] ?? 'Member';
 $isAwardee = false;
+$awardee_text = "";
+$has_voted = 0;
 
-if(
-    !empty($awardee) &&
-    strtoupper($awardee) !== 'N/A' &&
-    strtoupper($awardee) !== 'NA'
-){
-    $isAwardee = true;
+if ($db) {
+    if ($db instanceof PDO) {
+        $stmt = $db->prepare("SELECT first_name, last_name, is_awardee, category, has_voted FROM members WHERE member_id = :id OR id = :id LIMIT 1");
+        $stmt->execute(['id' => $member_id]);
+        $member = $stmt->fetch(PDO::FETCH_ASSOC);
+    } else {
+        $stmt = $db->prepare("SELECT first_name, last_name, is_awardee, category, has_voted FROM members WHERE member_id = ? OR id = ? LIMIT 1");
+        if ($stmt) {
+            $stmt->bind_param("ss", $member_id, $member_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $member = $result ? $result->fetch_assoc() : null;
+        }
+    }
+
+    if (!empty($member)) {
+        $constructed_name = trim(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? ''));
+        if (!empty($constructed_name)) {
+            $full_name = $constructed_name;
+        }
+
+        // Check voting status from DB directly
+        $has_voted = intval($member['has_voted'] ?? 0);
+
+        // Check if member is marked as awardee (1 or true)
+        if (!empty($member['is_awardee']) && intval($member['is_awardee']) === 1) {
+            $isAwardee = true;
+            $awardee_text = !empty($member['category']) ? $member['category'] : 'Recognized Cooperative Awardee';
+        }
+    }
 }
 
 ?>
@@ -161,6 +168,17 @@ body{
     color:#d1fae5;
 }
 
+.already-voted-card {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+}
+
+.dark-theme .already-voted-card {
+    background: #450a0a;
+    color: #fecaca;
+}
+
 .btn-vote{
     background:#10b981;
     color:white;
@@ -261,7 +279,7 @@ body{
         </div>
 
         <p class="status-text">
-            <?php echo htmlspecialchars($awardee); ?>
+            <?php echo htmlspecialchars($awardee_text); ?>
         </p>
 
     </div>
@@ -269,6 +287,30 @@ body{
 </div>
 
 <?php } ?>
+
+<?php if ($has_voted === 1): ?>
+
+<div class="status-card already-voted-card">
+    <div class="status-icon">
+        ✅
+    </div>
+    <div>
+        <div class="status-title">
+            Voting Completed
+        </div>
+        <p class="status-text">
+            You have already cast your vote for this election.
+        </p>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center gap-3">
+    <a href="logout.php" class="btn btn-logout">
+        🚪 Logout
+    </a>
+</div>
+
+<?php else: ?>
 
 <div class="d-flex justify-content-center gap-3">
 
@@ -281,6 +323,8 @@ body{
     </a>
 
 </div>
+
+<?php endif; ?>
 
 <div class="footer-text">
     Panabo Multipurpose Cooperative E-Voting System
