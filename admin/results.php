@@ -9,12 +9,16 @@ if(!isset($_SESSION['admin_id'])){
 
 // 1. Detect branch column name dynamically ('branch_name' or 'branch')
 $member_branch_col = 'branch_name';
+$member_fullname_col = '';
 $cols = $conn->query("SHOW COLUMNS FROM members");
 if ($cols) {
     while ($c = $cols->fetch_assoc()) {
-        if (in_array(strtolower($c['Field']), ['branch_name', 'branch'])) {
+        $field_lower = strtolower($c['Field']);
+        if (in_array($field_lower, ['branch_name', 'branch'])) {
             $member_branch_col = $c['Field'];
-            break;
+        }
+        if (in_array($field_lower, ['full_name', 'fullname', 'name', 'member_name'])) {
+            $member_fullname_col = $c['Field'];
         }
     }
 }
@@ -41,6 +45,13 @@ if ($v_cols) {
             break;
         }
     }
+}
+
+// Helper SQL condition to safely join members table by name fallback
+if (!empty($member_fullname_col)) {
+    $member_name_match_sql = "TRIM(m.`{$member_fullname_col}`) = TRIM(v.member_name)";
+} else {
+    $member_name_match_sql = "CONCAT(TRIM(m.first_name), ' ', TRIM(m.last_name)) = TRIM(v.member_name)";
 }
 
 // Fetch distinct branches from members table
@@ -607,7 +618,7 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                             END) AS total_votes
                         FROM candidates c
                         LEFT JOIN votes v ON c.id = v.candidate_id
-                        LEFT JOIN members m ON (v.`{$votes_voter_col}` = m.id OR (v.`{$votes_voter_col}` = 0 AND CONCAT(TRIM(m.first_name), ' ', TRIM(m.last_name)) = TRIM(v.member_name)))
+                        LEFT JOIN members m ON (v.`{$votes_voter_col}` = m.id OR (v.`{$votes_voter_col}` = 0 AND {$member_name_match_sql}))
                         WHERE c.position_id = $position_id
                         GROUP BY c.id
                         ORDER BY total_votes DESC, c.`{$candidate_name_col}` ASC";
@@ -782,7 +793,7 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                     $total_votes = $conn->query("
                         SELECT COUNT(v.id) AS total 
                         FROM votes v 
-                        LEFT JOIN members m ON (v.`{$votes_voter_col}` = m.id OR (v.`{$votes_voter_col}` = 0 AND CONCAT(TRIM(m.first_name), ' ', TRIM(m.last_name)) = TRIM(v.member_name)))
+                        LEFT JOIN members m ON (v.`{$votes_voter_col}` = m.id OR (v.`{$votes_voter_col}` = 0 AND {$member_name_match_sql}))
                         WHERE TRIM(m.`{$member_branch_col}`) IN ($in_clause) OR TRIM(v.branch) IN ($in_clause)
                     ")->fetch_assoc()['total'];
 
@@ -792,7 +803,7 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                         $voted_members = $conn->query("
                             SELECT COUNT(DISTINCT CASE WHEN v.`{$votes_voter_col}` > 0 THEN v.`{$votes_voter_col}` ELSE v.member_name END) AS total 
                             FROM votes v
-                            LEFT JOIN members m ON (v.`{$votes_voter_col}` = m.id OR (v.`{$votes_voter_col}` = 0 AND CONCAT(TRIM(m.first_name), ' ', TRIM(m.last_name)) = TRIM(v.member_name)))
+                            LEFT JOIN members m ON (v.`{$votes_voter_col}` = m.id OR (v.`{$votes_voter_col}` = 0 AND {$member_name_match_sql}))
                             WHERE TRIM(m.`{$member_branch_col}`) IN ($in_clause) OR TRIM(v.branch) IN ($in_clause)
                         ")->fetch_assoc()['total'];
                     }

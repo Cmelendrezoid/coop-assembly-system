@@ -117,7 +117,7 @@ if ($nameCol || $hasBranchCol) {
     
     if ($is_pdo) {
         try {
-            $memStmt = $conn->prepare("SELECT {$selectClause} FROM members WHERE id = :id OR member_id = :id LIMIT 1");
+            $memStmt = $conn->prepare("SELECT {$selectClause} FROM members WHERE id = :id LIMIT 1");
             $memStmt->execute(['id' => $member_id]);
             if ($memRow = $memStmt->fetch(PDO::FETCH_ASSOC)) {
                 if (!empty($memRow['member_display_name'])) {
@@ -129,9 +129,9 @@ if ($nameCol || $hasBranchCol) {
             }
         } catch (Exception $e) {}
     } else {
-        $memStmt = $conn->prepare("SELECT {$selectClause} FROM members WHERE id = ? OR member_id = ? LIMIT 1");
+        $memStmt = $conn->prepare("SELECT {$selectClause} FROM members WHERE id = ? LIMIT 1");
         if ($memStmt) {
-            $memStmt->bind_param("ii", $member_id, $member_id);
+            $memStmt->bind_param("i", $member_id);
             $memStmt->execute();
             $memRes = $memStmt->get_result();
             if ($memRow = $memRes->fetch_assoc()) {
@@ -156,7 +156,7 @@ if ($is_pdo) {
         if (!$columnCheck) {
             $conn->exec("ALTER TABLE members ADD COLUMN has_voted tinyint(1) NOT NULL DEFAULT 0");
         }
-        $statusStmt = $conn->prepare("SELECT has_voted FROM members WHERE id = :id OR member_id = :id LIMIT 1");
+        $statusStmt = $conn->prepare("SELECT has_voted FROM members WHERE id = :id LIMIT 1");
         $statusStmt->execute(['id' => $member_id]);
         $statusRow = $statusStmt->fetch(PDO::FETCH_ASSOC);
         $memberHasVoted = !empty($statusRow['has_voted']);
@@ -166,9 +166,9 @@ if ($is_pdo) {
     if ($columnCheck && $columnCheck->num_rows === 0) {
         $conn->query("ALTER TABLE members ADD COLUMN has_voted tinyint(1) NOT NULL DEFAULT 0");
     }
-    $statusStmt = $conn->prepare("SELECT has_voted FROM members WHERE id = ? OR member_id = ?");
+    $statusStmt = $conn->prepare("SELECT has_voted FROM members WHERE id = ?");
     if ($statusStmt) {
-        $statusStmt->bind_param("ii", $member_id, $member_id);
+        $statusStmt->bind_param("i", $member_id);
         $statusStmt->execute();
         $statusResult = $statusStmt->get_result();
         if ($statusRow = $statusResult->fetch_assoc()) {
@@ -361,7 +361,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'submit') {
                     }
                 }
 
-                $updateStmt = $conn->prepare("UPDATE members SET has_voted = 1 WHERE id = :id OR member_id = :id");
+                $updateStmt = $conn->prepare("UPDATE members SET has_voted = 1 WHERE id = :id");
                 $updateStmt->execute(['id' => $member_id]);
 
                 $conn->commit();
@@ -396,11 +396,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'submit') {
                     }
                 }
 
-                $updateStmt = $conn->prepare("UPDATE members SET has_voted = 1 WHERE id = ? OR member_id = ?");
+                $updateStmt = $conn->prepare("UPDATE members SET has_voted = 1 WHERE id = ?");
                 if ($updateStmt === false) {
                     throw new Exception("Failed to update voter status.");
                 }
-                $updateStmt->bind_param("ii", $member_id, $member_id);
+                $updateStmt->bind_param("i", $member_id);
                 $updateStmt->execute();
 
                 $conn->commit();

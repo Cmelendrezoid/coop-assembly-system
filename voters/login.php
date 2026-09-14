@@ -9,7 +9,7 @@ if (file_exists('../config/db.php')) {
     require_once '../config/conn.php';
 }
 
-// Redirect existing active sessions to their respective dashboards
+// Redirect active sessions
 if (isset($_SESSION['admin_id'])) {
     header("Location: ../admin/dashboard.php");
     exit();
@@ -21,15 +21,65 @@ if (isset($_SESSION['member_id']) || isset($_SESSION['voter_id'])) {
 
 $error = "";
 
+/**
+ * Universal Password Checker
+ * Handles leading zeros, plain strings, and standard hashes
+ */
+function check_member_password($input_pass, $stored_pass) {
+    if ($stored_pass === null || $stored_pass === '') {
+        return false;
+    }
+
+    $raw_input   = strval($input_pass);
+    $raw_stored  = strval($stored_pass);
+    $trim_input  = trim($raw_input);
+    $trim_stored = trim($raw_stored);
+
+    // Direct match (retains leading zeros like '059644')
+    if ($raw_input === $raw_stored || $trim_input === $trim_stored) {
+        return true;
+    }
+
+    // Case-insensitive match
+    if (strcasecmp($raw_input, $raw_stored) === 0 || strcasecmp($trim_input, $trim_stored) === 0) {
+        return true;
+    }
+
+    // Standard PHP password_verify (for hashed passwords)
+    if (
+        password_verify($raw_input, $raw_stored) || 
+        password_verify($trim_input, $raw_stored) || 
+        password_verify($raw_input, $trim_stored) || 
+        password_verify($trim_input, $trim_stored)
+    ) {
+        return true;
+    }
+
+    // Legacy Hash Check (MD5, SHA1, SHA256)
+    $lower_stored = strtolower($trim_stored);
+    if (
+        strtolower(md5($raw_input)) === $lower_stored || 
+        strtolower(md5($trim_input)) === $lower_stored ||
+        strtolower(sha1($raw_input)) === $lower_stored || 
+        strtolower(sha1($trim_input)) === $lower_stored ||
+        strtolower(hash('sha256', $raw_input)) === $lower_stored || 
+        strtolower(hash('sha256', $trim_input)) === $lower_stored
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
-    $password = isset($_POST['password']) ? trim($_POST['password']) : '';
+    $username = isset($_POST['username']) ? trim(strval($_POST['username'])) : '';
+    $password = isset($_POST['password']) ? strval($_POST['password']) : '';
 
     if (empty($username) || empty($password)) {
         $error = "Please enter both username/member ID and password.";
     } else {
-        // Detect database connection object ($conn or $pdo)
+        // Resolve Active Database Connection
         $db = null;
         $is_pdo = false;
 
@@ -42,176 +92,144 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (!$db) {
-            $error = "Database connection failed. Please check ../config/db.php";
+            $error = "Database connection error. Please verify database configuration.";
         } else {
-            $isAdminAccount = false;
+            $matched_voters = [];
 
-            // 1. Check Admin Accounts (users table)
+            // Query matching accounts by ID, Username, or Full Name
             try {
                 if ($is_pdo) {
-                    $stmt = $db->prepare("SELECT * FROM users WHERE username = :u LIMIT 1");
-                    $stmt->execute(['u' => $username]);
-                    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $stmt = $db->prepare("
+                        SELECT * FROM members 
+                        WHERE LOWER(TRIM(username)) = LOWER(:u) 
+                           OR LOWER(TRIM(CAST(id AS CHAR))) = LOWER(:u)
+                           OR LOWER(TRIM(full_name)) LIKE LOWER(:like_u)
+                    ");
+                    $stmt->execute([
+                        'u'      => $username,
+                        'like_u' => '%' . $username . '%'
+                    ]);
+                    $matched_voters = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 } else {
-                    $stmt = $db->prepare("SELECT * FROM users WHERE username = ? LIMIT 1");
+                    $stmt = $db->prepare("
+                        SELECT * FROM members 
+                        WHERE LOWER(TRIM(username)) = LOWER(?) 
+                           OR LOWER(TRIM(CAST(id AS CHAR))) = LOWER(?)
+                           OR LOWER(TRIM(full_name)) LIKE ?
+                    ");
                     if ($stmt) {
-                        $stmt->bind_param("s", $username);
+                        $like_search = '%' . $username . '%';
+                        $stmt->bind_param("sss", $username, $username, $like_search);
                         $stmt->execute();
                         $res = $stmt->get_result();
-                        $user = $res ? $res->fetch_assoc() : null;
-                    } else {
-                        $user = null;
-                    }
-                }
-
-                if ($user && isset($user['role']) && strtolower($user['role']) === 'admin') {
-                    $passMatch = password_verify($password, $user['password']) || $password === $user['password'] || md5($password) === $user['password'];
-                    if ($passMatch) {
-                        $isAdminAccount = true;
-                        session_regenerate_id(true);
-
-                        $_SESSION['admin_id']       = $user['user_id'] ?? $user['id'];
-                        $_SESSION['admin_username'] = $user['username'];
-                        $_SESSION['role']           = 'admin';
-
-                        header("Location: ../admin/dashboard.php");
-                        exit();
-                    } else {
-                        $isAdminAccount = true;
-                        $error = "Invalid admin password. Please try again.";
+                        $matched_voters = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
                     }
                 }
             } catch (Exception $e) {
-                // Table 'users' may not exist or admin check skipped
+                $error = "Database Query Error: " . $e->getMessage();
             }
 
-            // 2. Check Voter Accounts (members table)
-            if (!$isAdminAccount) {
-                $table_name = 'members';
-                $voter = null;
-                $sql_err = "";
+            $voter = null;
 
-                if ($is_pdo) {
-                    try {
-                        $stmt = $db->prepare("SELECT * FROM {$table_name} WHERE username = :u OR member_id = :u OR id = :u LIMIT 1");
-                        $stmt->execute(['u' => $username]);
-                        $voter = $stmt->fetch(PDO::FETCH_ASSOC);
-                    } catch (Exception $e) {
-                        $sql_err = $e->getMessage();
-                    }
-                } else {
-                    // Query matching columns present in the members table
-                    $query = "SELECT * FROM {$table_name} WHERE username = ? OR member_id = ? OR id = ?";
-                    $stmt = $db->prepare($query);
-
-                    if ($stmt) {
-                        $stmt->bind_param("sss", $username, $username, $username);
-                        $stmt->execute();
-                        $res = $stmt->get_result();
-                        if ($res && $res->num_rows > 0) {
-                            $voter = $res->fetch_assoc();
-                        }
-                    } else {
-                        $sql_err = $db->error;
+            // Iterate over matches to account for duplicate usernames with different passwords/IDs
+            if (!empty($matched_voters)) {
+                foreach ($matched_voters as $candidate) {
+                    $stored_pass = $candidate['password'] ?? '';
+                    if (check_member_password($password, $stored_pass)) {
+                        $voter = $candidate;
+                        break;
                     }
                 }
+            }
 
-                if (!empty($sql_err)) {
-                    $error = "Database Query Error: " . $sql_err;
-                } elseif ($voter) {
-                    $voterPass = $voter['password'] ?? '';
-                    $passMatch = password_verify($password, $voterPass) || $password === $voterPass || md5($password) === $voterPass;
+            // Authenticate Credentials
+            if ($voter) {
+                // Pre-registration status check
+                $is_registered = !isset($voter['registered']) || (string)$voter['registered'] === '1' || (int)$voter['registered'] === 1 || $voter['registered'] === null;
 
-                    if ($passMatch) {
-                        // Check Pre-registration / Registration Status
-                        $is_preregistered = true;
-                        if (array_key_exists('registered', $voter)) {
-                            $is_preregistered = !empty($voter['registered']) && $voter['registered'] != 0 && strtolower((string)$voter['registered']) !== 'no';
-                        } elseif (array_key_exists('is_preregistered', $voter)) {
-                            $is_preregistered = !empty($voter['is_preregistered']) && $voter['is_preregistered'] != 0 && strtolower((string)$voter['is_preregistered']) !== 'no';
-                        } elseif (array_key_exists('pre_registered', $voter)) {
-                            $is_preregistered = !empty($voter['pre_registered']) && $voter['pre_registered'] != 0 && strtolower((string)$voter['pre_registered']) !== 'no';
-                        } elseif (array_key_exists('is_registered', $voter)) {
-                            $is_preregistered = !empty($voter['is_registered']) && $voter['is_registered'] != 0 && strtolower((string)$voter['is_registered']) !== 'no';
-                        } elseif (array_key_exists('status', $voter)) {
-                            $status_val = strtolower(trim((string)$voter['status']));
-                            if (in_array($status_val, ['unregistered', 'not_registered', 'pending', 'inactive', '0'])) {
-                                $is_preregistered = false;
-                            }
-                        }
+                if (!$is_registered) {
+                    $error = "You have not pre-registered yet. Pre-registration is required to log in.";
+                } else {
+                    $branch_name = $voter['branch_name'] ?? '';
+                    $can_vote = true;
 
-                        if (!$is_preregistered) {
-                            $error = "You have not pre-registered yet. Pre-registration is required to log in and vote.";
-                        } else {
-                            // Primary Key Safe Fallback: Check 'id' first, then 'member_id', then fallback
-                            if (!empty($voter['id'])) {
-                                $voter_id_val = $voter['id'];
-                            } elseif (!empty($voter['member_id'])) {
-                                $voter_id_val = $voter['member_id'];
+                    // Branch schedule verification
+                    if (!empty($branch_name)) {
+                        try {
+                            if ($is_pdo) {
+                                $sch = $db->prepare("SELECT status FROM election_schedules WHERE LOWER(TRIM(branch_name)) = LOWER(:b) LIMIT 1");
+                                $sch->execute(['b' => $branch_name]);
+                                $row = $sch->fetch(PDO::FETCH_ASSOC);
+                                if ($row && strtoupper(trim($row['status'])) !== 'OPEN') {
+                                    $can_vote = false;
+                                    $error = "Voting is currently closed for your branch (" . htmlspecialchars($branch_name) . ").";
+                                }
                             } else {
-                                $voter_id_val = 0;
-                            }
-
-                            $voter_name_val = trim(($voter['first_name'] ?? '') . ' ' . ($voter['last_name'] ?? ''));
-                            if (empty($voter_name_val)) {
-                                $voter_name_val = $voter['username'] ?? '';
-                            }
-                            $branch_val = $voter['branch'] ?? '';
-
-                            // Branch Schedule Check
-                            $voting_allowed = true;
-                            if (!empty($branch_val)) {
-                                try {
-                                    if ($is_pdo) {
-                                        $sch = $db->prepare("SELECT status FROM election_schedules WHERE branch_name = :b LIMIT 1");
-                                        $sch->execute(['b' => $branch_val]);
-                                        $row = $sch->fetch(PDO::FETCH_ASSOC);
-                                        if ($row && strtoupper($row['status']) !== 'OPEN') {
-                                            $voting_allowed = false;
-                                            $error = "Voting is currently closed for your branch (" . htmlspecialchars($branch_val) . ").";
-                                        }
-                                    } else {
-                                        $sch = $db->prepare("SELECT status FROM election_schedules WHERE branch_name = ? LIMIT 1");
-                                        if ($sch) {
-                                            $sch->bind_param("s", $branch_val);
-                                            $sch->execute();
-                                            $res = $sch->get_result();
-                                            if ($res && $res->num_rows > 0) {
-                                                $row = $res->fetch_assoc();
-                                                if (strtoupper($row['status']) !== 'OPEN') {
-                                                    $voting_allowed = false;
-                                                    $error = "Voting is currently closed for your branch (" . htmlspecialchars($branch_val) . ").";
-                                                }
-                                            }
+                                $sch = $db->prepare("SELECT status FROM election_schedules WHERE LOWER(TRIM(branch_name)) = LOWER(?) LIMIT 1");
+                                if ($sch) {
+                                    $sch->bind_param("s", $branch_name);
+                                    $sch->execute();
+                                    $res = $sch->get_result();
+                                    if ($res && $res->num_rows > 0) {
+                                        $row = $res->fetch_assoc();
+                                        if (strtoupper(trim($row['status'])) !== 'OPEN') {
+                                            $can_vote = false;
+                                            $error = "Voting is currently closed for your branch (" . htmlspecialchars($branch_name) . ").";
                                         }
                                     }
-                                } catch (Exception $e) {
-                                    // Skip schedule check if table doesn't exist
                                 }
                             }
-
-                            if ($voting_allowed) {
-                                session_regenerate_id(true);
-                                unset($_SESSION['admin_id'], $_SESSION['admin_username']);
-
-                                // Session mapping matching members table fields
-                                $_SESSION['member_id']   = $voter_id_val;
-                                $_SESSION['voter_id']    = $voter_id_val;
-                                $_SESSION['voters_id']   = $voter_id_val;
-                                $_SESSION['full_name']   = $voter_name_val;
-                                $_SESSION['voter_name']  = $voter_name_val;
-                                $_SESSION['branch_name'] = $branch_val;
-                                $_SESSION['role']        = 'voter';
-
-                                header("Location: dashboard.php");
-                                exit();
-                            }
+                        } catch (Exception $e) {
+                            // Ignore if optional
                         }
-                    } else {
-                        $error = "Invalid password. Please try again.";
                     }
+
+                    if ($can_vote) {
+                        session_regenerate_id(true);
+
+                        unset($_SESSION['admin_id'], $_SESSION['admin_username']);
+
+                        $_SESSION['member_id']   = $voter['id'];
+                        $_SESSION['voter_id']    = $voter['id'];
+                        $_SESSION['voters_id']   = $voter['id'];
+                        $_SESSION['full_name']   = !empty($voter['full_name']) ? $voter['full_name'] : $voter['username'];
+                        $_SESSION['voter_name']  = $_SESSION['full_name'];
+                        $_SESSION['branch_name'] = $branch_name;
+                        $_SESSION['role']        = 'voter';
+
+                        header("Location: dashboard.php");
+                        exit();
+                    }
+                }
+            } else {
+                // Fallback check in 'users' (Admin) table if not found in members
+                $admin_user = null;
+                try {
+                    if ($is_pdo) {
+                        $stmt = $db->prepare("SELECT * FROM users WHERE LOWER(TRIM(username)) = LOWER(:u) LIMIT 1");
+                        $stmt->execute(['u' => $username]);
+                        $admin_user = $stmt->fetch(PDO::FETCH_ASSOC);
+                    } else {
+                        $stmt = $db->prepare("SELECT * FROM users WHERE LOWER(TRIM(username)) = LOWER(?) LIMIT 1");
+                        if ($stmt) {
+                            $stmt->bind_param("s", $username);
+                            $stmt->execute();
+                            $res = $stmt->get_result();
+                            $admin_user = $res ? $res->fetch_assoc() : null;
+                        }
+                    }
+                } catch (Exception $e) {}
+
+                if ($admin_user && check_member_password($password, $admin_user['password'] ?? '')) {
+                    session_regenerate_id(true);
+                    $_SESSION['admin_id']       = $admin_user['user_id'] ?? $admin_user['id'];
+                    $_SESSION['admin_username'] = $admin_user['username'];
+                    $_SESSION['role']           = 'admin';
+
+                    header("Location: ../admin/dashboard.php");
+                    exit();
                 } else {
-                    $error = "Username or Member ID not found. Please verify your credentials.";
+                    $error = "Invalid password or user account. Please check your credentials.";
                 }
             }
         }

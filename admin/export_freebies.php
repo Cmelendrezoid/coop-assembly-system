@@ -6,6 +6,44 @@ include '../config/db.php';
 $type = isset($_GET['type']) ? strtolower(trim($_GET['type'])) : 'excel';
 $filterDate = isset($_GET['filter_date']) ? trim($_GET['filter_date']) : '';
 
+// Detect available columns in members table dynamically
+$member_id_col = 'id';
+$member_category_col = '';
+$member_branch_col = '';
+
+$cols = $conn->query("SHOW COLUMNS FROM members");
+if ($cols) {
+    while ($c = $cols->fetch_assoc()) {
+        $field = $c['Field'];
+        $field_lower = strtolower($field);
+
+        if (in_array($field_lower, ['member_id', 'id'])) {
+            // Prefer member_id if present, otherwise default to id
+            if ($field_lower === 'member_id') {
+                $member_id_col = $field;
+            }
+        }
+        if (in_array($field_lower, ['category', 'member_type', 'type', 'membership_type'])) {
+            $member_category_col = $field;
+        }
+        if (in_array($field_lower, ['branch', 'branch_name'])) {
+            $member_branch_col = $field;
+        }
+    }
+}
+
+// Build SQL dynamic column selects and group expressions
+$category_sql = !empty($member_category_col) 
+    ? "COALESCE(m.`{$member_category_col}`, 'REGULAR') AS category" 
+    : "'REGULAR' AS category";
+
+$branch_sql = !empty($member_branch_col) 
+    ? "COALESCE(m.`{$member_branch_col}`, 'Main Branch') AS branch" 
+    : "'Main Branch' AS branch";
+
+$group_by_category = !empty($member_category_col) ? ", m.`{$member_category_col}`" : "";
+$group_by_branch = !empty($member_branch_col) ? ", m.`{$member_branch_col}`" : "";
+
 // Build filtering condition
 $whereClause = "";
 if (!empty($filterDate)) {
@@ -18,8 +56,8 @@ $query = "
     SELECT 
         c.member_id, 
         c.member_name, 
-        COALESCE(m.category, 'REGULAR') AS category, 
-        COALESCE(m.branch, 'Main Branch') AS branch,
+        {$category_sql}, 
+        {$branch_sql},
         MAX(CASE WHEN c.item_name LIKE '%T-Shirt%' THEN 'YES' ELSE 'NO' END) AS tshirt_claimed,
         MAX(CASE WHEN c.item_name LIKE '%Cash Allowance%' THEN 'YES' ELSE 'NO' END) AS cash_claimed,
         MAX(CASE WHEN c.item_name LIKE '%Snacks%' OR c.item_name LIKE '%Meals%' THEN 'YES' ELSE 'NO' END) AS snacks_claimed,
@@ -28,9 +66,9 @@ $query = "
         c.processed_by,
         DATE(MAX(c.claimed_at)) AS distribution_date 
     FROM member_freebie_claims c
-    LEFT JOIN members m ON (c.member_id = m.id OR c.member_id = m.member_id)
+    LEFT JOIN members m ON c.member_id = m.`{$member_id_col}`
     $whereClause 
-    GROUP BY c.member_id, c.member_name, m.category, m.branch, c.processed_by
+    GROUP BY c.member_id, c.member_name {$group_by_category} {$group_by_branch}, c.processed_by
     ORDER BY distribution_date DESC, c.member_id DESC
 ";
 

@@ -25,13 +25,13 @@ $has_voted = 0;
 
 if ($db) {
     if ($db instanceof PDO) {
-        $stmt = $db->prepare("SELECT first_name, last_name, is_awardee, category, has_voted FROM members WHERE member_id = :id OR id = :id LIMIT 1");
+        $stmt = $db->prepare("SELECT full_name, awardee, has_voted FROM members WHERE id = :id LIMIT 1");
         $stmt->execute(['id' => $member_id]);
         $member = $stmt->fetch(PDO::FETCH_ASSOC);
     } else {
-        $stmt = $db->prepare("SELECT first_name, last_name, is_awardee, category, has_voted FROM members WHERE member_id = ? OR id = ? LIMIT 1");
+        $stmt = $db->prepare("SELECT full_name, awardee, has_voted FROM members WHERE id = ? LIMIT 1");
         if ($stmt) {
-            $stmt->bind_param("ss", $member_id, $member_id);
+            $stmt->bind_param("s", $member_id);
             $stmt->execute();
             $result = $stmt->get_result();
             $member = $result ? $result->fetch_assoc() : null;
@@ -39,18 +39,18 @@ if ($db) {
     }
 
     if (!empty($member)) {
-        $constructed_name = trim(($member['first_name'] ?? '') . ' ' . ($member['last_name'] ?? ''));
-        if (!empty($constructed_name)) {
-            $full_name = $constructed_name;
+        if (!empty($member['full_name'])) {
+            $full_name = $member['full_name'];
         }
 
         // Check voting status from DB directly
         $has_voted = intval($member['has_voted'] ?? 0);
 
-        // Check if member is marked as awardee (1 or true)
-        if (!empty($member['is_awardee']) && intval($member['is_awardee']) === 1) {
+        // Check awardee status
+        $awardee_val = trim($member['awardee'] ?? '');
+        if (!empty($awardee_val) && strtoupper($awardee_val) !== 'N/A' && $awardee_val !== '0') {
             $isAwardee = true;
-            $awardee_text = !empty($member['category']) ? $member['category'] : 'Recognized Cooperative Awardee';
+            $awardee_text = $awardee_val;
         }
     }
 }
