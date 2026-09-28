@@ -658,24 +658,8 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                     <div class="col-md-4">
                         <div class="card stats-card text-center h-100 mb-0">
                             <div class="card-body py-4">
-                                <h2 class="text-primary fw-bold mb-1"><?php echo number_format($total_voters); ?></h2>
-                                <p class="mb-0 fw-semibold small uppercase" style="color: #cbd5e1;">Total Members Registered</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card stats-card text-center h-100 mb-0">
-                            <div class="card-body py-4">
                                 <h2 class="text-success fw-bold mb-1"><?php echo number_format($voted_members); ?> <span class="fs-5 fw-normal" style="color: #cbd5e1;">(<?php echo $turnout_rate; ?>%)</span></h2>
-                                <p class="mb-0 fw-semibold small uppercase" style="color: #cbd5e1;">Voters Checked In</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card stats-card text-center h-100 mb-0">
-                            <div class="card-body py-4">
-                                <h2 class="text-info fw-bold mb-1"><?php echo number_format($total_votes); ?></h2>
-                                <p class="mb-0 fw-semibold small uppercase" style="color: #cbd5e1;">Aggregated Total Ballots Cast</p>
+                                <p class="mb-0 fw-semibold small uppercase" style="color: #cbd5e1;">Total Votes</p>
                             </div>
                         </div>
                     </div>
