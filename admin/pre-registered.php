@@ -120,107 +120,20 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             -webkit-font-smoothing: antialiased;
         }
 
-        /* App Layout with Sidebar */
+        /* Shared Admin Layout */
         .app-layout {
             display: flex;
             min-height: 100vh;
-        }
-        .sidebar {
-            width: 260px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--sidebar-border);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            transition: background 0.2s ease, border-color 0.2s ease;
-        }
-        .sidebar-brand {
-            padding: 1.5rem 1.25rem 1rem 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            border-bottom: 1px solid transparent;
-        }
-        .sidebar-logo {
-            width: 36px;
-            height: 36px;
-            background: var(--surface-strong);
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--link);
-            font-size: 1.2rem;
-        }
-        .sidebar-brand-text .brand-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--text);
-            line-height: 1.2;
-        }
-        .sidebar-brand-text .brand-subtitle {
-            font-size: 0.75rem;
-            color: var(--muted);
-        }
-        .sidebar-menu-category {
-            padding: 1.25rem 1.25rem 0.5rem 1.25rem;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--muted);
-        }
-        .sidebar-menu {
-            padding: 0 0.75rem;
-            list-style: none;
-            margin: 0;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-        .sidebar-menu li {
-            margin-bottom: 0.25rem;
-        }
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 1rem;
-            color: var(--muted);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            border-radius: 0.5rem;
-            transition: background 0.15s ease, color 0.15s ease;
-        }
-        .sidebar-menu a:hover {
-            background: var(--sidebar-hover);
-            color: var(--text);
-        }
-        .sidebar-menu a.active {
-            background: var(--sidebar-active);
-            color: var(--sidebar-active-text);
-            font-weight: 600;
-        }
-        .sidebar-menu a.logout-link {
-            color: #ef4444;
-            margin-top: auto;
-        }
-        .sidebar-menu a.logout-link:hover {
-            background: rgba(239, 68, 68, 0.1);
-        }
-        .sidebar-menu a i {
-            font-size: 1.1rem;
         }
 
         /* Main Content wrapper */
         .main-content {
             flex-grow: 1;
-            margin-left: 260px;
+            margin-left: 250px;
             padding: 2rem;
+            width: calc(100% - 250px);
+            max-width: calc(100% - 250px);
+            box-sizing: border-box;
             min-width: 0;
         }
 
@@ -430,17 +343,12 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
         a { color: var(--link); text-decoration: none; }
         a:hover { text-decoration: underline; }
 
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 70px;
-            }
-            .sidebar .sidebar-brand-text,
-            .sidebar .sidebar-menu-category,
-            .sidebar .sidebar-menu span {
-                display: none;
-            }
+        @media (max-width: 991.98px) {
             .main-content {
-                margin-left: 70px;
+                margin-left: 0;
+                width: 100%;
+                max-width: 100%;
+                padding: 4.5rem 1rem 1.5rem;
             }
         }
     </style>
@@ -448,72 +356,9 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
 <body>
 
 <div class="app-layout">
-    <!-- Sidebar Menu -->
-    <nav class="sidebar">
-        <div class="sidebar-brand">
-            <div class="sidebar-logo">
-                <i class="bi bi-shield-shaded"></i>
-            </div>
-            <div class="sidebar-brand-text">
-                <div class="brand-title">PMPC Admin</div>
-                <div class="brand-subtitle">Election System</div>
-            </div>
-        </div>
-        <div class="sidebar-menu-category">Main Menu</div>
-        <ul class="sidebar-menu">
-            <li>
-                <a href="dashboard.php">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li>
-                <a href="candidates.php">
-                    <i class="bi bi-person-badge"></i>
-                    <span>Candidates</span>
-                </a>
-            </li>
-            <li>
-                <a href="positions.php">
-                    <i class="bi bi-trophy"></i>
-                    <span>Positions</span>
-                </a>
-            </li>
-            <li>
-                <a href="voters.php">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Voters</span>
-                </a>
-            </li>
-            <li>
-                <a href="pre-registered.php" class="active">
-                    <i class="bi bi-card-checklist"></i>
-                    <span>Pre-registered</span>
-                </a>
-            </li>
-            <li>
-                <a href="elections.php">
-                    <i class="bi bi-building"></i>
-                    <span>Branches</span>
-                </a>
-            </li>
-            <li>
-                <a href="results.php">
-                    <i class="bi bi-bar-chart-fill"></i>
-                    <span>Results</span>
-                </a>
-            </li>
-            <li class="mt-4">
-                <a href="logout.php" class="logout-link">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Logout</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+    <?php include 'sidebar.php'; ?>
 
-    <!-- Main Content Area -->
-    <main class="main-content">
+<main class="main-content">
         <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h2 class="page-title mb-1">Pre-registered & Printed Members</h2>
@@ -742,6 +587,14 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
 </div>
 
 <script>
+function toggleMenu() {
+    const sidebar = document.getElementById('sidebarNav');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    if (sidebar) sidebar.classList.toggle('show');
+    if (overlay) overlay.classList.toggle('show');
+}
+
 (function() {
     let mainChart = null;
     let overallChart = null;

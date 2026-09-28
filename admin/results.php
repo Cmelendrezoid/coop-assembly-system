@@ -136,112 +136,12 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             -webkit-font-smoothing: antialiased;
         }
 
-        .app-layout {
-            display: flex;
-            min-height: 100vh;
-        }
-        .sidebar {
-            width: 270px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--sidebar-border);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            transition: background 0.25s ease, border-color 0.25s ease;
-        }
-        .sidebar-brand {
-            padding: 1.75rem 1.25rem 1.25rem 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.85rem;
-            border-bottom: 1px solid var(--sidebar-border);
-        }
-        .sidebar-logo {
-            width: 42px;
-            height: 42px;
-            background: var(--surface-strong);
-            border-radius: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--link);
-            font-size: 1.35rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .sidebar-brand-text .brand-title {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--text);
-            line-height: 1.2;
-        }
-        .sidebar-brand-text .brand-subtitle {
-            font-size: 0.75rem;
-            color: var(--muted);
-            margin-top: 0.1rem;
-        }
-        .sidebar-menu-category {
-            padding: 1.5rem 1.25rem 0.5rem 1.25rem;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--muted);
-        }
-        .sidebar-menu {
-            padding: 0 0.85rem;
-            list-style: none;
-            margin: 0;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-        .sidebar-menu li {
-            margin-bottom: 0.35rem;
-        }
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            gap: 0.85rem;
-            padding: 0.8rem 1rem;
-            color: var(--muted);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            border-radius: 0.75rem;
-            transition: all 0.2s ease;
-        }
-        .sidebar-menu a:hover {
-            background: var(--sidebar-hover);
-            color: var(--text);
-            transform: translateX(2px);
-        }
-        .sidebar-menu a.active {
-            background: var(--sidebar-active);
-            color: var(--sidebar-active-text);
-            font-weight: 600;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-        }
-        .sidebar-menu a.logout-link {
-            color: #ef4444;
-            margin-top: auto;
-            margin-bottom: 1.5rem;
-        }
-        .sidebar-menu a.logout-link:hover {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-        }
-        .sidebar-menu a i {
-            font-size: 1.15rem;
-        }
-
         .main-content {
-            flex-grow: 1;
-            margin-left: 270px;
+            margin-left: 250px;
             padding: 2.5rem;
             min-width: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
 
         .page-header {
@@ -427,104 +327,38 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
         }
 
         @media (max-width: 992px) {
-            .sidebar {
-                width: 76px;
-            }
-            .sidebar .sidebar-brand-text,
-            .sidebar .sidebar-menu-category,
-            .sidebar .sidebar-menu span {
-                display: none;
-            }
-            .sidebar-brand {
-                justify-content: center;
-                padding: 1.25rem 0.5rem;
-            }
-            .sidebar-menu {
-                padding: 0 0.5rem;
-            }
-            .sidebar-menu a {
-                justify-content: center;
-                padding: 0.85rem;
-            }
-            .sidebar-menu a i {
-                font-size: 1.35rem;
-            }
             .main-content {
                 margin-left: 76px;
                 padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .page-header {
+                align-items: flex-start !important;
+            }
+
+            .page-title {
+                font-size: 1.45rem;
+            }
+
+            .card-body {
+                padding: 1rem;
             }
         }
     </style>
 </head>
 <body>
 
-<div class="app-layout">
-    <!-- Sidebar Menu -->
-    <nav class="sidebar">
-        <div class="sidebar-brand">
-            <div class="sidebar-logo">
-                <i class="bi bi-shield-shaded"></i>
-            </div>
-            <div class="sidebar-brand-text">
-                <div class="brand-title">PMPC Admin</div>
-                <div class="brand-subtitle">Election System</div>
-            </div>
-        </div>
-        <div class="sidebar-menu-category">Main Menu</div>
-        <ul class="sidebar-menu">
-            <li>
-                <a href="dashboard.php">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li>
-                <a href="candidates.php">
-                    <i class="bi bi-person-badge"></i>
-                    <span>Candidates</span>
-                </a>
-            </li>
-            <li>
-                <a href="positions.php">
-                    <i class="bi bi-trophy"></i>
-                    <span>Positions</span>
-                </a>
-            </li>
-            <li>
-                <a href="voters.php">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Voters</span>
-                </a>
-            </li>
-            <li>
-                <a href="pre-registered.php">
-                    <i class="bi bi-card-checklist"></i>
-                    <span>Pre-registered</span>
-                </a>
-            </li>
-            <li>
-                <a href="elections.php">
-                    <i class="bi bi-building-gear"></i>
-                    <span>Branch Control</span>
-                </a>
-            </li>
-            <li>
-                <a href="results.php" class="active">
-                    <i class="bi bi-bar-chart-fill"></i>
-                    <span>Results</span>
-                </a>
-            </li>
-            <li>
-                <a href="logout.php" class="logout-link">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Logout</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+<!-- Shared PMPC Admin Sidebar -->
+<?php include 'sidebar.php'; ?>
 
-    <!-- Main Content Area -->
-    <main class="main-content">
+<main class="main-content">
         <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h2 class="page-title mb-1">🗳️ Election Live Results</h2>
@@ -849,7 +683,6 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             </div>
         </div>
     </main>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

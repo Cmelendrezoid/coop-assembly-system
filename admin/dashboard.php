@@ -28,24 +28,27 @@ if ($votesRes) { $totalVotes = $votesRes->fetch_assoc()['total'] ?? 0; }
 
 /*
 |--------------------------------------------------------------------------
-| Check Schema Column Existence (Safe Handling)
+| Schema Selection Expressions (Targeting Exact Column Names)
 |--------------------------------------------------------------------------
 */
 
-$hasCategoryCol = false;
-$checkColQuery = $conn->query("SHOW COLUMNS FROM members LIKE 'category'");
-if ($checkColQuery && $checkColQuery->num_rows > 0) {
-    $hasCategoryCol = true;
-}
+// Primary lookup uses m.migs_category, fallback to c.category if stored
+$categorySelect = "
+    COALESCE(
+        NULLIF(TRIM(m.migs_category), ''),
+        NULLIF(TRIM(c.category), ''),
+        'NON-MIGS'
+    )
+";
 
-$hasBranchCol = false;
-$checkBranchQuery = $conn->query("SHOW COLUMNS FROM members LIKE 'branch'");
-if ($checkBranchQuery && $checkBranchQuery->num_rows > 0) {
-    $hasBranchCol = true;
-}
-
-$categorySelect = $hasCategoryCol ? "m.category" : "'REGULAR'";
-$branchSelect = $hasBranchCol ? "m.branch" : "'Main Branch'";
+// Primary lookup uses m.branch_name, fallback to c.branch
+$branchSelect = "
+    COALESCE(
+        NULLIF(TRIM(m.branch_name), ''),
+        NULLIF(TRIM(c.branch), ''),
+        'Main Branch'
+    )
+";
 
 /*
 |--------------------------------------------------------------------------
@@ -84,12 +87,15 @@ $categoryCounts = [
     'NON-MIGS' => 0
 ];
 
+// Joins c.member_id against both m.username and m.id
 $catQuery = "
     SELECT 
         UPPER(TRIM(" . $categorySelect . ")) as member_cat, 
         COUNT(DISTINCT c.member_id) as total 
     FROM member_freebie_claims c
-    LEFT JOIN members m ON c.member_id = m.id
+    LEFT JOIN members m 
+        ON c.member_id = m.username 
+        OR c.member_id = m.id
     " . $whereClause . "
     GROUP BY UPPER(TRIM(" . $categorySelect . "))
 ";
@@ -97,10 +103,15 @@ $catQuery = "
 $catRes = $conn->query($catQuery);
 if ($catRes) {
     while ($row = $catRes->fetch_assoc()) {
-        $cat = $row['member_cat'];
-        if (array_key_exists($cat, $categoryCounts)) {
-            $categoryCounts[$cat] = (int)$row['total'];
-        } elseif ($cat === 'NON MIGS' || $cat === 'NONMIGS') {
+        $cat = strtoupper(trim($row['member_cat'] ?? ''));
+        
+        if (str_contains($cat, 'GOLD')) {
+            $categoryCounts['GOLD'] += (int)$row['total'];
+        } elseif (str_contains($cat, 'SILVER')) {
+            $categoryCounts['SILVER'] += (int)$row['total'];
+        } elseif (str_contains($cat, 'BRONZE')) {
+            $categoryCounts['BRONZE'] += (int)$row['total'];
+        } else {
             $categoryCounts['NON-MIGS'] += (int)$row['total'];
         }
     }
@@ -122,13 +133,13 @@ $itemTotals = $itemTotalsRes ? $itemTotalsRes->fetch_assoc() : [
     'total_tshirts' => 0, 'total_cash' => 0, 'total_snacks' => 0, 'total_umbrellas' => 0, 'total_bottles' => 0
 ];
 
-// 5. Live Attendance & Claims Log Table (Includes Member Branch)
+// 5. Live Attendance & Claims Log Table
 $logQuery = "
     SELECT 
         c.member_id, 
-        c.member_name, 
-        COALESCE(" . $categorySelect . ", 'REGULAR') as category, 
-        COALESCE(" . $branchSelect . ", 'Main Branch') as branch,
+        COALESCE(NULLIF(TRIM(m.full_name), ''), c.member_name) as member_name, 
+        " . $categorySelect . " as category, 
+        " . $branchSelect . " as branch,
         SUM(CASE WHEN c.item_name LIKE '%T-Shirt%' THEN 1 ELSE 0 END) AS qty_tshirt,
         SUM(CASE WHEN c.item_name LIKE '%Cash Allowance%' THEN 1 ELSE 0 END) AS qty_cash,
         SUM(CASE WHEN c.item_name LIKE '%Snacks%' OR c.item_name LIKE '%Meals%' THEN 1 ELSE 0 END) AS qty_snacks,
@@ -136,534 +147,417 @@ $logQuery = "
         SUM(CASE WHEN c.item_name LIKE '%Water Bottle%' OR c.item_name LIKE '%Gold%' THEN 1 ELSE 0 END) AS qty_gold_bottle,
         DATE(MAX(c.claimed_at)) AS arrival_date 
     FROM member_freebie_claims c
-    LEFT JOIN members m ON c.member_id = m.id
+    LEFT JOIN members m 
+        ON c.member_id = m.username 
+        OR c.member_id = m.id
     $whereClause 
-    GROUP BY c.member_id, c.member_name, " . $categorySelect . ", " . $branchSelect . "
+    GROUP BY c.member_id, member_name, " . $categorySelect . ", " . $branchSelect . "
     ORDER BY arrival_date DESC, c.member_id DESC 
     LIMIT 100
 ";
 $attendanceLogs = $conn->query($logQuery);
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin Dashboard - PMPC</title>
-<!-- Google Fonts: Inter -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<!-- Bootstrap 5 & Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Dashboard - PMPC E-Voting</title>
+    
+    <!-- Google Fonts & Bootstrap Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<style>
-:root {
-    --sidebar-bg: #0f172a;
-    --sidebar-hover: #1e293b;
-    --sidebar-text: #94a3b8;
-    --sidebar-text-active: #ffffff;
-    --sidebar-active-bg: #2563eb;
-    --card-bg: #ffffff;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --border-color: #e2e8f0;
-    --bg-main: #f8fafc;
-    --input-bg: #ffffff;
-    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-}
+    <!-- Anti-flicker script to apply saved theme instantly -->
+    <script>
+        (function() {
+            if (localStorage.getItem('admin-theme') === 'dark') {
+                document.documentElement.classList.add('dark-theme');
+            }
+        })();
+    </script>
 
-.dark-theme {
-    --sidebar-bg: #030712;
-    --sidebar-hover: #111827;
-    --sidebar-text: #9ca3af;
-    --sidebar-text-active: #ffffff;
-    --sidebar-active-bg: #2563eb;
-    --card-bg: #111827;
-    --text-primary: #f9fafb;
-    --text-secondary: #9ca3af;
-    --border-color: #1f2937;
-    --bg-main: #030712;
-    --input-bg: #1f2937;
-    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-}
+    <style>
+        :root {
+            --bg-main: #f1f5f9;
+            --sidebar-bg: #0f172a;
+            --sidebar-hover: #1e293b;
+            --sidebar-text: #94a3b8;
+            --sidebar-text-active: #ffffff;
+            --sidebar-active-bg: #2563eb;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-border: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --input-bg: #ffffff;
+            --table-hover: #f8fafc;
+            --card-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+            --glass-backdrop: blur(12px);
+        }
 
-body {
-    background-color: var(--bg-main);
-    color: var(--text-primary);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
+        .dark-theme {
+            --bg-main: #020617;
+            --sidebar-bg: #090d16;
+            --sidebar-hover: #161e2e;
+            --sidebar-text: #64748b;
+            --sidebar-text-active: #f8fafc;
+            --sidebar-active-bg: #2563eb;
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --card-border: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --input-bg: #0f172a;
+            --table-hover: #1e293b;
+            --card-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            --glass-backdrop: blur(16px);
+        }
 
-/* Mobile Header */
-.mobile-header {
-    display: none;
-    background: var(--sidebar-bg);
-    color: white;
-    padding: 1rem 1.25rem;
-    align-items: center;
-    justify-content: space-between;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+        }
 
-/* Sidebar Layout */
-.sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 260px;
-    height: 100vh;
-    background: var(--sidebar-bg);
-    padding: 1.75rem 1.25rem;
-    overflow-y: auto;
-    z-index: 1010;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    flex-direction: column;
-}
+        .main {
+            margin-left: 250px;
+            padding: 2.25rem 2.5rem;
+            width: calc(100% - 250px);
+            max-width: calc(100% - 250px);
+            box-sizing: border-box;
+            transition: margin-left 0.3s ease;
+            overflow-x: hidden;
+        }
 
-.brand-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding-bottom: 1.5rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
+        .page-title {
+            color: var(--text-primary);
+            font-weight: 800;
+            font-size: 1.85rem;
+            letter-spacing: -0.03em;
+            margin: 0;
+        }
 
-.logo {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    object-fit: contain;
-}
+        .welcome-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
 
-.brand-title {
-    color: #ffffff;
-    font-size: 1.1rem;
-    font-weight: 700;
-    line-height: 1.2;
-    margin: 0;
-}
+        .theme-toggle-btn {
+            border: 1px solid var(--card-border);
+            border-radius: 50px;
+            padding: 0.55rem 1.15rem;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: var(--glass-backdrop);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
 
-.brand-subtitle {
-    color: var(--sidebar-text);
-    font-size: 0.75rem;
-    font-weight: 500;
-    margin: 0;
-}
+        .theme-toggle-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--sidebar-active-bg);
+        }
 
-.nav-section-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #475569;
-    font-weight: 700;
-    margin: 1rem 0 0.5rem 0.75rem;
-}
+        .admin-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: var(--glass-backdrop);
+            transition: all 0.25s ease;
+        }
 
-.nav-link-custom {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: var(--sidebar-text);
-    text-decoration: none;
-    padding: 0.75rem 1rem;
-    border-radius: 10px;
-    margin-bottom: 0.25rem;
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: all 0.15s ease-in-out;
-}
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
 
-.nav-link-custom i {
-    font-size: 1.1rem;
-}
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(37, 99, 235, 0.4);
+        }
 
-.nav-link-custom:hover {
-    background: var(--sidebar-hover);
-    color: var(--sidebar-text-active);
-}
+        .stat-icon-wrapper {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1.25rem;
+        }
 
-.nav-link-custom.active {
-    background: var(--sidebar-active-bg);
-    color: #ffffff;
-}
+        .stat-number {
+            font-size: 2.1rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            color: var(--text-primary);
+            line-height: 1;
+            margin-bottom: 0.4rem;
+        }
 
-.nav-link-custom.logout {
-    color: #ef4444;
-    margin-top: auto;
-}
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
 
-.nav-link-custom.logout:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: #f87171;
-}
+        .bento-banner {
+            border-radius: 16px;
+            padding: 1.5rem;
+            color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+        }
 
-/* Main Workspace */
-.main {
-    margin-left: 260px;
-    padding: 2.5rem;
-    transition: margin-left 0.3s ease, padding 0.3s ease;
-}
+        .banner-blue { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+        .banner-green { background: linear-gradient(135deg, #10b981, #047857); }
+        .banner-gold { background: linear-gradient(135deg, #f59e0b, #b45309); }
+        .banner-silver { background: linear-gradient(135deg, #64748b, #334155); }
+        .banner-bronze { background: linear-gradient(135deg, #d97706, #78350f); }
+        .banner-red { background: linear-gradient(135deg, #ef4444, #991b1b); }
 
-.page-title {
-    color: var(--text-primary);
-    font-weight: 700;
-    font-size: 1.75rem;
-    letter-spacing: -0.02em;
-    margin: 0;
-}
+        .item-metric-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 1.1rem 0.75rem;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
 
-.welcome-subtitle {
-    color: var(--text-secondary);
-    font-size: 0.925rem;
-}
+        .item-metric-card:hover {
+            background: rgba(37, 99, 235, 0.05);
+            border-color: var(--sidebar-active-bg);
+        }
 
-.theme-toggle-btn {
-    border: 1px solid var(--border-color);
-    border-radius: 50px;
-    padding: 0.5rem 1rem;
-    background: var(--card-bg);
-    color: var(--text-primary);
-    font-weight: 600;
-    font-size: 0.85rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    box-shadow: var(--card-shadow);
-    transition: all 0.2s ease;
-}
+        .item-metric-val {
+            font-size: 1.6rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 0.25rem;
+        }
 
-.theme-toggle-btn:hover {
-    background: var(--border-color);
-}
+        .item-metric-lbl {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
 
-/* Base Card Style */
-.admin-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 1.5rem;
-    box-shadow: var(--card-shadow);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
+        .badge-pill-custom {
+            font-size: 0.73rem;
+            padding: 0.35em 0.8em;
+            border-radius: 50px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
 
-.stat-card:hover {
-    transform: translateY(-2px);
-}
+        .badge-gold {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+        .dark-theme .badge-gold { color: #fbbf24; }
 
-.stat-icon-wrapper {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.35rem;
-    margin-bottom: 1rem;
-}
+        .badge-silver {
+            background-color: rgba(100, 116, 139, 0.15);
+            color: #64748b;
+            border: 1px solid rgba(100, 116, 139, 0.4);
+        }
+        .dark-theme .badge-silver { color: #cbd5e1; }
 
-.stat-number {
-    font-size: 1.85rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-    color: var(--text-primary);
-    line-height: 1;
-    margin-bottom: 0.35rem;
-}
+        .badge-bronze {
+            background-color: rgba(217, 119, 6, 0.15);
+            color: #b45309;
+            border: 1px solid rgba(217, 119, 6, 0.4);
+        }
 
-.stat-label {
-    color: var(--text-secondary);
-    font-size: 0.85rem;
-    font-weight: 500;
-}
+        .badge-nonmigs {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
 
-/* Custom Colored Summary Cards */
-.card-gradient-blue {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: #ffffff;
-    border-radius: 14px;
-}
+        .badge-claimed {
+            background-color: rgba(16, 185, 129, 0.12);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            font-weight: 800;
+            padding: 0.25em 0.65em;
+            border-radius: 8px;
+        }
 
-.card-gradient-green {
-    background: linear-gradient(135deg, #10b981, #047857);
-    color: #ffffff;
-    border-radius: 14px;
-}
+        .dark-theme .badge-claimed { color: #34d399; }
 
-.card-gradient-gold {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #ffffff;
-    border-radius: 14px;
-}
+        .badge-unclaimed {
+            color: var(--text-secondary);
+            opacity: 0.4;
+            font-weight: 500;
+        }
 
-.card-gradient-silver {
-    background: linear-gradient(135deg, #94a3b8, #64748b);
-    color: #ffffff;
-    border-radius: 14px;
-}
+        .table-responsive {
+            border-radius: 14px;
+            overflow: hidden;
+        }
 
-.card-gradient-bronze {
-    background: linear-gradient(135deg, #d97706, #b45309);
-    color: #ffffff;
-    border-radius: 14px;
-}
+        .custom-table {
+            color: var(--text-primary);
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
 
-.card-gradient-nonmigs {
-    background: linear-gradient(135deg, #ef4444, #b91c1c);
-    color: #ffffff;
-    border-radius: 14px;
-}
+        .custom-table th {
+            background: rgba(15, 23, 42, 0.03);
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--card-border);
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 1rem;
+        }
 
-/* Item Summary Cards */
-.item-qty-card {
-    background: var(--bg-main);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1rem;
-    text-align: center;
-}
+        .dark-theme .custom-table th {
+            background: rgba(255, 255, 255, 0.03);
+        }
 
-.item-qty-number {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-}
+        .custom-table td {
+            border-bottom: 1px solid var(--card-border);
+            padding: 1rem;
+            vertical-align: middle;
+            font-size: 0.9rem;
+            transition: background-color 0.15s ease;
+        }
 
-.item-qty-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-}
+        .custom-table tbody tr:hover td {
+            background-color: var(--table-hover);
+        }
 
-/* Badges */
-.badge-gold {
-    background-color: rgba(217, 119, 6, 0.15);
-    color: #d97706;
-    border: 1px solid rgba(217, 119, 6, 0.3);
-    font-size: 0.75rem;
-    padding: 0.35em 0.75em;
-    border-radius: 20px;
-    font-weight: 600;
-}
+        .custom-table tbody tr:last-child td {
+            border-bottom: none;
+        }
 
-.dark-theme .badge-gold {
-    color: #fbbf24;
-}
+        .custom-input {
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 0.5rem 0.9rem;
+            font-weight: 500;
+        }
 
-/* Item Claim Status Badges */
-.badge-claimed {
-    background-color: rgba(16, 185, 129, 0.15);
-    color: #059669;
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    font-size: 0.75rem;
-    padding: 0.25em 0.6em;
-    border-radius: 6px;
-    font-weight: 700;
-}
+        .custom-input:focus {
+            background-color: var(--input-bg);
+            color: var(--text-primary);
+            border-color: var(--sidebar-active-bg);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
 
-.dark-theme .badge-claimed {
-    color: #34d399;
-}
-
-.badge-unclaimed {
-    background-color: rgba(148, 163, 184, 0.15);
-    color: #94a3b8;
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    font-size: 0.75rem;
-    padding: 0.25em 0.5em;
-    border-radius: 6px;
-    font-weight: 500;
-}
-
-/* Table Styling */
-.custom-table {
-    color: var(--text-primary);
-    margin-bottom: 0;
-}
-
-.custom-table th {
-    background: transparent;
-    color: var(--text-secondary);
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 1rem;
-}
-
-.custom-table td {
-    background: transparent;
-    color: var(--text-primary);
-    border-bottom: 1px solid var(--border-color);
-    padding: 1rem;
-    vertical-align: middle;
-}
-
-.custom-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-.custom-input {
-    background-color: var(--input-bg);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 0.5rem 0.85rem;
-}
-
-.custom-input:focus {
-    background-color: var(--input-bg);
-    color: var(--text-primary);
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-/* Mobile Sidebar Overlay */
-.sidebar-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(4px);
-    z-index: 1005;
-}
-
-@media (max-width: 991.98px) {
-    .mobile-header {
-        display: flex;
-    }
-    .sidebar {
-        transform: translateX(-100%);
-    }
-    .sidebar.show {
-        transform: translateX(0);
-    }
-    .sidebar-overlay.show {
-        display: block;
-    }
-    .main {
-        margin-left: 0;
-        padding: 6rem 1.25rem 2.5rem 1.25rem;
-    }
-}
-</style>
+        @media (max-width: 991.98px) {
+            .main {
+                margin-left: 0;
+                width: 100%;
+                max-width: 100%;
+                padding: 5.5rem 1.25rem 2.5rem 1.25rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="mobile-header">
-    <div class="d-flex align-items-center gap-2">
-        <img src="../assets/images/logo.png" class="logo" style="width: 32px; height: 32px;" alt="Logo" onerror="this.style.display='none';">
-        <h2 class="brand-title">PMPC Admin</h2>
-    </div>
-    <button class="btn btn-outline-light btn-sm rounded-3 px-3" onclick="toggleMenu()">
-        <i class="bi bi-list fs-5"></i>
-    </button>
-</div>
-
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMenu()"></div>
-
-<aside class="sidebar" id="sidebarNav">
-    <div class="brand-wrapper">
-        <img src="../assets/images/logo.png" class="logo" alt="PMPC Logo" onerror="this.style.display='none';">
-        <div>
-            <h1 class="brand-title">PMPC Admin</h1>
-            <p class="brand-subtitle">Election System</p>
-        </div>
-    </div>
-
-    <div class="nav-section-label">Main Menu</div>
-    <a href="dashboard.php" class="nav-link-custom active"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
-    <a href="candidates.php" class="nav-link-custom"><i class="bi bi-person-badge"></i> Candidates</a>
-    <a href="positions.php" class="nav-link-custom"><i class="bi bi-award"></i> Positions</a>
-    <a href="voters.php" class="nav-link-custom"><i class="bi bi-people"></i> Voters</a>
-    <a href="pre-registered.php" class="nav-link-custom"><i class="bi bi-clipboard-check"></i> Pre-registered</a>
-    <a href="elections.php" class="nav-link-custom"><i class="bi bi-building"></i> Branches</a>
-    <a href="results.php" class="nav-link-custom"><i class="bi bi-bar-chart-line"></i> Results</a>
-
-    <a href="logout.php" class="nav-link-custom logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
-</aside>
+<?php include 'sidebar.php'; ?>
 
 <main class="main">
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
             <h2 class="page-title">Dashboard Overview</h2>
             <p class="welcome-subtitle mb-0">
-                Welcome back, <strong><?php echo htmlspecialchars($_SESSION['admin_username'] ?? 'Admin'); ?></strong>
+                Welcome back, <strong><?php echo htmlspecialchars($_SESSION['admin_username'] ?? 'Admin', ENT_QUOTES, 'UTF-8'); ?></strong>
             </p>
         </div>
         <div>
-            <button class="theme-toggle-btn" onclick="toggleTheme()">
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle Theme">
                 <i class="bi bi-moon-stars-fill" id="themeIcon"></i>
                 <span id="themeText">Dark Mode</span>
             </button>
         </div>
     </div>
 
-    <!-- ELECTION STATS ROW -->
     <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="admin-card stat-card">
-                <div class="stat-icon-wrapper bg-primary bg-opacity-10 text-primary">
-                    <i class="bi bi-people-fill"></i>
+                <div>
+                    <div class="stat-icon-wrapper bg-primary bg-opacity-10 text-primary">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="stat-number"><?php echo number_format($totalVoters); ?></div>
                 </div>
-                <div class="stat-number"><?php echo number_format($totalVoters); ?></div>
                 <div class="stat-label">Registered Voters</div>
             </div>
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="admin-card stat-card">
-                <div class="stat-icon-wrapper bg-info bg-opacity-10 text-info">
-                    <i class="bi bi-person-bounding-box"></i>
+                <div>
+                    <div class="stat-icon-wrapper bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-person-bounding-box"></i>
+                    </div>
+                    <div class="stat-number"><?php echo number_format($totalCandidates); ?></div>
                 </div>
-                <div class="stat-number"><?php echo number_format($totalCandidates); ?></div>
-                <div class="stat-label">Candidates</div>
+                <div class="stat-label">Total Candidates</div>
             </div>
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="admin-card stat-card">
-                <div class="stat-icon-wrapper bg-warning bg-opacity-10 text-warning">
-                    <i class="bi bi-trophy-fill"></i>
+                <div>
+                    <div class="stat-icon-wrapper bg-warning bg-opacity-10 text-warning">
+                        <i class="bi bi-trophy-fill"></i>
+                    </div>
+                    <div class="stat-number"><?php echo number_format($totalPositions); ?></div>
                 </div>
-                <div class="stat-number"><?php echo number_format($totalPositions); ?></div>
-                <div class="stat-label">Positions</div>
+                <div class="stat-label">Open Positions</div>
             </div>
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="admin-card stat-card">
-                <div class="stat-icon-wrapper bg-success bg-opacity-10 text-success">
-                    <i class="bi bi-check-circle-fill"></i>
+                <div>
+                    <div class="stat-icon-wrapper bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div class="stat-number"><?php echo number_format($totalVotes); ?></div>
                 </div>
-                <div class="stat-number"><?php echo number_format($totalVotes); ?></div>
-                <div class="stat-label">Votes Cast</div>
+                <div class="stat-label">Total Votes Cast</div>
             </div>
         </div>
     </div>
 
-    <!-- ATTENDANCE & CLAIMS STATISTICS SECTION -->
     <div class="admin-card mb-4">
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
             <div>
                 <h5 class="fw-bold mb-1"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Attendance & Claims Statistics</h5>
                 <p class="text-secondary small mb-0">Overview of member turnout and total item quantities distributed</p>
             </div>
-            <!-- Export Dropdown Menu -->
             <div class="dropdown">
                 <button class="btn btn-outline-success btn-sm rounded-3 fw-semibold dropdown-toggle d-inline-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-download"></i> Export Attendance
@@ -683,92 +577,88 @@ body {
             </div>
         </div>
 
-        <!-- Overall Attendance Totals -->
-        <div class="row g-3 mb-3">
+        <div class="row g-3 mb-4">
             <div class="col-12 col-md-6">
-                <div class="p-4 text-center card-gradient-blue shadow-sm">
-                    <div class="display-6 fw-bold mb-1"><?php echo number_format($totalAttendees); ?></div>
-                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Total Attendees Arrived</div>
+                <div class="bento-banner banner-blue">
+                    <div class="display-6 fw-extrabold mb-1" style="font-weight: 800;"><?php echo number_format($totalAttendees); ?></div>
+                    <div class="fw-semibold text-white-50 small text-uppercase tracking-wider">Total Attendees Arrived</div>
                 </div>
             </div>
             <div class="col-12 col-md-6">
-                <div class="p-4 text-center card-gradient-green shadow-sm">
-                    <div class="display-6 fw-bold mb-1"><?php echo number_format($todaysArrivals); ?></div>
-                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Today's Arrivals</div>
+                <div class="bento-banner banner-green">
+                    <div class="display-6 fw-extrabold mb-1" style="font-weight: 800;"><?php echo number_format($todaysArrivals); ?></div>
+                    <div class="fw-semibold text-white-50 small text-uppercase tracking-wider">Today's Arrivals</div>
                 </div>
             </div>
         </div>
 
-        <!-- Category Breakdown Row (Gold, Silver, Bronze, Non-MIGS) -->
         <h6 class="fw-bold text-secondary text-uppercase small tracking-wider mb-2">Member Category Breakdown</h6>
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
-                <div class="p-3 text-center card-gradient-gold shadow-sm">
+                <div class="bento-banner banner-gold text-center py-3">
                     <div class="fs-2 fw-bold mb-1"><?php echo number_format($categoryCounts['GOLD']); ?></div>
-                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Gold Category</div>
+                    <div class="fw-semibold text-white-50 small text-uppercase tracking-wider">Gold Category</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="p-3 text-center card-gradient-silver shadow-sm">
+                <div class="bento-banner banner-silver text-center py-3">
                     <div class="fs-2 fw-bold mb-1"><?php echo number_format($categoryCounts['SILVER']); ?></div>
-                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Silver Category</div>
+                    <div class="fw-semibold text-white-50 small text-uppercase tracking-wider">Silver Category</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="p-3 text-center card-gradient-bronze shadow-sm">
+                <div class="bento-banner banner-bronze text-center py-3">
                     <div class="fs-2 fw-bold mb-1"><?php echo number_format($categoryCounts['BRONZE']); ?></div>
-                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Bronze Category</div>
+                    <div class="fw-semibold text-white-50 small text-uppercase tracking-wider">Bronze Category</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="p-3 text-center card-gradient-nonmigs shadow-sm">
+                <div class="bento-banner banner-red text-center py-3">
                     <div class="fs-2 fw-bold mb-1"><?php echo number_format($categoryCounts['NON-MIGS']); ?></div>
-                    <div class="fw-medium text-white-50 small text-uppercase tracking-wider">Non-MIGS</div>
+                    <div class="fw-semibold text-white-50 small text-uppercase tracking-wider">Non-MIGS</div>
                 </div>
             </div>
         </div>
 
-        <!-- Total Quantities Claimed per Item Card Row -->
         <h6 class="fw-bold text-secondary text-uppercase small tracking-wider mb-3">Total Quantities Claimed Per Item</h6>
         <div class="row g-2 mb-4">
             <div class="col-6 col-sm-4 col-md">
-                <div class="item-qty-card">
-                    <div class="item-qty-number text-primary"><?php echo number_format($itemTotals['total_tshirts']); ?></div>
-                    <div class="item-qty-label">GA T-Shirts</div>
+                <div class="item-metric-card">
+                    <div class="item-metric-val text-primary"><?php echo number_format($itemTotals['total_tshirts']); ?></div>
+                    <div class="item-metric-lbl">GA T-Shirts</div>
                 </div>
             </div>
             <div class="col-6 col-sm-4 col-md">
-                <div class="item-qty-card">
-                    <div class="item-qty-number text-success"><?php echo number_format($itemTotals['total_cash']); ?></div>
-                    <div class="item-qty-label">Cash Allowance</div>
+                <div class="item-metric-card">
+                    <div class="item-metric-val text-success"><?php echo number_format($itemTotals['total_cash']); ?></div>
+                    <div class="item-metric-lbl">Cash Allowance</div>
                 </div>
             </div>
             <div class="col-6 col-sm-4 col-md">
-                <div class="item-qty-card">
-                    <div class="item-qty-number text-info"><?php echo number_format($itemTotals['total_snacks']); ?></div>
-                    <div class="item-qty-label">Snacks / Meals</div>
+                <div class="item-metric-card">
+                    <div class="item-metric-val text-info"><?php echo number_format($itemTotals['total_snacks']); ?></div>
+                    <div class="item-metric-lbl">Snacks / Meals</div>
                 </div>
             </div>
             <div class="col-6 col-sm-4 col-md">
-                <div class="item-qty-card">
-                    <div class="item-qty-number text-warning"><?php echo number_format($itemTotals['total_umbrellas']); ?></div>
-                    <div class="item-qty-label">PMPC Umbrellas</div>
+                <div class="item-metric-card">
+                    <div class="item-metric-val text-warning"><?php echo number_format($itemTotals['total_umbrellas']); ?></div>
+                    <div class="item-metric-lbl">PMPC Umbrellas</div>
                 </div>
             </div>
             <div class="col-6 col-sm-4 col-md">
-                <div class="item-qty-card">
-                    <div class="item-qty-number text-danger"><?php echo number_format($itemTotals['total_bottles']); ?></div>
-                    <div class="item-qty-label">Water Bottles</div>
+                <div class="item-metric-card">
+                    <div class="item-metric-val text-danger"><?php echo number_format($itemTotals['total_bottles']); ?></div>
+                    <div class="item-metric-lbl">Water Bottles</div>
                 </div>
             </div>
         </div>
 
-        <!-- Filter Statistics by Date -->
-        <div class="pt-3 border-top" style="border-color: var(--border-color) !important;">
-            <label class="form-label text-secondary small fw-bold text-uppercase tracking-wider">Filter Statistics By Date</label>
+        <div class="pt-3 border-top" style="border-color: var(--card-border) !important;">
+            <label class="form-label text-secondary small fw-bold text-uppercase tracking-wider mb-2">Filter Statistics By Date</label>
             <form method="GET" action="dashboard.php" class="row g-2 align-items-center">
                 <div class="col-auto flex-grow-1 flex-md-grow-0">
-                    <input type="date" name="filter_date" class="form-control custom-input" value="<?php echo htmlspecialchars($filterDate); ?>">
+                    <input type="date" name="filter_date" class="form-control custom-input" value="<?php echo htmlspecialchars($filterDate, ENT_QUOTES, 'UTF-8'); ?>">
                 </div>
                 <div class="col-auto d-flex gap-2">
                     <button type="submit" class="btn btn-primary rounded-3 btn-sm px-3 fw-semibold"><i class="bi bi-funnel-fill me-1"></i> Filter</button>
@@ -778,14 +668,12 @@ body {
         </div>
     </div>
 
-    <!-- LIVE ATTENDANCE & CLAIM LOG SECTION -->
     <div class="admin-card">
         <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
             <div>
                 <h5 class="fw-bold mb-1"><i class="bi bi-clock-history text-primary me-2"></i>Live Attendance & Claim Log</h5>
                 <p class="text-secondary small mb-0">Real-time log of check-ins and quantities claimed</p>
             </div>
-            <!-- Export Dropdown Menu -->
             <div class="dropdown">
                 <button class="btn btn-primary btn-sm rounded-3 fw-semibold dropdown-toggle d-inline-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-download"></i> Export Freebies Log
@@ -824,17 +712,28 @@ body {
                 <tbody>
                     <?php if ($attendanceLogs && $attendanceLogs->num_rows > 0): ?>
                         <?php while ($log = $attendanceLogs->fetch_assoc()): ?>
+                            <?php 
+                                $catUpper = strtoupper($log['category'] ?? '');
+                                $badgeClass = 'badge-nonmigs';
+                                if (str_contains($catUpper, 'GOLD')) {
+                                    $badgeClass = 'badge-gold';
+                                } elseif (str_contains($catUpper, 'SILVER')) {
+                                    $badgeClass = 'badge-silver';
+                                } elseif (str_contains($catUpper, 'BRONZE')) {
+                                    $badgeClass = 'badge-bronze';
+                                }
+                            ?>
                             <tr>
-                                <td class="fw-bold text-primary text-start">#<?php echo htmlspecialchars($log['member_id']); ?></td>
-                                <td class="fw-semibold text-start"><?php echo htmlspecialchars($log['member_name']); ?></td>
+                                <td class="fw-bold text-primary text-start">#<?php echo htmlspecialchars($log['member_id'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                <td class="fw-semibold text-start"><?php echo htmlspecialchars($log['member_name'], ENT_QUOTES, 'UTF-8'); ?></td>
                                 <td>
-                                    <span class="badge badge-gold">
-                                        <?php echo htmlspecialchars($log['category']); ?>
+                                    <span class="badge badge-pill-custom <?php echo $badgeClass; ?>">
+                                        <?php echo htmlspecialchars($log['category'], ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-20 rounded-pill px-2 py-1 small">
-                                        <?php echo htmlspecialchars($log['branch']); ?>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-20 rounded-pill px-2.5 py-1 small">
+                                        <?php echo htmlspecialchars($log['branch'], ENT_QUOTES, 'UTF-8'); ?>
                                     </span>
                                 </td>
                                 <td>
@@ -863,7 +762,7 @@ body {
                                     </span>
                                 </td>
                                 <td class="text-nowrap text-secondary small">
-                                    <i class="bi bi-calendar-event me-1"></i><?php echo htmlspecialchars($log['arrival_date']); ?>
+                                    <i class="bi bi-calendar-event me-1"></i><?php echo htmlspecialchars($log['arrival_date'], ENT_QUOTES, 'UTF-8'); ?>
                                 </td>
                             </tr>
                         <?php endwhile; ?>
@@ -871,7 +770,7 @@ body {
                         <tr>
                             <td colspan="10" class="text-center text-secondary py-5">
                                 <i class="bi bi-inbox fs-2 d-block mb-2 text-opacity-50"></i>
-                                No attendance logs found for this selection.
+                                No attendance records found for the selected view.
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -881,44 +780,44 @@ body {
     </div>
 </main>
 
-<!-- Bootstrap 5 JavaScript Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-function toggleMenu() {
-    const sidebar = document.getElementById('sidebarNav');
-    const overlay = document.getElementById('sidebarOverlay');
-    sidebar.classList.toggle('show');
-    overlay.classList.toggle('show');
-}
+    function toggleMenu() {
+        const sidebar = document.getElementById('sidebarNav');
+        const overlay = document.getElementById('sidebarOverlay');
 
-function updateThemeUI(isDark) {
-    const themeIcon = document.getElementById('themeIcon');
-    const themeText = document.getElementById('themeText');
-    
-    if (isDark) {
-        document.body.classList.add('dark-theme');
-        themeIcon.className = 'bi bi-sun-fill';
-        themeText.innerText = 'Light Mode';
-    } else {
-        document.body.classList.remove('dark-theme');
-        themeIcon.className = 'bi bi-moon-stars-fill';
-        themeText.innerText = 'Dark Mode';
+        if (sidebar) {
+            sidebar.classList.toggle('show');
+        }
+
+        if (overlay) {
+            overlay.classList.toggle('show');
+        }
     }
-}
 
-function toggleTheme() {
-    const isDark = !document.body.classList.contains('dark-theme');
-    localStorage.setItem('admin-theme', isDark ? 'dark' : 'light');
-    updateThemeUI(isDark);
-}
+    function updateThemeUI() {
+        const isDark = document.documentElement.classList.contains('dark-theme');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
 
-window.onload = function() {
-    const savedTheme = localStorage.getItem('admin-theme');
-    if (savedTheme === 'dark') {
-        updateThemeUI(true);
+        if (isDark) {
+            themeIcon.className = 'bi bi-sun-fill';
+            themeText.innerText = 'Light Mode';
+        } else {
+            themeIcon.className = 'bi bi-moon-stars-fill';
+            themeText.innerText = 'Dark Mode';
+        }
     }
-}
+
+    function toggleTheme() {
+        document.documentElement.classList.toggle('dark-theme');
+        const isDark = document.documentElement.classList.contains('dark-theme');
+        localStorage.setItem('admin-theme', isDark ? 'dark' : 'light');
+        updateThemeUI();
+    }
+
+    document.addEventListener('DOMContentLoaded', updateThemeUI);
 </script>
 </body>
 </html>

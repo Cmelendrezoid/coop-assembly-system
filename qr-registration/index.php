@@ -113,32 +113,34 @@ if (!isset($_SESSION['qr_user_id'])) {
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         <style>
             :root {
-                --bg-gradient: radial-gradient(circle at 50% 0%, #f1f5f9 0%, #e2e8f0 100%);
-                --card-bg: #ffffff;
+                --bg-gradient: radial-gradient(circle at 50% 0%, #edf2f7 0%, #cbd5e1 100%);
+                --card-bg: rgba(255, 255, 255, 0.9);
+                --card-border: rgba(255, 255, 255, 0.8);
                 --text-main: #0f172a;
                 --text-muted: #64748b;
                 --border-color: #e2e8f0;
                 --input-bg: #f8fafc;
                 --input-border: #cbd5e1;
-                --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-                --primary-hover: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-                --primary-shadow: rgba(37, 99, 235, 0.25);
+                --primary-gradient: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+                --primary-hover: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+                --primary-shadow: rgba(37, 99, 235, 0.35);
             }
 
             [data-theme="dark"] {
-                --bg-gradient: radial-gradient(circle at 50% 0%, #0f172a 0%, #0b0f19 100%);
-                --card-bg: #1e293b;
+                --bg-gradient: radial-gradient(circle at 50% 0%, #0d1527 0%, #070a12 100%);
+                --card-bg: rgba(15, 23, 42, 0.85);
+                --card-border: rgba(255, 255, 255, 0.08);
                 --text-main: #f8fafc;
                 --text-muted: #94a3b8;
-                --border-color: #334155;
-                --input-bg: #0f172a;
-                --input-border: #475569;
-                --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-                --primary-hover: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-                --primary-shadow: rgba(59, 130, 246, 0.35);
+                --border-color: #1e293b;
+                --input-bg: #0b1120;
+                --input-border: #334155;
+                --primary-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+                --primary-hover: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+                --primary-shadow: rgba(37, 99, 235, 0.45);
             }
 
-            * { box-sizing: border-box; transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s; }
+            * { box-sizing: border-box; transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease; }
             
             body {
                 font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -168,13 +170,13 @@ if (!isset($_SESSION['qr_user_id'])) {
                 background: var(--card-bg);
                 border: 1px solid var(--border-color);
                 color: var(--text-main);
-                padding: 10px 18px;
+                padding: 10px 20px;
                 border-radius: 30px;
                 font-weight: 700;
                 font-size: 13px;
                 text-decoration: none;
-                backdrop-filter: blur(12px);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                backdrop-filter: blur(16px);
+                box-shadow: 0 4px 20px rgba(0,0,0,0.06);
                 display: flex;
                 align-items: center;
                 gap: 8px;
@@ -188,47 +190,68 @@ if (!isset($_SESSION['qr_user_id'])) {
 
             .login-wrapper {
                 width: 100%;
-                max-width: 880px;
+                max-width: 900px;
                 background: var(--card-bg);
+                backdrop-filter: blur(20px);
                 border-radius: 28px;
-                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-                border: 1px solid var(--border-color);
+                box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25);
+                border: 1px solid var(--card-border);
                 display: flex;
                 overflow: hidden;
             }
 
             .login-hero {
-                flex: 1;
-                background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+                flex: 1.1;
+                background: linear-gradient(145deg, #1e3a8a 0%, #1e40af 40%, #1d4ed8 100%);
                 color: #ffffff;
-                padding: 48px;
+                padding: 52px;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
                 position: relative;
+                overflow: hidden;
+            }
+
+            .login-hero::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%);
+                pointer-events: none;
             }
 
             .hero-badge {
                 align-self: flex-start;
-                background: rgba(255, 255, 255, 0.15);
-                backdrop-filter: blur(8px);
-                padding: 6px 14px;
+                background: rgba(255, 255, 255, 0.18);
+                backdrop-filter: blur(10px);
+                padding: 6px 16px;
                 border-radius: 20px;
                 font-size: 12px;
-                font-weight: 700;
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                font-weight: 800;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+                border: 1px solid rgba(255, 255, 255, 0.25);
+            }
+
+            .hero-content {
+                position: relative;
+                z-index: 1;
             }
 
             .hero-content h1 {
-                font-size: 28px;
+                font-size: 32px;
                 font-weight: 800;
-                line-height: 1.25;
-                margin: 20px 0 12px 0;
+                line-height: 1.2;
+                margin: 20px 0 14px 0;
+                letter-spacing: -0.02em;
             }
 
             .hero-content p {
-                font-size: 14px;
-                color: rgba(255, 255, 255, 0.85);
+                font-size: 14.5px;
+                color: rgba(255, 255, 255, 0.88);
                 line-height: 1.6;
                 margin: 0;
             }
@@ -237,36 +260,38 @@ if (!isset($_SESSION['qr_user_id'])) {
                 font-size: 12px;
                 color: rgba(255, 255, 255, 0.65);
                 font-weight: 600;
+                position: relative;
+                z-index: 1;
             }
 
             .login-card {
                 flex: 1;
-                padding: 48px 40px;
+                padding: 52px 44px;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
             }
 
-            .brand-header-login { margin-bottom: 28px; }
-            .login-logo { height: 52px; width: auto; margin-bottom: 16px; object-fit: contain; }
-            .login-card h2 { margin: 0 0 6px 0; font-size: 24px; font-weight: 800; color: var(--text-main); }
-            .login-card p { color: var(--text-muted); font-size: 13px; margin: 0; font-weight: 500; }
+            .brand-header-login { margin-bottom: 32px; }
+            .login-logo { height: 56px; width: auto; margin-bottom: 16px; object-fit: contain; }
+            .login-card h2 { margin: 0 0 6px 0; font-size: 26px; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; }
+            .login-card p { color: var(--text-muted); font-size: 13.5px; margin: 0; font-weight: 500; }
 
-            .form-group { margin-bottom: 20px; }
-            label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+            .form-group { margin-bottom: 22px; }
+            label { display: block; font-size: 11px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
             .input-wrap { position: relative; display: flex; align-items: center; }
-            .input-icon { position: absolute; left: 16px; width: 18px; height: 18px; stroke: var(--text-muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+            .input-icon { position: absolute; left: 16px; width: 20px; height: 20px; stroke: var(--text-muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
 
             input[type="text"], input[type="password"] {
                 width: 100%;
-                padding: 14px 16px 14px 46px;
+                padding: 14px 16px 14px 48px;
                 border: 1px solid var(--input-border);
-                border-radius: 12px;
+                border-radius: 14px;
                 font-size: 14px;
                 background: var(--input-bg);
                 color: var(--text-main);
                 font-family: inherit;
-                font-weight: 500;
+                font-weight: 600;
             }
 
             input[type="text"]:focus, input[type="password"]:focus {
@@ -281,32 +306,43 @@ if (!isset($_SESSION['qr_user_id'])) {
                 background: var(--primary-gradient);
                 color: white;
                 border: none;
-                padding: 14px;
+                padding: 15px;
                 font-size: 14px;
-                border-radius: 12px;
-                font-weight: 700;
+                border-radius: 14px;
+                font-weight: 800;
                 cursor: pointer;
                 font-family: inherit;
-                box-shadow: 0 8px 16px -4px var(--primary-shadow);
+                box-shadow: 0 10px 20px -4px var(--primary-shadow);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
-                margin-top: 8px;
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            .btn-login:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 14px 24px -4px var(--primary-shadow);
             }
 
             .alert {
-                background: #fef2f2;
+                background: rgba(254, 242, 242, 0.9);
                 color: #991b1b;
                 border: 1px solid #fee2e2;
-                padding: 12px 16px;
-                border-radius: 12px;
+                padding: 14px 18px;
+                border-radius: 14px;
                 font-size: 13px;
-                margin-bottom: 20px;
+                margin-bottom: 24px;
                 display: flex;
                 align-items: center;
-                gap: 10px;
+                gap: 12px;
                 font-weight: 600;
+            }
+
+            @media (max-width: 820px) {
+                .login-wrapper { flex-direction: column; }
+                .login-hero { padding: 36px; }
+                .login-card { padding: 36px 28px; }
             }
         </style>
     </head>
@@ -740,15 +776,17 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            --card-bg: #ffffff;
-            --nav-bg: #f1f5f9;
+            --bg-gradient: radial-gradient(circle at 50% 0%, #f1f5f9 0%, #e2e8f0 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: #e2e8f0;
+            --nav-bg: rgba(241, 245, 249, 0.8);
             --text-main: #0f172a;
             --text-muted: #64748b;
             --border-color: #e2e8f0;
             --input-bg: #f8fafc;
-            --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            --primary-shadow: rgba(37, 99, 235, 0.2);
+            --primary-gradient: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            --primary-hover: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+            --primary-shadow: rgba(37, 99, 235, 0.25);
             --table-header: #f8fafc;
             --success-bg: #f0fdf4;
             --success-border: #bbf7d0;
@@ -756,81 +794,250 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             --danger-bg: #fef2f2;
             --danger-border: #fecaca;
             --danger-text: #b91c1c;
-            --hud-bg: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-            --hud-border: #334155;
-            --hud-text: #f8fafc;
-        }
-
-        [data-theme="dark"] {
-            --bg-gradient: linear-gradient(135deg, #090d16 0%, #111827 100%);
-            --card-bg: #1e293b;
-            --nav-bg: #0f172a;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --input-bg: #0f172a;
-            --primary-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            --primary-shadow: rgba(59, 130, 246, 0.3);
-            --table-header: #0f172a;
-            --success-bg: rgba(6, 78, 59, 0.6);
-            --success-border: #047857;
-            --success-text: #6ee7b7;
-            --danger-bg: rgba(127, 29, 29, 0.6);
-            --danger-border: #991b1b;
-            --danger-text: #fca5a5;
-            --hud-bg: linear-gradient(180deg, #030712 0%, #0f172a 100%);
+            --hud-bg: linear-gradient(180deg, #0b1329 0%, #111c38 100%);
             --hud-border: #1e293b;
             --hud-text: #f8fafc;
         }
 
-        * { box-sizing: border-box; transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s; }
-        body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; background: var(--bg-gradient); min-height: 100vh; margin: 0; padding: 36px 16px; color: var(--text-main); -webkit-font-smoothing: antialiased; }
-        .container { max-width: 1020px; margin: 0 auto; background: var(--card-bg); padding: 36px; border-radius: 24px; box-shadow: 0 20px 45px -10px rgba(0,0,0,0.08); border: 1px solid var(--border-color); }
-        .brand-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border-color); }
-        .brand-left { display: flex; align-items: center; gap: 16px; }
-        .ui-logo { height: 48px; width: auto; object-fit: contain; }
-        .brand-text h1 { margin: 0; font-size: 22px; color: var(--text-main); font-weight: 800; letter-spacing: -0.02em; }
-        .brand-text p { margin: 3px 0 0 0; font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        [data-theme="dark"] {
+            --bg-gradient: radial-gradient(circle at 50% 0%, #0b1120 0%, #050811 100%);
+            --card-bg: rgba(15, 23, 42, 0.9);
+            --card-border: #1e293b;
+            --nav-bg: rgba(15, 23, 42, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0b1120;
+            --primary-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --primary-hover: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+            --primary-shadow: rgba(37, 99, 235, 0.35);
+            --table-header: #0f172a;
+            --success-bg: rgba(6, 78, 59, 0.5);
+            --success-border: #047857;
+            --success-text: #6ee7b7;
+            --danger-bg: rgba(127, 29, 29, 0.5);
+            --danger-border: #991b1b;
+            --danger-text: #fca5a5;
+            --hud-bg: linear-gradient(180deg, #030712 0%, #0b1120 100%);
+            --hud-border: #1e293b;
+            --hud-text: #f8fafc;
+        }
+
+        * { box-sizing: border-box; transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s; }
+        body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; background: var(--bg-gradient); min-height: 100vh; margin: 0; padding: 40px 16px; color: var(--text-main); -webkit-font-smoothing: antialiased; }
+        
+        .container { 
+            max-width: 1080px; 
+            margin: 0 auto; 
+            background: var(--card-bg); 
+            backdrop-filter: blur(16px);
+            padding: 40px; 
+            border-radius: 28px; 
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.12); 
+            border: 1px solid var(--card-border); 
+        }
+
+        .brand-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 28px; 
+            padding-bottom: 24px; 
+            border-bottom: 1px solid var(--border-color); 
+        }
+        .brand-left { display: flex; align-items: center; gap: 18px; }
+        .ui-logo { height: 52px; width: auto; object-fit: contain; }
+        .brand-text h1 { margin: 0; font-size: 24px; color: var(--text-main); font-weight: 800; letter-spacing: -0.02em; }
+        .brand-text p { margin: 4px 0 0 0; font-size: 13.5px; color: var(--text-muted); font-weight: 500; }
+        
         .header-actions { display: flex; align-items: center; gap: 12px; }
-        .btn-theme-toggle { background: var(--nav-bg); border: 1px solid var(--border-color); color: var(--text-main); padding: 9px 16px; border-radius: 30px; cursor: pointer; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .nav-tabs { display: flex; background: var(--nav-bg); padding: 6px; border-radius: 16px; margin-bottom: 24px; gap: 6px; border: 1px solid var(--border-color); }
-        .nav-tabs a { flex: 1; text-align: center; padding: 14px 16px; text-decoration: none; color: var(--text-muted); font-weight: 700; font-size: 13px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .nav-tabs a.active { color: #ffffff; background: var(--primary-gradient); box-shadow: 0 8px 16px -4px var(--primary-shadow); }
-        .debug-bar { font-size: 13px; color: var(--text-muted); background: var(--nav-bg); padding: 12px 20px; border-radius: 12px; margin-bottom: 28px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
-        .logout-link { color: #ef4444; text-decoration: none; font-weight: 700; }
-        .section-title-wrap { margin-bottom: 20px; }
-        h2 { font-weight: 800; font-size: 20px; color: var(--text-main); margin: 0 0 4px 0; }
-        .subtitle { color: var(--text-muted); font-size: 13px; margin: 0; font-weight: 500; }
-        .alert { padding: 16px 20px; border-radius: 14px; margin-bottom: 28px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 12px; }
+        .btn-theme-toggle { 
+            background: var(--nav-bg); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-main); 
+            padding: 10px 18px; 
+            border-radius: 30px; 
+            cursor: pointer; 
+            font-size: 13px; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            backdrop-filter: blur(8px);
+        }
+        .btn-theme-toggle:hover { transform: translateY(-2px); border-color: #3b82f6; }
+
+        .nav-tabs { 
+            display: flex; 
+            background: var(--nav-bg); 
+            padding: 6px; 
+            border-radius: 18px; 
+            margin-bottom: 28px; 
+            gap: 8px; 
+            border: 1px solid var(--border-color); 
+            backdrop-filter: blur(12px);
+        }
+        .nav-tabs a { 
+            flex: 1; 
+            text-align: center; 
+            padding: 14px 20px; 
+            text-decoration: none; 
+            color: var(--text-muted); 
+            font-weight: 700; 
+            font-size: 13.5px; 
+            border-radius: 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+        }
+        .nav-tabs a.active { 
+            color: #ffffff; 
+            background: var(--primary-gradient); 
+            box-shadow: 0 8px 20px -4px var(--primary-shadow); 
+        }
+
+        .debug-bar { 
+            font-size: 13px; 
+            color: var(--text-muted); 
+            background: var(--nav-bg); 
+            padding: 14px 22px; 
+            border-radius: 16px; 
+            margin-bottom: 28px; 
+            border: 1px solid var(--border-color); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-weight: 600; 
+        }
+        .logout-link { color: #ef4444; text-decoration: none; font-weight: 800; padding: 4px 10px; border-radius: 8px; }
+        .logout-link:hover { background: rgba(239, 68, 68, 0.1); }
+
+        .section-title-wrap { margin-bottom: 22px; }
+        h2 { font-weight: 800; font-size: 22px; color: var(--text-main); margin: 0 0 6px 0; letter-spacing: -0.01em; }
+        .subtitle { color: var(--text-muted); font-size: 13.5px; margin: 0; font-weight: 500; }
+
+        .alert { 
+            padding: 16px 22px; 
+            border-radius: 16px; 
+            margin-bottom: 28px; 
+            font-weight: 600; 
+            font-size: 14px; 
+            display: flex; 
+            align-items: center; 
+            gap: 14px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
         .alert-danger { background: var(--danger-bg); color: var(--danger-text); border: 1px solid var(--danger-border); }
         .alert-success { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); }
+
         .search-box-wrap { display: flex; gap: 12px; margin-bottom: 28px; }
-        input[type="text"] { flex: 1; padding: 14px 18px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 14px; background-color: var(--input-bg); color: var(--text-main); font-family: inherit; }
-        input[type="text"]:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 4px var(--primary-shadow); }
-        button, .btn-action { background: var(--primary-gradient); color: white; border: none; padding: 14px 28px; font-size: 14px; border-radius: 12px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-family: inherit; box-shadow: 0 8px 16px -4px var(--primary-shadow); }
-        .table-responsive { width: 100%; overflow-x: auto; border: 1px solid var(--border-color); border-radius: 14px; }
+        input[type="text"] { 
+            flex: 1; 
+            padding: 16px 20px; 
+            border: 1px solid var(--border-color); 
+            border-radius: 16px; 
+            font-size: 14.5px; 
+            background-color: var(--input-bg); 
+            color: var(--text-main); 
+            font-family: inherit; 
+            font-weight: 600;
+        }
+        input[type="text"]:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 4px var(--primary-shadow); }
+
+        button, .btn-action { 
+            background: var(--primary-gradient); 
+            color: white; 
+            border: none; 
+            padding: 15px 30px; 
+            font-size: 14px; 
+            border-radius: 16px; 
+            cursor: pointer; 
+            font-weight: 800; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            text-decoration: none; 
+            font-family: inherit; 
+            box-shadow: 0 8px 18px -4px var(--primary-shadow); 
+        }
+        button:hover, .btn-action:hover { transform: translateY(-2px); box-shadow: 0 12px 22px -4px var(--primary-shadow); }
+
+        .table-responsive { width: 100%; overflow-x: auto; border: 1px solid var(--border-color); border-radius: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 16px 20px; }
-        th { background: var(--table-header); font-weight: 700; color: var(--text-muted); font-size: 11px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 0.08em; }
-        td { border-bottom: 1px solid var(--border-color); background: var(--card-bg); font-size: 14px; }
-        .badge { padding: 6px 12px; border-radius: 30px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+        th, td { padding: 18px 22px; }
+        th { background: var(--table-header); font-weight: 800; color: var(--text-muted); font-size: 11px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 0.08em; }
+        td { border-bottom: 1px solid var(--border-color); background: var(--card-bg); font-size: 14px; vertical-align: middle; }
+        
+        .badge { padding: 6px 14px; border-radius: 30px; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.03em; }
         .badge-success { background: #dcfce7; color: #15803d; }
-        .badge-secondary { background: var(--input-bg); color: var(--text-muted); }
+        .badge-secondary { background: var(--input-bg); color: var(--text-muted); border: 1px solid var(--border-color); }
         .badge-warning { background: #fef3c7; color: #b45309; }
-        .scanner-card { border: 1px solid var(--hud-border); background: var(--hud-bg); padding: 36px 28px; border-radius: 20px; text-align: center; margin-bottom: 24px; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3); }
-        .scanner-card input[type="text"] { width: 100%; max-width: 500px; text-align: center; font-weight: 800; font-size: 20px; color: #ffffff; border: 2px solid #3b82f6; background: rgba(15, 23, 42, 0.8); letter-spacing: 0.08em; padding: 18px; border-radius: 14px; margin-bottom: 16px; }
-        .claim-status-panel { margin-top: 24px; padding: 20px; border-radius: 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-        .claim-status-title { color: #f8fafc; font-size: 15px; font-weight: 800; margin-bottom: 16px; text-align: center; }
-        .print-item-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-radius: 14px; margin-bottom: 10px; cursor: pointer; border: 1px solid rgba(0,0,0,0.1); text-align: left; user-select: none; }
+
+        .scanner-card { 
+            border: 1px solid var(--hud-border); 
+            background: var(--hud-bg); 
+            padding: 40px 32px; 
+            border-radius: 24px; 
+            text-align: center; 
+            margin-bottom: 28px; 
+            box-shadow: 0 25px 50px -15px rgba(0,0,0,0.4); 
+            position: relative;
+            overflow: hidden;
+        }
+        .scanner-card input[type="text"] { 
+            width: 100%; 
+            max-width: 520px; 
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 20px; 
+            color: #ffffff; 
+            border: 2px solid #3b82f6; 
+            background: rgba(15, 23, 42, 0.85); 
+            letter-spacing: 0.08em; 
+            padding: 18px; 
+            border-radius: 16px; 
+            margin-bottom: 18px; 
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+        .scanner-card input[type="text"]:focus { border-color: #60a5fa; box-shadow: 0 0 25px rgba(59, 130, 246, 0.4); }
+
+        .claim-status-panel { 
+            margin-top: 28px; 
+            padding: 24px; 
+            border-radius: 20px; 
+            background: rgba(255,255,255,0.04); 
+            border: 1px solid rgba(255,255,255,0.08); 
+            backdrop-filter: blur(12px);
+        }
+        .claim-status-title { color: #f8fafc; font-size: 16px; font-weight: 800; margin-bottom: 18px; text-align: center; }
+        
+        .print-item-row { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 14px; 
+            padding: 16px 22px; 
+            border-radius: 16px; 
+            margin-bottom: 12px; 
+            cursor: pointer; 
+            border: 1px solid rgba(0,0,0,0.1); 
+            text-align: left; 
+            user-select: none; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
         .print-item-row.item-claimed { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
         .print-item-row.item-unclaimed { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
         .print-item-row input[type="checkbox"] { display: none; }
-        .print-item-state { padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 800; min-width: 100px; text-align: center; }
+        .print-item-state { padding: 6px 16px; border-radius: 999px; font-size: 12px; font-weight: 800; min-width: 105px; text-align: center; }
         .print-item-row.item-claimed .print-item-state { background: #10b981; color: white; }
         .print-item-row.item-unclaimed .print-item-state { background: #ef4444; color: white; }
-        .scanner-status { margin-top: 16px; font-size: 13px; color: var(--hud-text); display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600; }
+        
+        .scanner-status { margin-top: 18px; font-size: 13.5px; color: var(--hud-text); display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600; opacity: 0.9; }
         .pulse-dot { width: 10px; height: 10px; background-color: #22c55e; border-radius: 50%; display: inline-block; animation: pulse 1.6s infinite; }
         @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+
+        /* THERMAL RECEIPT VIEW - STRICT PRINT STYLES */
         #thermal-receipt-view { display: none; background: white !important; color: #000 !important; width: 80mm; padding: 15px; margin: 24px auto; border: 1px dashed #aaa; text-align: center; font-family: monospace; }
         .receipt-header { font-weight: bold; font-size: 15px; margin-bottom: 2px; text-transform: uppercase; color: #000 !important; text-align: center; }
         .receipt-divider { border-top: 1px dashed #000; margin: 10px 0; width: 100%; }
@@ -849,6 +1056,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
         .freebie-chk-box.checked { background: #000 !important; }
         .freebie-chk-box.checked::after { content: "✓"; color: #fff; font-size: 12px; position: absolute; top: -2px; left: 2px; font-weight: bold; }
         .freebie-label { font-size: 12px; font-weight: bold; color: #000 !important; font-family: sans-serif; }
+        
         @media print {
             @page { margin: 0; size: 80mm auto; }
             body * { visibility: hidden !important; background: transparent !important; }
@@ -947,28 +1155,28 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                                                 
                                                 <?php if (!$row['registered']): ?>
                                                     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
-                                                        <div style="text-align:left; max-width: 260px; font-size: 12px; color: var(--text-muted);">
-                                                            <strong style="display:block; margin-bottom: 6px;">Select Terminal A Pre-Registration Freebies:</strong>
-                                                            <label style="display:inline-flex; align-items:center; gap:6px; margin-bottom: 4px;"><input type="checkbox" name="claimed_items[]" value="GA T-Shirt"> GA T-Shirt</label><br>
+                                                        <div style="text-align:left; max-width: 260px; font-size: 12px; color: var(--text-muted); background: var(--input-bg); padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border-color);">
+                                                            <strong style="display:block; margin-bottom: 8px; color: var(--text-main);">Select Terminal A Pre-Registration Freebies:</strong>
+                                                            <label style="display:inline-flex; align-items:center; gap:8px; margin-bottom: 6px; cursor: pointer;"><input type="checkbox" name="claimed_items[]" value="GA T-Shirt"> GA T-Shirt</label><br>
                                                             
                                                             <?php if ($is_non_migs): ?>
-                                                                <label style="display:inline-flex; align-items:center; gap:6px; margin-bottom: 4px; opacity: 0.5; cursor: not-allowed;" title="Non-MIGS members are not eligible for cash allowance">
-                                                                    <input type="checkbox" disabled> <span style="text-decoration: line-through;">Cash Allowance</span> <span style="color:#ef4444; font-size:10px; font-weight:bold;">(Non-MIGS Ineligible)</span>
+                                                                <label style="display:inline-flex; align-items:center; gap:8px; margin-bottom: 6px; opacity: 0.5; cursor: not-allowed;" title="Non-MIGS members are not eligible for cash allowance">
+                                                                    <input type="checkbox" disabled> <span style="text-decoration: line-through;">Cash Allowance</span> <span style="color:#ef4444; font-size:10px; font-weight:800;">(Non-MIGS Ineligible)</span>
                                                                 </label><br>
                                                             <?php else: ?>
-                                                                <label style="display:inline-flex; align-items:center; gap:6px; margin-bottom: 4px;"><input type="checkbox" name="claimed_items[]" value="Cash Allowance"> Cash Allowance</label><br>
+                                                                <label style="display:inline-flex; align-items:center; gap:8px; margin-bottom: 6px; cursor: pointer;"><input type="checkbox" name="claimed_items[]" value="Cash Allowance"> Cash Allowance</label><br>
                                                             <?php endif; ?>
 
-                                                            <label style="display:inline-flex; align-items:center; gap:6px; margin-bottom: 4px;"><input type="checkbox" name="claimed_items[]" value="Snacks / Meals"> Snacks / Meals</label><br>
-                                                            <label style="display:inline-flex; align-items:center; gap:6px; margin-bottom: 4px;"><input type="checkbox" name="claimed_items[]" value="PMPC Umbrella"> PMPC Umbrella</label>
+                                                            <label style="display:inline-flex; align-items:center; gap:8px; margin-bottom: 6px; cursor: pointer;"><input type="checkbox" name="claimed_items[]" value="Snacks / Meals"> Snacks / Meals</label><br>
+                                                            <label style="display:inline-flex; align-items:center; gap:8px; margin-bottom: 6px; cursor: pointer;"><input type="checkbox" name="claimed_items[]" value="PMPC Umbrella"> PMPC Umbrella</label>
                                                             <?php if (stripos($cat_display, 'GOLD') !== false): ?>
-                                                            <br><label style="display:inline-flex; align-items:center; gap:6px;"><input type="checkbox" name="claimed_items[]" value="Water Bottle for Gold Members"> Water Bottle for Gold Members</label>
+                                                            <br><label style="display:inline-flex; align-items:center; gap:8px; cursor: pointer;"><input type="checkbox" name="claimed_items[]" value="Water Bottle for Gold Members"> Water Bottle for Gold Members</label>
                                                             <?php endif; ?>
                                                         </div>
-                                                        <button type="submit" style="padding: 10px 16px; font-size: 12px;">Confirm & Print Pass</button>
+                                                        <button type="submit" style="padding: 10px 18px; font-size: 13px;">Confirm & Print Pass</button>
                                                     </div>
                                                 <?php else: ?>
-                                                    <button type="submit" style="padding: 10px 16px; font-size: 12px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%);">Reprint Pass</button>
+                                                    <button type="submit" style="padding: 10px 18px; font-size: 13px; background: linear-gradient(135deg, #d97706 0%, #b45309 100%); box-shadow: 0 8px 16px -4px rgba(217, 119, 6, 0.3);">Reprint Pass</button>
                                                 <?php endif; ?>
                                             </form>
                                         </td>
@@ -978,7 +1186,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                         </table>
                     </div>
                 <?php else: ?>
-                    <p style="color: var(--text-muted); font-size: 13px; padding: 12px 0;">No member accounts match your search query.</p>
+                    <p style="color: var(--text-muted); font-size: 13.5px; padding: 12px 0;">No member accounts match your search query.</p>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -994,7 +1202,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
             <form method="POST" action="index.php?route=gate" id="gate-scan-form">
                 <input type="hidden" name="action" value="gate_scan">
                 <input type="text" name="scan_input" id="gate-scan-input" placeholder="SCAN MEMBER QR PASS HERE" autocomplete="off" autofocus>
-                <button type="submit" style="display: block; margin: 0 auto; max-width: 500px; width: 100%;">Scan Member Pass</button>
+                <button type="submit" style="display: block; margin: 0 auto; max-width: 520px; width: 100%;">Scan Member Pass</button>
             </form>
 
             <div class="scanner-status"><span class="pulse-dot"></span>Integrated Scanner Ready — Scan a member pass to proceed</div>
@@ -1037,16 +1245,16 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                         <div class="claim-status-title">
                             Member Claim Status: <strong><?= htmlspecialchars($gate_member['full_name']) ?></strong> 
                             (#<?= htmlspecialchars($gate_member['id']) ?>) - <?= htmlspecialchars(!empty($gate_member['migs_category']) ? strtoupper($gate_member['migs_category']) : 'REGULAR') ?>
-                            <div style="font-size: 13px; color: #94a3b8; font-weight: 600; margin-top: 4px;">Branch: <?= htmlspecialchars(!empty($gate_member['branch_name']) ? $gate_member['branch_name'] : 'N/A') ?></div>
+                            <div style="font-size: 13.5px; color: #94a3b8; font-weight: 600; margin-top: 6px;">Branch: <?= htmlspecialchars(!empty($gate_member['branch_name']) ? $gate_member['branch_name'] : 'N/A') ?></div>
                         </div>
 
-                        <form method="POST" action="index.php?route=gate&print_id=<?= urlencode($print_target_id) ?>&gate_print=1" id="gate-print-form" style="margin-top: 16px; text-align: left;">
+                        <form method="POST" action="index.php?route=gate&print_id=<?= urlencode($print_target_id) ?>&gate_print=1" id="gate-print-form" style="margin-top: 20px; text-align: left;">
                             <input type="hidden" name="action" value="gate_print_claims">
                             <input type="hidden" name="member_id" value="<?= htmlspecialchars($print_target_id) ?>">
                             <input type="hidden" name="print_now" value="1">
                             <input type="hidden" name="admin_override" id="admin_override_input" value="0">
 
-                            <div style="font-size: 12px; color: #94a3b8; text-align: left; margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
+                            <div style="font-size: 12px; color: #94a3b8; text-align: left; margin-bottom: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;">
                                 Click items below to toggle status & tag for issue:
                             </div>
 
@@ -1058,21 +1266,21 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                                     <input type="checkbox" name="selected_items[]" value="<?= htmlspecialchars($item) ?>" <?= $item_claimed ? 'checked' : '' ?> />
                                     <div style="display: flex; align-items: center; gap: 12px;">
                                         <span class="freebie-chk-box <?= $item_claimed ? 'checked' : '' ?>"></span>
-                                        <span class="freebie-label" style="color: inherit !important; font-size: 14px;"><?= htmlspecialchars($item) ?></span>
+                                        <span class="freebie-label" style="color: inherit !important; font-size: 14.5px;"><?= htmlspecialchars($item) ?></span>
                                     </div>
                                     <span class="print-item-state"><?= $item_claimed ? '✓ Claimed' : '✗ Unclaimed' ?></span>
                                 </div>
                             <?php endforeach; ?>
 
-                            <div style="display: flex; justify-content: center; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
-                                <button type="submit" id="gate-save-print-btn" style="padding: 14px 32px; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border-radius: 12px; font-weight: 800; font-size: 14px; border: none; cursor: pointer; box-shadow: 0 8px 16px -4px rgba(4, 120, 87, 0.4); display: inline-flex; align-items: center; gap: 8px;">
+                            <div style="display: flex; justify-content: center; gap: 12px; margin-top: 28px; flex-wrap: wrap;">
+                                <button type="submit" id="gate-save-print-btn" style="padding: 16px 36px; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border-radius: 16px; font-weight: 800; font-size: 14.5px; border: none; cursor: pointer; box-shadow: 0 10px 20px -4px rgba(4, 120, 87, 0.4); display: inline-flex; align-items: center; gap: 10px;">
                                     💾 Save DB & Print Slip 🖨️
                                 </button>
                             </div>
                         </form>
                     </div>
                 <?php else: ?>
-                    <div style="margin-top: 18px; font-size: 13px; color: #b91c1c; font-weight: 700;">Member record not found.</div>
+                    <div style="margin-top: 20px; font-size: 14px; color: #fca5a5; font-weight: 700;">Member record not found.</div>
                 <?php endif; ?>
             <?php endif; ?>
         </div>

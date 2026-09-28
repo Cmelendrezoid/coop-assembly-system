@@ -3,386 +3,485 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>PMPC Election Portal</title>
+    <title>PMPC Election Portal - VIP Edition</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-gradient: radial-gradient(circle at 50% 0%, #f8fafc 0%, #e2e8f0 100%);
-            --card-bg: #ffffff;
-            --card-border: rgba(226, 232, 240, 0.9);
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --toggle-btn-bg: #ffffff;
-            --toggle-btn-color: #334155;
-            --toggle-btn-border: #cbd5e1;
+            /* Extravagant Theme Colors */
+            --royal-blue: #4169E1;
+            --gold-light: #FDE047;
+            --gold-dark: #CA8A04;
+            --cyan-glow: #22D3EE;
             
-            --voter-card-bg: #ffffff;
-            --voter-card-border: #e2e8f0;
-            --voter-accent: #059669;
-            --voter-hover-bg: #f0fdf4;
-
-            --qr-card-bg: #ffffff;
-            --qr-card-border: #e2e8f0;
-            --qr-accent: #4f46e5;
-            --qr-hover-bg: #eef2ff;
-
-            --info-bg: #f8fafc;
-            --info-border: #e2e8f0;
-            --info-title: #334155;
-            --info-text: #64748b;
-            --badge-bg: #ecfdf5;
-            --badge-color: #047857;
+            /* Dynamic Light Theme */
+            --bg-mesh: radial-gradient(at 0% 0%, rgba(65, 105, 225, 0.15) 0px, transparent 50%),
+                       radial-gradient(at 100% 0%, rgba(34, 211, 238, 0.15) 0px, transparent 50%),
+                       radial-gradient(at 100% 100%, rgba(253, 224, 71, 0.15) 0px, transparent 50%),
+                       #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.8);
+            --card-shadow: 0 30px 60px -12px rgba(65, 105, 225, 0.15), 0 0 20px rgba(255, 255, 255, 0.8) inset;
+            
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --title-gradient: linear-gradient(135deg, #1e3a8a 0%, #4169E1 50%, #2563eb 100%);
+            
+            --action-bg: rgba(255, 255, 255, 0.7);
+            --action-border: rgba(65, 105, 225, 0.2);
+            --action-glow: rgba(65, 105, 225, 0.3);
         }
 
         .dark-theme {
-            --bg-gradient: radial-gradient(circle at 50% 0%, #0f172a 0%, #020617 100%);
-            --card-bg: #1e293b;
-            --card-border: rgba(51, 65, 85, 0.9);
-            --text-main: #f8fafc;
+            /* Dynamic Dark Theme (Deep Luxury) */
+            --bg-mesh: radial-gradient(at 0% 0%, rgba(65, 105, 225, 0.25) 0px, transparent 50%),
+                       radial-gradient(at 100% 0%, rgba(202, 138, 4, 0.15) 0px, transparent 50%),
+                       radial-gradient(at 100% 100%, rgba(34, 211, 238, 0.15) 0px, transparent 50%),
+                       #020617;
+            --glass-bg: rgba(15, 23, 42, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --card-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), 0 0 20px rgba(65, 105, 225, 0.1) inset;
+            
+            --text-main: #ffffff;
             --text-muted: #94a3b8;
-            --toggle-btn-bg: #1e293b;
-            --toggle-btn-color: #f8fafc;
-            --toggle-btn-border: #475569;
-
-            --voter-card-bg: #0f172a;
-            --voter-card-border: #334155;
-            --voter-accent: #10b981;
-            --voter-hover-bg: rgba(16, 185, 129, 0.1);
-
-            --qr-card-bg: #0f172a;
-            --qr-card-border: #334155;
-            --qr-accent: #818cf8;
-            --qr-hover-bg: rgba(99, 102, 241, 0.1);
-
-            --info-bg: rgba(15, 23, 42, 0.6);
-            --info-border: #334155;
-            --info-title: #cbd5e1;
-            --info-text: #94a3b8;
-            --badge-bg: rgba(16, 185, 129, 0.15);
-            --badge-color: #34d399;
+            --title-gradient: linear-gradient(to right, #FDE047 0%, #F59E0B 50%, #FDE047 100%);
+            
+            --action-bg: rgba(30, 41, 59, 0.6);
+            --action-border: rgba(255, 255, 255, 0.05);
+            --action-glow: rgba(253, 224, 71, 0.2);
         }
 
         * {
-            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            box-sizing: border-box;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* --- Animated Background --- */
         body {
             margin: 0;
             min-height: 100vh;
-            background: var(--bg-gradient);
+            background-color: #0f172a;
+            background-image: var(--bg-mesh);
+            background-size: 150% 150%;
+            animation: gradientMove 15s ease infinite alternate;
             color: var(--text-main);
             font-family: 'Plus Jakarta Sans', sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 32px 16px;
+            padding: 40px 20px;
+            overflow-x: hidden;
         }
 
+        @keyframes gradientMove {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 100%; }
+        }
+
+        /* --- Floating Particles/Orbs (Extravagant Touch) --- */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 10s ease-in-out infinite alternate;
+        }
+        .orb-1 { width: 300px; height: 300px; background: var(--royal-blue); top: 10%; left: 15%; }
+        .orb-2 { width: 250px; height: 250px; background: var(--gold-dark); bottom: 10%; right: 15%; animation-delay: -5s; }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-50px) scale(1.1); }
+        }
+
+        /* --- Premium Theme Toggle --- */
         .theme-toggle {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 24px;
+            right: 24px;
             z-index: 1000;
         }
 
         .theme-btn {
-            background: var(--toggle-btn-bg);
-            color: var(--toggle-btn-color);
-            border: 1px solid var(--toggle-btn-border);
-            padding: 9px 16px;
-            border-radius: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+            padding: 12px 24px;
+            border-radius: 50px;
             cursor: pointer;
             font-weight: 700;
             font-size: 13px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .theme-btn:hover {
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(65, 105, 225, 0.3);
+            border-color: var(--royal-blue);
         }
 
+        /* --- Ultimate Glassmorphism Container --- */
         .hero {
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            z-index: 1;
         }
 
         .portal-card {
             width: 100%;
-            max-width: 680px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 28px;
-            padding: 48px 40px;
+            max-width: 720px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 56px 48px;
             text-align: center;
-            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12);
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Shine effect over the card */
+        .portal-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg);
+            animation: shine 6s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        /* --- Extravagant Header Elements --- */
+        .logo-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+
+        .logo-glow {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 110px; height: 110px;
+            background: var(--royal-blue);
+            border-radius: 50%;
+            filter: blur(25px);
+            opacity: 0.5;
+            z-index: -1;
+            animation: pulseGlow 3s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.4; }
+            100% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.7; }
         }
 
         .logo {
-            width: 96px;
-            height: 96px;
+            width: 100px;
+            height: 100px;
             object-fit: contain;
-            margin-bottom: 16px;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+            position: relative;
+            z-index: 2;
         }
 
         .welcome-badge {
             display: inline-block;
-            background: var(--badge-bg);
-            color: var(--badge-color);
+            background: linear-gradient(90deg, rgba(65,105,225,0.1), rgba(65,105,225,0.2));
+            border: 1px solid rgba(65, 105, 225, 0.3);
+            color: var(--royal-blue);
             font-size: 11px;
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 12px;
+            font-weight: 800;
+            padding: 8px 20px;
+            border-radius: 30px;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 12px;
+            letter-spacing: 0.2em;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(65, 105, 225, 0.15);
+        }
+        
+        .dark-theme .welcome-badge {
+            color: var(--gold-light);
+            border-color: rgba(253, 224, 71, 0.3);
+            background: linear-gradient(90deg, rgba(253,224,71,0.1), rgba(202,138,4,0.1));
+            box-shadow: 0 4px 15px rgba(253, 224, 71, 0.15);
         }
 
         .portal-title {
-            font-size: 1.75rem;
+            font-size: 2.2rem;
             font-weight: 800;
-            margin-bottom: 4px;
-            color: var(--text-main);
-            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+            background: var(--title-gradient);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textShine 4s linear infinite;
+            letter-spacing: -0.03em;
+        }
+
+        @keyframes textShine {
+            to { background-position: 200% center; }
         }
 
         .portal-subtitle {
             color: var(--text-muted);
-            margin-bottom: 36px;
-            font-size: 0.95rem;
+            font-size: 1.1rem;
             font-weight: 500;
+            margin-bottom: 48px;
+            letter-spacing: 0.5px;
         }
 
-        /* Modern Grid Layout */
+        /* --- 3D Hover Action Cards --- */
         .portal-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-bottom: 28px;
+            gap: 24px;
+            margin-bottom: 32px;
         }
 
         .action-card {
             text-decoration: none;
-            border-radius: 20px;
-            padding: 28px 20px;
+            background: var(--action-bg);
+            border: 1px solid var(--action-border);
+            border-radius: 24px;
+            padding: 36px 24px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            border: 1px solid;
             position: relative;
             overflow: hidden;
-            height: 100%;
+            color: var(--text-main);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% 0%, var(--action-glow), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
         }
 
         .action-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--royal-blue);
+            box-shadow: 0 25px 50px -12px var(--action-glow);
+        }
+
+        .action-card:hover::before {
+            opacity: 1;
         }
 
         .action-icon {
-            font-size: 2rem;
-            margin-bottom: 14px;
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--royal-blue), #1e3a8a);
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            box-shadow: 0 15px 30px rgba(65, 105, 225, 0.4);
+            position: relative;
+            z-index: 2;
+        }
+
+        .dark-theme .action-icon {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-dark));
+            color: #000;
+            box-shadow: 0 15px 30px rgba(253, 224, 71, 0.3);
+        }
+
+        .action-card:hover .action-icon {
+            transform: translateZ(20px);
         }
 
         .action-title {
-            font-size: 1.05rem;
+            font-size: 1.25rem;
             font-weight: 800;
-            margin-bottom: 6px;
-            letter-spacing: -0.01em;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
         }
 
         .action-desc {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             font-weight: 500;
-            line-height: 1.4;
+            line-height: 1.6;
             margin: 0;
             color: var(--text-muted);
+            position: relative;
+            z-index: 2;
         }
 
-        /* Voter Action Card Styling */
-        .card-voter {
-            background: var(--voter-card-bg);
-            border-color: var(--voter-card-border);
-            color: var(--text-main);
-        }
-
-        .card-voter .action-icon {
-            background: rgba(5, 150, 105, 0.1);
-            color: var(--voter-accent);
-        }
-
-        .card-voter:hover {
-            background: var(--voter-hover-bg);
-            border-color: var(--voter-accent);
-            box-shadow: 0 12px 24px -6px rgba(5, 150, 105, 0.2);
-        }
-
-        /* QR Action Card Styling */
-        .card-qr {
-            background: var(--qr-card-bg);
-            border-color: var(--qr-card-border);
-            color: var(--text-main);
-        }
-
-        .card-qr .action-icon {
-            background: rgba(79, 70, 229, 0.1);
-            color: var(--qr-accent);
-        }
-
-        .card-qr:hover {
-            background: var(--qr-hover-bg);
-            border-color: var(--qr-accent);
-            box-shadow: 0 12px 24px -6px rgba(79, 70, 229, 0.2);
-        }
-
+        /* --- Premium Info Box --- */
         .info-box {
-            padding: 16px 20px;
-            border-radius: 16px;
-            background: var(--info-bg);
-            border: 1px solid var(--info-border);
+            padding: 24px;
+            border-radius: 20px;
+            background: rgba(65, 105, 225, 0.05);
+            border: 1px solid rgba(65, 105, 225, 0.2);
             text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dark-theme .info-box {
+            background: rgba(253, 224, 71, 0.05);
+            border-color: rgba(253, 224, 71, 0.2);
+        }
+
+        .info-box::after {
+            content: '';
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            width: 100px;
+            height: 100px;
+            background: var(--royal-blue);
+            filter: blur(50px);
+            opacity: 0.2;
+            border-radius: 50%;
         }
 
         .info-box strong {
-            color: var(--info-title);
-            font-size: 0.85rem;
-            font-weight: 700;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin-bottom: 4px;
+            gap: 10px;
+            margin-bottom: 8px;
         }
 
         .info-box small {
-            color: var(--info-text);
-            font-size: 0.82rem;
-            line-height: 1.45;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
             display: block;
             font-weight: 500;
         }
 
+        /* --- Footer --- */
         .footer-note {
-            margin-top: 28px;
+            margin-top: 40px;
             color: var(--text-muted);
-            font-size: 0.8rem;
-            font-weight: 500;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
-        @media(max-width: 640px) {
+        /* --- Responsive Design --- */
+        @media(max-width: 768px) {
             .portal-card {
-                padding: 32px 20px;
-                border-radius: 22px;
+                padding: 40px 24px;
+                border-radius: 24px;
             }
-
             .portal-grid {
                 grid-template-columns: 1fr;
-                gap: 14px;
             }
-
-            .action-card {
-                padding: 22px 18px;
-                flex-direction: row;
-                text-align: left;
-                align-items: center;
-                gap: 16px;
-            }
-
-            .action-icon {
-                margin-bottom: 0;
-                flex-shrink: 0;
-            }
-
             .portal-title {
-                font-size: 1.45rem;
-            }
-
-            .logo {
-                width: 80px;
-                height: 80px;
+                font-size: 1.8rem;
             }
         }
     </style>
 </head>
 <body>
 
+<!-- Ambient Background Orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
 <div class="theme-toggle">
-    <button
-        class="theme-btn"
-        onclick="toggleTheme()"
-        id="themeButton">
-        🌙 Dark Mode
+    <button class="theme-btn" onclick="toggleTheme()" id="themeButton">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        Dark Mode
     </button>
 </div>
 
 <div class="hero">
-
     <div class="portal-card">
-
-        <img
-            src="assets/images/logo.png"
-            alt="PMPC Logo"
-            class="logo"
-            onerror="this.style.display='none';"
-        >
-
-        <div>
-            <span class="welcome-badge">Official Member Portal</span>
+        
+        <div class="logo-container">
+            <div class="logo-glow"></div>
+            <!-- Original Logo Restored Here -->
+            <img 
+                src="assets/images/logo.png" 
+                alt="PMPC Logo" 
+                class="logo" 
+                onerror="this.style.display='none';"
+            >
         </div>
 
-        <h1 class="portal-title">
-            PMPC Election Portal
-        </h1>
+        <div>
+            <span class="welcome-badge">Member Portal</span>
+        </div>
 
-        <p class="portal-subtitle">
-            Panabo Multi-Purpose Cooperative
-        </p>
+        <h1 class="portal-title">PMPC Election Portal</h1>
+        <p class="portal-subtitle">Panabo Multi-Purpose Cooperative</p>
 
-        <!-- 2-Column Grid Layout -->
         <div class="portal-grid">
-
-            <a href="voters/candidates.php" class="action-card card-voter">
+            
+            <a href="voters/candidates.php" class="action-card">
                 <div class="action-icon">
-                    🗳️
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
                 </div>
-                <div>
-                    <div class="action-title">Voter Login</div>
-                    <p class="action-desc">View candidates and cast your ballot securely</p>
-                </div>
+                <div class="action-title">Secure Login</div>
+                <p class="action-desc">Authenticate and cast your ballot through our encrypted gateway</p>
             </a>
 
-            <a href="qr-registration/index.php" class="action-card card-qr">
+            <a href="qr-registration/index.php" class="action-card">
                 <div class="action-icon">
-                    🔲
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                        <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                        <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                    </svg>
                 </div>
-                <div>
-                    <div class="action-title">QR Registration</div>
-                    <p class="action-desc">Scan or register member QR codes for verification</p>
-                </div>
+                <div class="action-title">QR Scanner</div>
+                <p class="action-desc">Verify physical member credentials using high-speed QR capture</p>
             </a>
 
         </div>
 
         <div class="info-box">
             <strong>
-                💡 Election Reminder
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                System Notice
             </strong>
             <small>
-                Voters will first be directed to the candidate information page before logging in and casting their votes.
+                All voters will be routed through the official candidate information registry prior to securely finalizing their digital ballots.
             </small>
         </div>
 
@@ -391,47 +490,28 @@
         </div>
 
     </div>
-
 </div>
 
 <script>
-
 function toggleTheme(){
-
     document.body.classList.toggle('dark-theme');
-
     const btn = document.getElementById('themeButton');
 
     if(document.body.classList.contains('dark-theme')){
-
-        btn.innerHTML = '☀️ Light Mode';
-
-        localStorage.setItem(
-            'pmpc_theme',
-            'dark'
-        );
-
+        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg> Light Mode';
+        localStorage.setItem('pmpc_theme', 'dark');
     } else {
-
-        btn.innerHTML = '🌙 Dark Mode';
-
-        localStorage.setItem(
-            'pmpc_theme',
-            'light'
-        );
+        btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg> Dark Mode';
+        localStorage.setItem('pmpc_theme', 'light');
     }
 }
 
 window.onload = function(){
-
     if(localStorage.getItem('pmpc_theme') === 'dark'){
-
         document.body.classList.add('dark-theme');
-
-        document.getElementById('themeButton').innerHTML = '☀️ Light Mode';
+        document.getElementById('themeButton').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg> Light Mode';
     }
 };
-
 </script>
 
 </body>

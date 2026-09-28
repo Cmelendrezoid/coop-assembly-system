@@ -187,84 +187,15 @@ body {
     min-height: 100vh;
 }
 
-/* Sidebar Styling */
-.sidebar {
-    width: 260px;
-    background-color: var(--sidebar-bg);
-    border-right: 1px solid var(--border-color);
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 1040;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s ease;
-}
-
-.sidebar-header {
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.sidebar-brand {
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--text-primary);
-    text-decoration: none;
-    letter-spacing: -0.01em;
-}
-
-.sidebar-menu {
-    padding: 0.75rem 0.75rem;
-    list-style: none;
-    margin: 0;
-    flex-grow: 1;
-    overflow-y: auto;
-}
-
-.sidebar-item {
-    margin-bottom: 0.25rem;
-}
-
-.sidebar-link {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    color: var(--text-secondary);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.9rem;
-    border-radius: 10px;
-    transition: all 0.2s ease;
-}
-
-.sidebar-link:hover {
-    background-color: var(--sidebar-hover);
-    color: var(--text-primary);
-}
-
-.sidebar-link.active {
-    background-color: var(--sidebar-active-bg);
-    color: var(--sidebar-active-color);
-    font-weight: 600;
-}
-
-.sidebar-footer {
-    padding: 1rem;
-    border-top: 1px solid var(--border-color);
-}
-
 /* Main Content Area */
 .main-content {
     flex-grow: 1;
-    margin-left: 260px;
+    margin-left: 250px;
     padding: 2rem 2.5rem;
-    max-width: calc(100% - 260px);
+    width: calc(100% - 250px);
+    max-width: calc(100% - 250px);
+    box-sizing: border-box;
+    min-width: 0;
 }
 
 /* Modern Card Styling */
@@ -423,63 +354,8 @@ body {
 
 <div class="app-wrapper">
 
-    <!-- SIDEBAR NAVIGATION -->
-    <nav class="sidebar" id="appSidebar">
-        <div class="sidebar-header">
-            <div class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 p-2" style="width: 40px; height: 40px;">
-                <i class="bi bi-shield-lock-fill fs-5"></i>
-            </div>
-            <div>
-                <a href="dashboard.php" class="sidebar-brand d-block lh-sm">PMPC Admin</a>
-                <span class="text-secondary" style="font-size: 0.75rem;">Election System</span>
-            </div>
-        </div>
-
-        <div style="padding: 1.25rem 1.5rem 0.5rem; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.05em;">MAIN MENU</div>
-
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-                <a href="dashboard.php" class="sidebar-link">
-                    <i class="bi bi-grid-fill"></i> Dashboard
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="candidates.php" class="sidebar-link">
-                    <i class="bi bi-people-fill"></i> Candidates
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="positions.php" class="sidebar-link">
-                    <i class="bi bi-award-fill"></i> Positions
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="voters.php" class="sidebar-link active">
-                    <i class="bi bi-person-badge-fill"></i> Voters
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="pre-registered.php" class="sidebar-link">
-                    <i class="bi bi-clipboard-check"></i> Pre-registered
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="elections.php" class="sidebar-link">
-                    <i class="bi bi-building"></i> Branches
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="results.php" class="sidebar-link">
-                    <i class="bi bi-bar-chart-fill"></i> Results
-                </a>
-            </li>
-        </ul>
-        <div class="sidebar-footer">
-            <a href="logout.php" class="sidebar-link text-danger">
-                <i class="bi bi-box-arrow-left"></i> Logout
-            </a>
-        </div>
-    </nav>
+    <!-- SHARED SIDEBAR -->
+    <?php include 'sidebar.php'; ?>
 
     <!-- MAIN CONTENT CONTAINER -->
     <div class="main-content">
@@ -627,8 +503,21 @@ body {
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+function toggleMenu() {
+    const sidebar = document.getElementById('sidebarNav');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    if (sidebar) {
+        sidebar.classList.toggle('show');
+    }
+
+    if (overlay) {
+        overlay.classList.toggle('show');
+    }
+}
+
 function toggleSidebar() {
-    document.getElementById('appSidebar').classList.toggle('show');
+    toggleMenu();
 }
 
 function updateThemeUI(isDark) {
