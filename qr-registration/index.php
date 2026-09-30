@@ -1083,7 +1083,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
     </div>
 
     <div class="nav-tabs">
-        <a href="index.php?route=registration" class="<?= $route === 'registration' ? 'active' : '' ?>">🏢 Terminal A: Central Registration</a>
+        <a href="index.php?route=registration" class="<?= $route === 'registration' ? 'active' : '' ?>">🏢 Terminal A: Pre-Registration</a>
         <a href="index.php?route=gate" class="<?= $route === 'gate' ? 'active' : '' ?>">🎁 Terminal B: Attendance & Freebies Gate</a>
     </div>
 

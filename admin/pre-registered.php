@@ -7,6 +7,38 @@ $sort_by = $_GET['sort_by'] ?? 'count'; // 'count' or 'name'
 $order = strtolower($_GET['order'] ?? 'desc') === 'asc' ? 'ASC' : 'DESC';
 $branch_filter = isset($_GET['branch']) ? trim($_GET['branch']) : (isset($_GET['branch_name']) ? trim($_GET['branch_name']) : null);
 
+// Handle Server-Side CSV Export if triggered
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+    $export_sql = "SELECT id, full_name, migs_category, branch_name, printed_at, registered_at
+                  FROM members
+                  WHERE printed = 1 OR registered = 1";
+    if ($branch_filter !== null && $branch_filter !== '') {
+        $branch_safe = $conn->real_escape_string($branch_filter);
+        $export_sql .= " AND branch_name = '" . $branch_safe . "'";
+    }
+    $export_sql .= " ORDER BY COALESCE(printed_at, registered_at) DESC, full_name ASC";
+    $export_q = $conn->query($export_sql);
+
+    $filename = "preregistered_members_" . date('Y-m-d_H-i-s') . ".csv";
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=' . $filename);
+
+    $output = fopen('php://output', 'w');
+    fputcsv($output, ['ID', 'Full Name', 'Branch', 'Category', 'Printed/Registered At']);
+
+    while ($row = $export_q->fetch_assoc()) {
+        fputcsv($output, [
+            $row['id'],
+            $row['full_name'],
+            $row['branch_name'] ?: 'Unassigned',
+            $row['migs_category'],
+            $row['printed_at'] ?: $row['registered_at']
+        ]);
+    }
+    fclose($output);
+    exit;
+}
+
 // Total pre-registered (printed = 1 OR registered = 1) members
 $total_pre = (int)$conn->query("SELECT COUNT(*) AS total FROM members WHERE printed = 1 OR registered = 1")->fetch_assoc()['total'];
 $total_unreg = (int)($conn->query("SELECT COUNT(*) FROM members WHERE (printed IS NULL OR printed != 1) AND (registered IS NULL OR registered != 1)")->fetch_row()[0]);
@@ -43,6 +75,7 @@ if ($branch_filter !== null && $branch_filter !== '') {
 $members_sql .= " ORDER BY COALESCE(printed_at, registered_at) DESC, full_name ASC LIMIT 1000";
 $members_q = $conn->query($members_sql);
 
+$members_data = [];
 $selected_branch_stats = null;
 if ($selected_branch_info !== null) {
     $safe = $conn->real_escape_string($selected_branch_info);
@@ -120,20 +153,107 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Shared Admin Layout */
+        /* App Layout with Sidebar */
         .app-layout {
             display: flex;
             min-height: 100vh;
+        }
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .sidebar-brand {
+            padding: 1.5rem 1.25rem 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid transparent;
+        }
+        .sidebar-logo {
+            width: 36px;
+            height: 36px;
+            background: var(--surface-strong);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--link);
+            font-size: 1.2rem;
+        }
+        .sidebar-brand-text .brand-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        .sidebar-brand-text .brand-subtitle {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+        .sidebar-menu-category {
+            padding: 1.25rem 1.25rem 0.5rem 1.25rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+        }
+        .sidebar-menu {
+            padding: 0 0.75rem;
+            list-style: none;
+            margin: 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        .sidebar-menu li {
+            margin-bottom: 0.25rem;
+        }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border-radius: 0.5rem;
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .sidebar-menu a:hover {
+            background: var(--sidebar-hover);
+            color: var(--text);
+        }
+        .sidebar-menu a.active {
+            background: var(--sidebar-active);
+            color: var(--sidebar-active-text);
+            font-weight: 600;
+        }
+        .sidebar-menu a.logout-link {
+            color: #ef4444;
+            margin-top: auto;
+        }
+        .sidebar-menu a.logout-link:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .sidebar-menu a i {
+            font-size: 1.1rem;
         }
 
         /* Main Content wrapper */
         .main-content {
             flex-grow: 1;
-            margin-left: 250px;
+            margin-left: 260px;
             padding: 2rem;
-            width: calc(100% - 250px);
-            max-width: calc(100% - 250px);
-            box-sizing: border-box;
             min-width: 0;
         }
 
@@ -343,12 +463,17 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
         a { color: var(--link); text-decoration: none; }
         a:hover { text-decoration: underline; }
 
-        @media (max-width: 991.98px) {
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar .sidebar-brand-text,
+            .sidebar .sidebar-menu-category,
+            .sidebar .sidebar-menu span {
+                display: none;
+            }
             .main-content {
-                margin-left: 0;
-                width: 100%;
-                max-width: 100%;
-                padding: 4.5rem 1rem 1.5rem;
+                margin-left: 70px;
             }
         }
     </style>
@@ -356,9 +481,72 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
 <body>
 
 <div class="app-layout">
-    <?php include 'sidebar.php'; ?>
+    <!-- Sidebar Menu -->
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-logo">
+                <i class="bi bi-shield-shaded"></i>
+            </div>
+            <div class="sidebar-brand-text">
+                <div class="brand-title">PMPC Admin</div>
+                <div class="brand-subtitle">Election System</div>
+            </div>
+        </div>
+        <div class="sidebar-menu-category">Main Menu</div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="dashboard.php">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="candidates.php">
+                    <i class="bi bi-person-badge"></i>
+                    <span>Candidates</span>
+                </a>
+            </li>
+            <li>
+                <a href="positions.php">
+                    <i class="bi bi-trophy"></i>
+                    <span>Positions</span>
+                </a>
+            </li>
+            <li>
+                <a href="voters.php">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Voters</span>
+                </a>
+            </li>
+            <li>
+                <a href="pre-registered.php" class="active">
+                    <i class="bi bi-card-checklist"></i>
+                    <span>Pre-registered</span>
+                </a>
+            </li>
+            <li>
+                <a href="elections.php">
+                    <i class="bi bi-building"></i>
+                    <span>Branches</span>
+                </a>
+            </li>
+            <li>
+                <a href="results.php">
+                    <i class="bi bi-bar-chart-fill"></i>
+                    <span>Results</span>
+                </a>
+            </li>
+            <li class="mt-4">
+                <a href="logout.php" class="logout-link">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
 
-<main class="main-content">
+    <!-- Main Content Area -->
+    <main class="main-content">
         <div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h2 class="page-title mb-1">Pre-registered & Printed Members</h2>
@@ -435,10 +623,13 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                                     <option value="asc" <?= $order === 'ASC' ? 'selected' : '' ?>>Ascending</option>
                                 </select>
                             </div>
-                            <div class="d-flex align-items-end" style="padding-top: 1.5rem;">
+                            <div class="d-flex align-items-end gap-2" style="padding-top: 1.5rem;">
                                 <button class="btn btn-primary btn-sm px-3" type="submit">
                                     <i class="bi bi-filter me-1"></i> Apply
                                 </button>
+                                <a href="pre-registered.php?export=csv<?= $selected_branch_info ? '&branch=' . urlencode($selected_branch_info) : '' ?>" class="btn btn-success btn-sm px-3">
+                                    <i class="bi bi-download me-1"></i> Export All CSV
+                                </a>
                             </div>
                         </form>
                     </div>
@@ -539,14 +730,19 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
         <!-- Members List Card -->
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h5 class="card-title mb-0">Members Directory</h5>
-                    <span class="badge bg-secondary text-light px-3 py-2">Showing up to 1,000 records</span>
+                    <div class="d-flex gap-2 align-items-center">
+                        <button id="export-local-btn" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1">
+                            <i class="bi bi-file-earmark-arrow-down"></i> Export Visible Table CSV
+                        </button>
+                        <span class="badge bg-secondary text-light px-3 py-2">Showing up to 1,000 records</span>
+                    </div>
                 </div>
 
                 <?php if ($members_q && $members_q->num_rows > 0): ?>
                 <div class="table-responsive">
-                    <table class="table table-hover table-sm align-middle">
+                    <table class="table table-hover table-sm align-middle" id="members-table">
                         <thead>
                             <tr>
                                 <th style="width: 50px;">#</th>
@@ -558,7 +754,7 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                             </tr>
                         </thead>
                         <tbody>
-                            <?php $i = 1; while ($m = $members_q->fetch_assoc()): ?>
+                            <?php $i = 1; while ($m = $members_q->fetch_assoc()): $members_data[] = $m; ?>
                             <tr>
                                 <td class="text-muted fw-semibold"><?= $i++ ?></td>
                                 <td class="fw-medium"><?= esc($m['full_name']) ?></td>
@@ -587,14 +783,6 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
 </div>
 
 <script>
-function toggleMenu() {
-    const sidebar = document.getElementById('sidebarNav');
-    const overlay = document.getElementById('sidebarOverlay');
-
-    if (sidebar) sidebar.classList.toggle('show');
-    if (overlay) overlay.classList.toggle('show');
-}
-
 (function() {
     let mainChart = null;
     let overallChart = null;
@@ -797,6 +985,38 @@ function toggleMenu() {
         });
     } else {
         updateChartColors();
+    }
+
+    // Export Visible Members to Local File (CSV)
+    const exportBtn = document.getElementById('export-local-btn');
+    if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+            const membersData = <?= json_encode($members_data) ?>;
+            if (!membersData || membersData.length === 0) {
+                alert('No members available to export.');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,ID,Full Name,Branch Name,Category,Printed/Registered At\n";
+            membersData.forEach(m => {
+                let row = [
+                    `"${m.id}"`,
+                    `"${(m.full_name || '').replace(/"/g, '""')}"`,
+                    `"${(m.branch_name || 'Unassigned').replace(/"/g, '""')}"`,
+                    `"${(m.migs_category || '').replace(/"/g, '""')}"`,
+                    `"${m.printed_at || m.registered_at || ''}"`
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `preregistered_members_visible_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
     }
 })();
 </script>
