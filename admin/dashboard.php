@@ -23,7 +23,7 @@ if ($candidatesRes) { $totalCandidates = $candidatesRes->fetch_assoc()['total'] 
 $positionsRes = $conn->query("SELECT COUNT(*) as total FROM positions");
 if ($positionsRes) { $totalPositions = $positionsRes->fetch_assoc()['total'] ?? 0; }
 
-$votesRes = $conn->query("SELECT COUNT(*) as total FROM votes");
+$votesRes = $conn->query("SELECT COUNT(*) as total FROM members WHERE has_voted = 1");
 if ($votesRes) { $totalVotes = $votesRes->fetch_assoc()['total'] ?? 0; }
 
 /*
@@ -547,7 +547,7 @@ $attendanceLogs = $conn->query($logQuery);
                     </div>
                     <div class="stat-number"><?php echo number_format($totalVotes); ?></div>
                 </div>
-                <div class="stat-label">Total Votes Cast</div>
+                <div class="stat-label">Voters Done Voting</div>
             </div>
         </div>
     </div>

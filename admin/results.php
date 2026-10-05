@@ -319,11 +319,188 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
         .modal-header, .modal-footer {
             border-color: var(--border) !important;
         }
+        .maximize-dialog {
+            margin: 0;
+        }
+        .maximize-modal-content {
+            height: 100vh;
+            height: 100dvh;
+            border-radius: 0 !important;
+        }
+        .maximize-modal-body {
+            min-height: 0;
+            overflow: hidden;
+        }
+        .maximize-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+            gap: 1rem;
+            height: 100%;
+            min-height: 0;
+        }
+        .maximize-candidates {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 0;
+        }
+        .maximize-list-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 0.65rem;
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .maximize-results-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+            grid-auto-rows: minmax(0, 1fr);
+            align-content: stretch;
+            gap: 0.5rem;
+            flex: 1;
+            min-height: 0;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            overflow: hidden;
+        }
+        .maximize-result-item {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 4rem;
+            align-items: center;
+            gap: 0.55rem;
+            min-width: 0;
+            min-height: 0;
+            padding: 0.45rem 0.6rem;
+            border: 1px solid var(--border);
+            border-radius: 0.6rem;
+            background: var(--surface);
+        }
+        .maximize-avatar-wrapper {
+            position: relative;
+            width: 34px;
+            height: 34px;
+            flex: 0 0 auto;
+        }
+        .maximize-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--candidate-color);
+            border-radius: 50%;
+            object-fit: cover;
+            background: var(--surface-strong);
+            color: var(--muted);
+        }
+        .maximize-avatar-color {
+            position: absolute;
+            right: -2px;
+            bottom: -1px;
+            width: 11px;
+            height: 11px;
+            border: 2px solid var(--surface);
+            border-radius: 50%;
+            background: var(--candidate-color);
+        }
+        .maximize-result-name {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            min-width: 0;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .maximize-result-name span:last-child {
+            display: -webkit-box;
+            min-width: 0;
+            overflow: hidden;
+            overflow-wrap: anywhere;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+        .maximize-result-swatch {
+            width: 0.65rem;
+            height: 0.65rem;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            background: var(--candidate-color);
+        }
+        .maximize-result-total {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-self: end;
+            width: 4rem;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+        }
+        .maximize-result-total strong {
+            font-size: 0.95rem;
+            line-height: 1.1;
+        }
+        .maximize-result-total span {
+            color: var(--muted);
+            font-size: 0.7rem;
+        }
+        .maximize-chart-container {
+            position: relative;
+            min-width: 0;
+            min-height: 0;
+        }
         .btn-close {
             filter: invert(1) grayscale(100%) brightness(200%);
         }
         body.light-mode .btn-close {
             filter: none;
+        }
+
+        @media (max-width: 767.98px) {
+            .maximize-layout {
+                grid-template-columns: minmax(0, 1fr);
+                grid-template-rows: minmax(0, 1fr) minmax(140px, 30%);
+                gap: 0.6rem;
+            }
+
+            .maximize-results-list {
+                grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+                gap: 0.35rem;
+            }
+
+            .maximize-result-item {
+                grid-template-columns: minmax(0, 1fr) 3.5rem;
+                padding: 0.3rem 0.4rem;
+                gap: 0.35rem;
+            }
+
+            .maximize-result-name {
+                font-size: 0.8rem;
+            }
+
+            .maximize-avatar-wrapper {
+                width: 28px;
+                height: 28px;
+            }
+
+            .maximize-result-total {
+                width: 3.5rem;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .maximize-modal-body {
+                padding: 0.6rem !important;
+            }
+
+            .maximize-list-heading {
+                margin-bottom: 0.35rem;
+            }
         }
 
         @media (max-width: 992px) {
@@ -531,7 +708,7 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
                         </div>
                     </div>
                     <div class="col-lg-5">
-                        <div style="position: relative; height: 260px; width: 100%;">
+                        <div style="position: relative; height: 320px; width: 100%;">
                             <canvas id="chart_pos_<?php echo $position_id; ?>"></canvas>
                         </div>
                     </div>
@@ -543,71 +720,58 @@ function esc($s) { return htmlspecialchars($s ?? ''); }
         </div>
 
         <!-- Maximize View Modal for Each Position -->
+        <?php $modal_total_votes = array_sum(array_column($table_rows, 'total_votes')); ?>
         <div class="modal fade" id="maximizeModal<?php echo $position_id; ?>" tabindex="-1" aria-labelledby="maximizeModalLabel<?php echo $position_id; ?>" aria-hidden="true">
-            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content">
+            <div class="modal-dialog modal-fullscreen maximize-dialog">
+                <div class="modal-content maximize-modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title fw-bold" id="maximizeModalLabel<?php echo $position_id; ?>">
-                            <i class="bi bi-award-fill me-2 text-primary"></i><?php echo esc($position_name); ?> — Detailed View
+                            <i class="bi bi-award-fill me-2 text-primary"></i><?php echo esc($position_name); ?> — Detailed Results
+                            <small class="d-block fw-normal text-muted mt-1"><?php echo number_format($modal_total_votes); ?> total votes</small>
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body p-4">
+                    <div class="modal-body maximize-modal-body p-4">
                         <?php if(!empty($table_rows)){ ?>
-                        <div class="row align-items-center">
-                            <div class="col-lg-7 mb-4 mb-lg-0">
-                                <div class="table-responsive">
-                                    <table class="table table-hover align-middle mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th style="width: 70px;">Photo</th>
-                                                <th>Candidate Name</th>
-                                                <th class="text-end" style="width: 160px;">Votes Received</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        <?php foreach($table_rows as $index => $candidate) { 
-                                            $candidate_img_html = (!empty($candidate['photo']) && file_exists('../assets/images/' . $candidate['photo'])) 
-                                                ? '<img src="../assets/images/' . esc($candidate['photo']) . '" alt="' . esc($candidate['full_name']) . '" class="candidate-avatar">'
-                                                : '<div class="candidate-avatar d-flex align-items-center justify-content-center"><i class="bi bi-person-fill fs-5"></i></div>';
-                                            $assigned_color = $chart_colors[$index % count($chart_colors)];
-                                        ?>
-                                            <tr>
-                                                <td>
-                                                    <div class="avatar-wrapper">
-                                                        <?php echo $candidate_img_html; ?>
-                                                        <span class="color-dot" style="background-color: <?php echo $assigned_color; ?>;"></span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <span style="background-color: <?php echo $assigned_color; ?>; width: 10px; height: 10px; border-radius: 50%; display: inline-block;"></span>
-                                                        <span class="fw-semibold"><?php echo esc($candidate['full_name']); ?></span>
-                                                    </div>
-                                                </td>
-                                                <td class="text-end">
-                                                    <span class="custom-badge">
-                                                        <strong><?php echo (int)$candidate['total_votes']; ?></strong> votes
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        <?php } ?>
-                                        </tbody>
-                                    </table>
+                        <div class="maximize-layout">
+                            <section class="maximize-candidates" aria-label="Candidate results">
+                                <div class="maximize-list-heading">
+                                    <span>Candidate results</span>
+                                    <span><?php echo count($table_rows); ?> candidates</span>
                                 </div>
-                            </div>
-                            <div class="col-lg-5">
-                                <div style="position: relative; height: 350px; width: 100%;">
-                                    <canvas id="chart_modal_pos_<?php echo $position_id; ?>"></canvas>
-                                </div>
+                                <ol class="maximize-results-list">
+                                    <?php foreach($table_rows as $index => $candidate) {
+                                        $candidate_votes = (int)$candidate['total_votes'];
+                                        $vote_share = $modal_total_votes > 0 ? round(($candidate_votes / $modal_total_votes) * 100, 1) : 0;
+                                        $assigned_color = $chart_colors[$index % count($chart_colors)];
+                                    ?>
+                                    <li class="maximize-result-item" style="--candidate-color: <?php echo $assigned_color; ?>;">
+                                        <span class="maximize-result-name">
+                                            <span class="maximize-avatar-wrapper">
+                                                <?php if(!empty($candidate['photo']) && file_exists('../assets/images/' . $candidate['photo'])) { ?>
+                                                <img src="../assets/images/<?php echo esc($candidate['photo']); ?>" alt="" class="maximize-avatar">
+                                                <?php } else { ?>
+                                                <span class="maximize-avatar" aria-hidden="true"><i class="bi bi-person-fill"></i></span>
+                                                <?php } ?>
+                                                <span class="maximize-avatar-color" aria-hidden="true"></span>
+                                            </span>
+                                            <span title="<?php echo esc($candidate['full_name']); ?>"><?php echo esc($candidate['full_name']); ?></span>
+                                        </span>
+                                        <span class="maximize-result-total">
+                                            <strong><?php echo number_format($candidate_votes); ?></strong>
+                                            <span><?php echo $vote_share; ?>%</span>
+                                        </span>
+                                    </li>
+                                    <?php } ?>
+                                </ol>
+                            </section>
+                            <div class="maximize-chart-container">
+                                <canvas id="chart_modal_pos_<?php echo $position_id; ?>"></canvas>
                             </div>
                         </div>
                         <?php } else { ?>
                             <div class="text-muted py-4 text-center fst-italic">No candidates available for this position.</div>
                         <?php } ?>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -720,7 +884,7 @@ function getChartBorderColor() {
 }
 
 function getResponsiveLegendPosition() {
-    return window.innerWidth < 576 ? 'bottom' : 'right';
+    return 'bottom';
 }
 
 function buildCharts() {
@@ -797,13 +961,7 @@ function buildCharts() {
                             maintainAspectRatio: false,
                             plugins: {
                                 legend: {
-                                    position: 'right',
-                                    labels: {
-                                        color: getChartTextColor(),
-                                        font: { family: 'Inter', size: 12, weight: '500' },
-                                        padding: 14,
-                                        boxWidth: 14
-                                    }
+                                    display: false
                                 },
                                 tooltip: {
                                     callbacks: {

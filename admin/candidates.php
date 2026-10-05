@@ -77,12 +77,65 @@ function buildCandidateDescription($accomplishments, $platforms){
     return implode("\n", $parts);
 }
 
+function formatCandidateName($last_name, $first_name, $middle_name, $suffix, $titles){
+    $last_name = trim($last_name);
+    $first_name = trim($first_name);
+    $middle_name = trim($middle_name);
+    $middle_initial = '';
+
+    if($middle_name !== ''){
+        $middle_initial = preg_match('/^\p{L}\.?$/u', $middle_name)
+            ? rtrim($middle_name, '.') . '.'
+            : mb_substr($middle_name, 0, 1) . '.';
+        $middle_initial = mb_strtoupper($middle_initial);
+    }
+
+    $first_and_middle = trim($first_name . ($middle_initial !== '' ? ' ' . $middle_initial : ''));
+    $first_middle_suffix = trim($first_and_middle . (trim($suffix) !== '' ? ' ' . trim($suffix) : ''));
+    $parts = [];
+    foreach([$last_name, $first_middle_suffix, $titles] as $part){
+        $part = trim($part);
+        if($part !== ''){
+            $parts[] = $part;
+        }
+    }
+    return implode(', ', $parts);
+}
+
+$candidate_name_columns = [
+    'candidate_last_name' => 'VARCHAR(255) NULL',
+    'candidate_first_name' => 'VARCHAR(255) NULL',
+    'candidate_middle_name' => 'VARCHAR(255) NULL',
+    'candidate_suffix' => 'VARCHAR(100) NULL',
+    'candidate_titles' => 'VARCHAR(255) NULL'
+];
+$candidate_columns_result = $conn->query("SHOW COLUMNS FROM candidates");
+if(!$candidate_columns_result){
+    die("Unable to inspect candidate name fields: " . $conn->error);
+}
+$existing_candidate_columns = [];
+while($candidate_column = $candidate_columns_result->fetch_assoc()){
+    $existing_candidate_columns[] = $candidate_column['Field'];
+}
+foreach($candidate_name_columns as $column_name => $column_definition){
+    if(!in_array($column_name, $existing_candidate_columns, true)){
+        if(!$conn->query("ALTER TABLE candidates ADD COLUMN `{$column_name}` {$column_definition}")){
+            die("Unable to set up candidate name fields: " . $conn->error);
+        }
+    }
+}
+
 $message = "";
 $message_type = "success";
 
 // 1. ADD CANDIDATE LOGIC
 if(isset($_POST['add_candidate'])){
-    $fullname = trim($_POST['full_name']);
+    $last_name = trim($_POST['last_name'] ?? '');
+    $first_name = trim($_POST['first_name'] ?? '');
+    $middle_name = trim($_POST['middle_name'] ?? '');
+    $suffix = trim($_POST['suffix'] ?? '');
+    $titles = trim($_POST['titles'] ?? '');
+    $fullname = formatCandidateName($last_name, $first_name, $middle_name, $suffix, $titles);
     $position_id = (int)$_POST['position_id'];
     $education = trim($_POST['education'] ?? '');
     $description = buildCandidateDescription(
@@ -90,6 +143,10 @@ if(isset($_POST['add_candidate'])){
         $_POST['description_platforms'] ?? ''
     );
 
+    if($last_name === '' || $first_name === ''){
+        $message = "Please enter both the candidate's last name and first name.";
+        $message_type = "danger";
+    } else {
     $position_stmt = $conn->prepare("SELECT position_name FROM positions WHERE id=?");
     $position_stmt->bind_param("i", $position_id);
     $position_stmt->execute();
@@ -124,10 +181,13 @@ if(isset($_POST['add_candidate'])){
     }
 
     $stmt = $conn->prepare("
-        INSERT INTO candidates (fullname, position_name, photo, description, education, position_id)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO candidates (
+            fullname, candidate_last_name, candidate_first_name, candidate_middle_name, candidate_suffix, candidate_titles,
+            position_name, photo, description, education, position_id
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
-    $stmt->bind_param("sssssi", $fullname, $position_name, $photo, $description, $education, $position_id);
+    $stmt->bind_param("ssssssssssi", $fullname, $last_name, $first_name, $middle_name, $suffix, $titles, $position_name, $photo, $description, $education, $position_id);
 
     if($stmt->execute()){
         $message = "Candidate profile registered successfully.";
@@ -136,18 +196,52 @@ if(isset($_POST['add_candidate'])){
         $message = "System error: Failed to register candidate profile.";
         $message_type = "danger";
     }
+    }
 }
 
 // 2. EDIT CANDIDATE LOGIC
 if(isset($_POST['edit_candidate'])){
     $candidate_id = (int)$_POST['candidate_id'];
-    $fullname = trim($_POST['full_name']);
+    $last_name = trim($_POST['last_name'] ?? '');
+    $first_name = trim($_POST['first_name'] ?? '');
+    $middle_name = trim($_POST['middle_name'] ?? '');
+    $suffix = trim($_POST['suffix'] ?? '');
+    $titles = trim($_POST['titles'] ?? '');
+    $has_name_parts = ($last_name !== '' || $first_name !== '' || $middle_name !== '' || $suffix !== '' || $titles !== '');
     $position_id = (int)$_POST['position_id'];
     $education = trim($_POST['education'] ?? '');
     $description = buildCandidateDescription(
         $_POST['description_accomplishments'] ?? '',
         $_POST['description_platforms'] ?? ''
     );
+
+    if($has_name_parts && ($last_name === '' || $first_name === '')){
+        $message = "Enter both the candidate's last name and first name, or leave all name fields blank to keep the current name.";
+        $message_type = "danger";
+    } else {
+    $current_name_stmt = $conn->prepare("
+        SELECT fullname, candidate_last_name, candidate_first_name, candidate_middle_name, candidate_suffix, candidate_titles
+        FROM candidates
+        WHERE id = ?
+    ");
+    $current_name_stmt->bind_param("i", $candidate_id);
+    $current_name_stmt->execute();
+    $current_name = $current_name_stmt->get_result()->fetch_assoc();
+
+    if(!$current_name){
+        $message = "Candidate record not found.";
+        $message_type = "danger";
+    } else {
+        if($has_name_parts){
+            $fullname = formatCandidateName($last_name, $first_name, $middle_name, $suffix, $titles);
+        } else {
+            $fullname = $current_name['fullname'];
+            $last_name = $current_name['candidate_last_name'] ?? '';
+            $first_name = $current_name['candidate_first_name'] ?? '';
+            $middle_name = $current_name['candidate_middle_name'] ?? '';
+            $suffix = $current_name['candidate_suffix'] ?? '';
+            $titles = $current_name['candidate_titles'] ?? '';
+        }
     
     $position_stmt = $conn->prepare("SELECT position_name FROM positions WHERE id=?");
     $position_stmt->bind_param("i", $position_id);
@@ -185,17 +279,19 @@ if(isset($_POST['edit_candidate'])){
     if(!empty($photo)){
         $stmt = $conn->prepare("
             UPDATE candidates 
-            SET fullname=?, position_name=?, photo=?, description=?, education=?, position_id=? 
+            SET fullname=?, candidate_last_name=?, candidate_first_name=?, candidate_middle_name=?, candidate_suffix=?, candidate_titles=?,
+                position_name=?, photo=?, description=?, education=?, position_id=?
             WHERE id=?
         ");
-        $stmt->bind_param("sssssii", $fullname, $position_name, $photo, $description, $education, $position_id, $candidate_id);
+        $stmt->bind_param("ssssssssssii", $fullname, $last_name, $first_name, $middle_name, $suffix, $titles, $position_name, $photo, $description, $education, $position_id, $candidate_id);
     } else {
         $stmt = $conn->prepare("
             UPDATE candidates 
-            SET fullname=?, position_name=?, description=?, education=?, position_id=? 
+            SET fullname=?, candidate_last_name=?, candidate_first_name=?, candidate_middle_name=?, candidate_suffix=?, candidate_titles=?,
+                position_name=?, description=?, education=?, position_id=?
             WHERE id=?
         ");
-        $stmt->bind_param("ssssii", $fullname, $position_name, $description, $education, $position_id, $candidate_id);
+        $stmt->bind_param("sssssssssii", $fullname, $last_name, $first_name, $middle_name, $suffix, $titles, $position_name, $description, $education, $position_id, $candidate_id);
     }
 
     if($stmt->execute()){
@@ -204,6 +300,8 @@ if(isset($_POST['edit_candidate'])){
     } else {
         $message = "System error: Failed to update candidate profile.";
         $message_type = "danger";
+    }
+    }
     }
 }
 
@@ -229,6 +327,11 @@ $candidates_query = $conn->query("
     SELECT
         c.id,
         c.fullname,
+        c.candidate_last_name,
+        c.candidate_first_name,
+        c.candidate_middle_name,
+        c.candidate_suffix,
+        c.candidate_titles,
         c.photo,
         c.description,
         c.education,
@@ -586,6 +689,96 @@ body {
     font-weight: bold;
 }
 
+#cropModal .modal-dialog {
+    max-width: min(800px, calc(100vw - 2rem));
+}
+
+#cropModal .cropper-modal-body {
+    height: min(65vh, 560px);
+    min-height: 240px;
+    overflow: hidden;
+}
+
+#cropperImage {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+@media (max-width: 991.98px) {
+    .main {
+        width: 100%;
+        margin-left: 0;
+        padding: 5rem 1.5rem 1.5rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .main {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    .position-header-card {
+        align-items: flex-start;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .position-header-title {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .custom-table {
+        min-width: 900px;
+    }
+
+    #editCandidateModal .modal-dialog {
+        margin: 0.75rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .main {
+        padding: 4.75rem 0.75rem 1rem;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        overflow-wrap: anywhere;
+    }
+
+    .welcome-subtitle {
+        font-size: 0.825rem;
+    }
+
+    .theme-toggle-btn {
+        min-height: 44px;
+        padding: 0.5rem 0.85rem;
+    }
+
+    .main > .glass-card {
+        padding: 1rem !important;
+    }
+
+    .btn-enterprise {
+        padding: 0.7rem 1rem;
+    }
+
+    #editCandidateModal .modal-dialog {
+        margin: 0.5rem;
+    }
+
+    #editCandidateModal .modal-body {
+        padding: 1rem !important;
+    }
+
+    #cropModal .cropper-modal-body {
+        height: 55vh;
+        min-height: 180px;
+    }
+}
 
 </style>
 </head>
@@ -641,8 +834,28 @@ body {
         <form method="POST" enctype="multipart/form-data">
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label-custom">Full Candidate Name</label>
-                    <input type="text" name="full_name" class="form-control custom-input" placeholder="e.g. Honorable Jane Doe" required>
+                    <label class="form-label-custom">Last Name</label>
+                    <input type="text" name="last_name" class="form-control custom-input" placeholder="e.g. Doe" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label-custom">First Name</label>
+                    <input type="text" name="first_name" class="form-control custom-input" placeholder="e.g. Jane" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label-custom">Middle Name</label>
+                    <input type="text" name="middle_name" class="form-control custom-input" placeholder="e.g. Marie">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label-custom">Suffix</label>
+                    <input type="text" name="suffix" class="form-control custom-input" placeholder="e.g. Jr., III">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label-custom">Titles (after the name)</label>
+                    <input type="text" name="titles" class="form-control custom-input" placeholder="e.g. CPA, MBA">
                 </div>
 
                 <div class="col-md-6">
@@ -814,8 +1027,24 @@ body {
           
           <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label class="form-label-custom">Full Name</label>
-              <input type="text" name="full_name" id="edit_name" class="form-control custom-input" required>
+              <label class="form-label-custom">Last Name</label>
+              <input type="text" name="last_name" id="edit_last_name" class="form-control custom-input">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">First Name</label>
+              <input type="text" name="first_name" id="edit_first_name" class="form-control custom-input">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Middle Name</label>
+              <input type="text" name="middle_name" id="edit_middle_name" class="form-control custom-input">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Suffix</label>
+              <input type="text" name="suffix" id="edit_suffix" class="form-control custom-input" placeholder="e.g. Jr., III">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom">Titles (after the name)</label>
+              <input type="text" name="titles" id="edit_titles" class="form-control custom-input">
             </div>
             <div class="col-md-6">
               <label class="form-label-custom">Contest Position</label>
@@ -829,6 +1058,9 @@ body {
                 </option>
                 <?php } ?>
               </select>
+            </div>
+            <div class="col-12">
+              <small class="text-secondary">Displayed as Last Name, First Name, Middle Name, Suffix, Titles. Leave all name fields blank to keep the current name. Current name: <span id="edit_current_name"></span></small>
             </div>
           </div>
 
@@ -873,7 +1105,7 @@ body {
                 <h5 class="modal-title fw-bold"><i class="bi bi-crop text-primary me-2"></i>Crop Candidate Portrait</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-0">
+            <div class="modal-body cropper-modal-body p-0">
                 <img id="cropperImage" src="" alt="To Crop">
             </div>
             <div class="modal-footer border-top" style="border-color: var(--border-color) !important;">
@@ -928,13 +1160,18 @@ function openCropper(inputElem, hiddenFieldId){
     if(currentFileUrl) URL.revokeObjectURL(currentFileUrl);
     currentFileUrl = URL.createObjectURL(file);
     const img = document.getElementById('cropperImage');
-    img.src = currentFileUrl;
     img.onload = function(){
-        if(cropper) cropper.destroy();
-        cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1, autoCropArea: 1 });
         cropModal.show();
     }
+    img.src = currentFileUrl;
 }
+
+document.getElementById('cropModal').addEventListener('shown.bs.modal', function(){
+    const img = document.getElementById('cropperImage');
+    if(!img.naturalWidth) return;
+    if(cropper) cropper.destroy();
+    cropper = new Cropper(img, { aspectRatio: 1, viewMode: 1, autoCropArea: 1, responsive: true });
+});
 
 document.getElementById('cropSaveBtn').addEventListener('click', function(){
     if(!cropper) return;
@@ -959,13 +1196,19 @@ document.getElementById('cropModal').addEventListener('hidden.bs.modal', functio
     if(cropper){ cropper.destroy(); cropper = null; }
     const img = document.getElementById('cropperImage');
     img.src = '';
+    if(currentFileUrl){ URL.revokeObjectURL(currentFileUrl); currentFileUrl = null; }
 });
 
 const bootstrapEditModal = new bootstrap.Modal(document.getElementById('editCandidateModal'));
 
 function openEditModal(candidateData) {
     document.getElementById('edit_id').value = candidateData.id;
-    document.getElementById('edit_name').value = candidateData.fullname;
+    document.getElementById('edit_last_name').value = candidateData.candidate_last_name || '';
+    document.getElementById('edit_first_name').value = candidateData.candidate_first_name || '';
+    document.getElementById('edit_middle_name').value = candidateData.candidate_middle_name || '';
+    document.getElementById('edit_suffix').value = candidateData.candidate_suffix || '';
+    document.getElementById('edit_titles').value = candidateData.candidate_titles || '';
+    document.getElementById('edit_current_name').textContent = candidateData.fullname || '';
     document.getElementById('edit_position_id').value = candidateData.position_id;
 
     const raw = candidateData.description || '';

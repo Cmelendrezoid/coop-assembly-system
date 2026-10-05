@@ -5,6 +5,11 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+ini_set('session.gc_maxlifetime', 86400);
+ini_set('session.cookie_lifetime', 86400);
+ini_set('session.cookie_path', '/');
+ini_set('session.cookie_httponly', 1);
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -430,6 +435,7 @@ if (!isset($_SESSION['qr_user_id'])) {
 $current_user_id = $_SESSION['qr_user_id'] ?? 1;
 $current_username = $_SESSION['qr_username'] ?? 'System';
 $route = $_GET['route'] ?? 'registration';
+$gate_access_denied = false;
 
 if (!file_exists('qrlib.php')) {
     die("Error: 'qrlib.php' was not found in this folder.");
@@ -642,21 +648,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $stmt->execute([$scanned_id]);
                 $member = $stmt->fetch();
                 if ($member) {
-                    // Check if member already has 'printed = 1' directly in members table
-                    $has_been_printed = ((int)($member['printed'] ?? 0) === 1);
+                    if (!isMemberPreregistered($pdo, $member['id'])) {
+                        $error = "Access denied: Member #" . htmlspecialchars($member['id']) . " must complete Terminal A pre-registration before proceeding to Terminal B.";
+                    } else {
+                        // Check if member already has 'printed = 1' directly in members table
+                        $has_been_printed = ((int)($member['printed'] ?? 0) === 1);
 
-                    // duplicate=1 will ONLY trigger if the member.printed column is 1
-                    $is_terminal_b_duplicate = $has_been_printed ? 1 : 0;
+                        // duplicate=1 will ONLY trigger if the member.printed column is 1
+                        $is_terminal_b_duplicate = $has_been_printed ? 1 : 0;
 
-                    $pdo->beginTransaction();
-                    if ($member['registered'] == 0) {
-                        $update = $pdo->prepare("UPDATE members SET registered = 1, registered_at = NOW() WHERE id = ?");
-                        $update->execute([$member['id']]);
+                        $pdo->beginTransaction();
+                        if ($member['registered'] == 0) {
+                            $update = $pdo->prepare("UPDATE members SET registered = 1, registered_at = NOW() WHERE id = ?");
+                            $update->execute([$member['id']]);
+                        }
+                        $pdo->commit();
+
+                        header("Location: index.php?route=gate&print_id=" . urlencode($member['id']) . "&gate_print=1" . ($is_terminal_b_duplicate ? "&duplicate=1" : ""));
+                        exit;
                     }
-                    $pdo->commit();
-
-                    header("Location: index.php?route=gate&print_id=" . urlencode($member['id']) . "&gate_print=1" . ($is_terminal_b_duplicate ? "&duplicate=1" : ""));
-                    exit;
                 } else {
                     $error = "Invalid QR Code: No member found matching ID #{$scanned_id}.";
                 }
@@ -681,7 +691,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $stmt = $pdo->prepare("SELECT * FROM members WHERE id = ?");
             $stmt->execute([$member_id]);
             $member = $stmt->fetch();
-            if ($member) {
+            if ($member && !isMemberPreregistered($pdo, $member_id)) {
+                $gate_access_denied = true;
+                $error = "Access denied: This member must complete Terminal A pre-registration before Terminal B claims can be saved.";
+            } elseif ($member) {
                 $member_category = strtoupper(trim((string)($member['migs_category'] ?? '')));
 
                 // Strict validation: Filter items and remove duplicates
@@ -763,6 +776,20 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
     } catch (PDOException $e) {
         $error = "Database Search Error: " . $e->getMessage();
     }
+}
+function isMemberPreregistered($pdo, $member_id) {
+    $stmt = $pdo->prepare("
+        SELECT EXISTS (
+            SELECT 1
+            FROM event_logs
+            WHERE member_id = ? AND is_preregistered = 1
+        )
+    ");
+    $stmt->execute([$member_id]);
+    return (bool)$stmt->fetchColumn();
+}
+function isAwardeeMember($member) {
+    return strtoupper(trim((string)($member['awardee'] ?? ''))) === 'AWARDEE';
 }
 ?>
 <!DOCTYPE html>
@@ -1134,7 +1161,14 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                                 ?>
                                     <tr>
                                         <td><strong><?= htmlspecialchars('#' . $row['id']) ?></strong></td>
-                                        <td style="font-weight: 700; color: var(--text-main);"><?= htmlspecialchars($row['full_name']) ?></td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-weight: 700; color: var(--text-main);">
+                                                <span><?= htmlspecialchars($row['full_name']) ?></span>
+                                                <?php if (isAwardeeMember($row)): ?>
+                                                    <span class="badge badge-warning">AWARDEE</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
                                         <td>
                                             <span class="badge <?= $is_non_migs ? 'badge-warning' : 'badge-secondary' ?>">
                                                 <?= htmlspecialchars($cat_display) ?>
@@ -1214,9 +1248,10 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                     
                     $stmt = $pdo->prepare("SELECT * FROM members WHERE id = ?");
                     $stmt->execute([$print_target_id]);
-                    $gate_member = $stmt->fetch();
+                    $candidate_gate_member = $stmt->fetch();
 
-                    if ($gate_member) {
+                    if ($candidate_gate_member && isMemberPreregistered($pdo, $print_target_id)) {
+                        $gate_member = $candidate_gate_member;
                         $gate_member_cat = strtoupper(trim((string)($gate_member['migs_category'] ?? '')));
                         $is_gate_non_migs = ($gate_member_cat === 'NON-MIGS');
 
@@ -1237,6 +1272,8 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                         $gate_claimed_items_normalized = array_map(function($name) {
                             return preg_replace('/\s+/', ' ', mb_strtolower(trim($name)));
                         }, $gate_claimed_items);
+                    } elseif ($candidate_gate_member) {
+                        $gate_access_denied = true;
                     }
                 ?>
 
@@ -1245,6 +1282,9 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                         <div class="claim-status-title">
                             Member Claim Status: <strong><?= htmlspecialchars($gate_member['full_name']) ?></strong> 
                             (#<?= htmlspecialchars($gate_member['id']) ?>) - <?= htmlspecialchars(!empty($gate_member['migs_category']) ? strtoupper($gate_member['migs_category']) : 'REGULAR') ?>
+                            <?php if (isAwardeeMember($gate_member)): ?>
+                                <span class="badge badge-warning">AWARDEE</span>
+                            <?php endif; ?>
                             <div style="font-size: 13.5px; color: #94a3b8; font-weight: 600; margin-top: 6px;">Branch: <?= htmlspecialchars(!empty($gate_member['branch_name']) ? $gate_member['branch_name'] : 'N/A') ?></div>
                         </div>
 
@@ -1280,7 +1320,9 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
                         </form>
                     </div>
                 <?php else: ?>
-                    <div style="margin-top: 20px; font-size: 14px; color: #fca5a5; font-weight: 700;">Member record not found.</div>
+                    <div style="margin-top: 20px; font-size: 14px; color: #fca5a5; font-weight: 700;">
+                        <?= $gate_access_denied ? 'Access denied: This member must complete Terminal A pre-registration before proceeding to Terminal B.' : 'Member record not found.' ?>
+                    </div>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
@@ -1288,7 +1330,7 @@ if ($route === 'registration' && !empty($search_query) && !filter_var($search_qu
 </div>
 
 <?php 
-if (!empty($print_target_id) && ($route !== 'gate' || ($_GET['gate_print'] ?? '') === '1')): 
+if (!empty($print_target_id) && ($route !== 'gate' || (!$gate_access_denied && ($_GET['gate_print'] ?? '') === '1'))):
     $stmt = $pdo->prepare("SELECT * FROM members WHERE id = ?");
     $stmt->execute([$print_target_id]);
     $print_member = $stmt->fetch();
@@ -1322,6 +1364,9 @@ if (!empty($print_target_id) && ($route !== 'gate' || ($_GET['gate_print'] ?? ''
                 <tr><td><strong>NAME:</strong></td><td><?= htmlspecialchars($print_member['full_name']) ?></td></tr>
                 <tr><td><strong>BRANCH:</strong></td><td><?= htmlspecialchars($branch_name) ?></td></tr>
                 <tr><td><strong>CATEGORY:</strong></td><td><?= htmlspecialchars(!empty($migs_category) ? $migs_category : 'REGULAR') ?></td></tr>
+                <?php if (isAwardeeMember($print_member)): ?>
+                    <tr><td><strong>AWARDEE:</strong></td><td>YES</td></tr>
+                <?php endif; ?>
             </table>
             
             <div class="receipt-divider"></div>
@@ -1352,6 +1397,9 @@ if (!empty($print_target_id) && ($route !== 'gate' || ($_GET['gate_print'] ?? ''
                 <tr><td><strong>NAME:</strong></td><td><?= htmlspecialchars($print_member['full_name']) ?></td></tr>
                 <tr><td><strong>BRANCH:</strong></td><td><?= htmlspecialchars($branch_name) ?></td></tr>
                 <tr><td><strong>CATEGORY:</strong></td><td><?= htmlspecialchars(!empty($migs_category) ? $migs_category : 'REGULAR') ?></td></tr>
+                <?php if (isAwardeeMember($print_member)): ?>
+                    <tr><td><strong>AWARDEE:</strong></td><td>YES</td></tr>
+                <?php endif; ?>
             </table>
 
             <div class="receipt-cred-section">
@@ -1382,7 +1430,7 @@ if (!empty($print_target_id) && ($route !== 'gate' || ($_GET['gate_print'] ?? ''
     <?php endif; ?>
 <?php endif; ?>
 
-<?php if (!empty($print_target_id) && ($route !== 'gate' || ($_GET['gate_print'] ?? '') === '1')): ?>
+<?php if (!empty($print_target_id) && ($route !== 'gate' || (!$gate_access_denied && ($_GET['gate_print'] ?? '') === '1'))): ?>
 <script>
     window.addEventListener('load', function() {
         <?php if ($route !== 'gate' || ($_GET['print_now'] ?? '') === '1'): ?>

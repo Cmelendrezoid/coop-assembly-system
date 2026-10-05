@@ -573,15 +573,18 @@ $candidates = $conn->query("
     $initials = "NA";
 
     if(!empty($candidate['fullname'])){
+        $firstNameInitial = trim($candidate['candidate_first_name'] ?? '');
+        $lastNameInitial = trim($candidate['candidate_last_name'] ?? '');
 
-        $parts = explode(' ', $candidate['fullname']);
+        if($firstNameInitial !== '' && $lastNameInitial !== ''){
+            $initials = strtoupper(substr($firstNameInitial, 0, 1) . substr($lastNameInitial, 0, 1));
+        } else {
+            $parts = explode(' ', $candidate['fullname']);
+            $initials = strtoupper(substr($parts[0], 0, 1));
 
-        $initials = strtoupper(substr($parts[0],0,1));
-
-        if(count($parts) > 1){
-            $initials .= strtoupper(
-                substr($parts[count($parts)-1],0,1)
-            );
+            if(count($parts) > 1){
+                $initials .= strtoupper(substr($parts[count($parts)-1], 0, 1));
+            }
         }
     }
 
