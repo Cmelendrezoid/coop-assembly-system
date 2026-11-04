@@ -41,6 +41,8 @@ if(isset($_POST['login'])){
             // Fixed: Changed 'user_id' to 'id' to match database table column schema
             $_SESSION['admin_id'] = $user['id'];
             $_SESSION['admin_username'] = $user['username'];
+            $_SESSION['role'] = 'admin';
+            $_SESSION['admin_role_verified'] = true;
 
             header("Location: dashboard.php");
             exit();

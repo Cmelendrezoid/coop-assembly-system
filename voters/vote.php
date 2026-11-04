@@ -230,6 +230,21 @@ if ($is_pdo) {
     }
 }
 
+$candidateOrderClause = '';
+if ($is_pdo) {
+    try {
+        $candidateOrderCheck = $conn->query("SHOW COLUMNS FROM candidates LIKE 'candidate_order'")->fetch();
+        if ($candidateOrderCheck) {
+            $candidateOrderClause = 'candidate_order ASC, ';
+        }
+    } catch (Exception $e) {}
+} else {
+    $candidateOrderCheck = $conn->query("SHOW COLUMNS FROM candidates LIKE 'candidate_order'");
+    if ($candidateOrderCheck && $candidateOrderCheck->num_rows > 0) {
+        $candidateOrderClause = 'candidate_order ASC, ';
+    }
+}
+
 $error = "";
 $action = $_POST['action'] ?? '';
 
@@ -260,7 +275,7 @@ foreach ($positionsArray as $position) {
 
     if ($is_pdo) {
         try {
-            $stmt = $conn->prepare("SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = :pid ORDER BY candidate_display_name");
+            $stmt = $conn->prepare("SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = :pid ORDER BY {$candidateOrderClause}candidate_display_name ASC, id ASC");
             $stmt->execute(['pid' => $position_id]);
             $candidateResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
             foreach ($candidateResults as $candidate) {
@@ -284,7 +299,7 @@ foreach ($positionsArray as $position) {
         } catch (Exception $e) {}
     } else {
         $candidateResults = $conn->query(
-            "SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = $position_id ORDER BY candidate_display_name"
+            "SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = $position_id ORDER BY {$candidateOrderClause}candidate_display_name ASC, id ASC"
         );
         if ($candidateResults) {
             while ($candidate = $candidateResults->fetch_assoc()) {
@@ -885,12 +900,12 @@ h2 {
 
             if ($is_pdo) {
                 try {
-                    $cStmt = $conn->prepare("SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = :pid ORDER BY candidate_display_name");
+                    $cStmt = $conn->prepare("SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = :pid ORDER BY {$candidateOrderClause}candidate_display_name ASC, id ASC");
                     $cStmt->execute(['pid' => $position_id]);
                     $candidatesList = $cStmt->fetchAll(PDO::FETCH_ASSOC);
                 } catch (Exception $e) {}
             } else {
-                $cRes = $conn->query("SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = $position_id ORDER BY candidate_display_name");
+                $cRes = $conn->query("SELECT id, {$candidateNameCol} AS candidate_display_name, photo FROM candidates WHERE position_id = $position_id ORDER BY {$candidateOrderClause}candidate_display_name ASC, id ASC");
                 if ($cRes) {
                     while ($cRow = $cRes->fetch_assoc()) {
                         $candidatesList[] = $cRow;

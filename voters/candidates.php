@@ -13,6 +13,10 @@ $positions = $conn->query("
     FROM positions
     ORDER BY id
 ");
+$candidate_order_column = $conn->query("SHOW COLUMNS FROM candidates LIKE 'candidate_order'");
+$candidate_order_clause = ($candidate_order_column && $candidate_order_column->num_rows > 0)
+    ? 'candidate_order ASC, '
+    : '';
 
 ?>
 <!DOCTYPE html>
@@ -520,7 +524,7 @@ $candidates = $conn->query("
     SELECT *
     FROM candidates
     WHERE position_id = $position_id
-    ORDER BY fullname
+    ORDER BY {$candidate_order_clause}fullname ASC, id ASC
 ");
 
 ?>

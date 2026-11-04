@@ -125,8 +125,132 @@ foreach($candidate_name_columns as $column_name => $column_definition){
     }
 }
 
+$candidate_order_added = !in_array('candidate_order', $existing_candidate_columns, true);
+if($candidate_order_added){
+    if(!$conn->query("ALTER TABLE candidates ADD COLUMN candidate_order INT NOT NULL DEFAULT 0")){
+        die("Unable to set up candidate ordering: " . $conn->error);
+    }
+
+    $candidate_order_query = $conn->query("
+        SELECT id, position_id
+        FROM candidates
+        ORDER BY position_id ASC, fullname ASC, id ASC
+    ");
+    if(!$candidate_order_query){
+        die("Unable to initialize candidate ordering: " . $conn->error);
+    }
+
+    $candidate_order_update = $conn->prepare("UPDATE candidates SET candidate_order=? WHERE id=?");
+    if(!$candidate_order_update){
+        die("Unable to initialize candidate ordering: " . $conn->error);
+    }
+    $position_order = [];
+    while($candidate_order_row = $candidate_order_query->fetch_assoc()){
+        $candidate_position_id = (int)$candidate_order_row['position_id'];
+        $position_order[$candidate_position_id] = ($position_order[$candidate_position_id] ?? 0) + 1;
+        $candidate_order_value = $position_order[$candidate_position_id];
+        $candidate_order_id = (int)$candidate_order_row['id'];
+        $candidate_order_update->bind_param("ii", $candidate_order_value, $candidate_order_id);
+        if(!$candidate_order_update->execute()){
+            die("Unable to initialize candidate ordering: " . $candidate_order_update->error);
+        }
+    }
+}
+
 $message = "";
 $message_type = "success";
+
+if(isset($_POST['save_candidate_order'])){
+    $raw_position_id = $_POST['order_position_id'] ?? null;
+    $position_id = is_scalar($raw_position_id)
+        ? filter_var($raw_position_id, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+        : false;
+    $submitted_orders = $_POST['candidate_order'] ?? null;
+
+    if($position_id === false || $position_id === null || !is_array($submitted_orders)){
+        $message = "Unable to save candidate order. Please reload the page and try again.";
+        $message_type = "danger";
+    } else {
+        $existing_ids = [];
+        $candidate_ids_stmt = $conn->prepare("SELECT id FROM candidates WHERE position_id=?");
+        if(!$candidate_ids_stmt){
+            $message = "System error: Unable to load candidates for ordering.";
+            $message_type = "danger";
+        } else {
+            $candidate_ids_stmt->bind_param("i", $position_id);
+            $candidate_ids_stmt->execute();
+            $candidate_ids_result = $candidate_ids_stmt->get_result();
+            while($candidate_id_row = $candidate_ids_result->fetch_assoc()){
+                $existing_ids[] = (int)$candidate_id_row['id'];
+            }
+            sort($existing_ids);
+
+            $submitted_ids = [];
+            $orders_to_save = [];
+            $used_order_values = [];
+            $valid_orders = true;
+            foreach($submitted_orders as $candidate_id => $order_value){
+                $candidate_id = filter_var($candidate_id, FILTER_VALIDATE_INT);
+                $order_value = is_scalar($order_value)
+                    ? filter_var($order_value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+                    : false;
+                if($candidate_id === false || $candidate_id === null || $order_value === false || $order_value === null || in_array($order_value, $used_order_values, true)){
+                    $valid_orders = false;
+                    break;
+                }
+                $submitted_ids[] = $candidate_id;
+                $used_order_values[] = $order_value;
+                $orders_to_save[] = ['id' => $candidate_id, 'order' => $order_value];
+            }
+            sort($submitted_ids);
+
+            if(!$valid_orders || $submitted_ids !== $existing_ids){
+                $message = "Candidate order must include each candidate once with a unique positive number.";
+                $message_type = "danger";
+            } else {
+                usort($orders_to_save, function($first, $second){
+                    return $first['order'] <=> $second['order'];
+                });
+
+                if(!$conn->begin_transaction()){
+                    $message = "System error: Unable to save candidate order.";
+                    $message_type = "danger";
+                } else {
+                    $order_update_stmt = $conn->prepare("UPDATE candidates SET candidate_order=? WHERE id=? AND position_id=?");
+                    if(!$order_update_stmt){
+                        $conn->rollback();
+                        $message = "System error: Unable to save candidate order.";
+                        $message_type = "danger";
+                    } else {
+                        $save_failed = false;
+                        foreach($orders_to_save as $index => $candidate_order_row){
+                            $candidate_order_value = $index + 1;
+                            $candidate_order_id = $candidate_order_row['id'];
+                            $order_update_stmt->bind_param("iii", $candidate_order_value, $candidate_order_id, $position_id);
+                            if(!$order_update_stmt->execute()){
+                                $save_failed = true;
+                                break;
+                            }
+                        }
+
+                        if($save_failed){
+                            $conn->rollback();
+                            $message = "System error: Failed to save candidate order.";
+                            $message_type = "danger";
+                        } elseif(!$conn->commit()){
+                            $conn->rollback();
+                            $message = "System error: Failed to save candidate order.";
+                            $message_type = "danger";
+                        } else {
+                            $message = "Candidate order saved successfully.";
+                            $message_type = "success";
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 // 1. ADD CANDIDATE LOGIC
 if(isset($_POST['add_candidate'])){
@@ -153,6 +277,10 @@ if(isset($_POST['add_candidate'])){
     $position_result = $position_stmt->get_result();
     $position = $position_result->fetch_assoc();
     $position_name = $position['position_name'] ?? 'Unassigned';
+    $order_stmt = $conn->prepare("SELECT COALESCE(MAX(candidate_order), 0) + 1 AS next_order FROM candidates WHERE position_id=?");
+    $order_stmt->bind_param("i", $position_id);
+    $order_stmt->execute();
+    $candidate_order = (int)$order_stmt->get_result()->fetch_assoc()['next_order'];
 
     $photo = "";
     if(!empty($_POST['cropped_photo'])){
@@ -183,11 +311,11 @@ if(isset($_POST['add_candidate'])){
     $stmt = $conn->prepare("
         INSERT INTO candidates (
             fullname, candidate_last_name, candidate_first_name, candidate_middle_name, candidate_suffix, candidate_titles,
-            position_name, photo, description, education, position_id
+            position_name, photo, description, education, position_id, candidate_order
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
-    $stmt->bind_param("ssssssssssi", $fullname, $last_name, $first_name, $middle_name, $suffix, $titles, $position_name, $photo, $description, $education, $position_id);
+    $stmt->bind_param("ssssssssssii", $fullname, $last_name, $first_name, $middle_name, $suffix, $titles, $position_name, $photo, $description, $education, $position_id, $candidate_order);
 
     if($stmt->execute()){
         $message = "Candidate profile registered successfully.";
@@ -220,7 +348,7 @@ if(isset($_POST['edit_candidate'])){
         $message_type = "danger";
     } else {
     $current_name_stmt = $conn->prepare("
-        SELECT fullname, candidate_last_name, candidate_first_name, candidate_middle_name, candidate_suffix, candidate_titles
+        SELECT fullname, candidate_last_name, candidate_first_name, candidate_middle_name, candidate_suffix, candidate_titles, position_id, candidate_order
         FROM candidates
         WHERE id = ?
     ");
@@ -249,6 +377,13 @@ if(isset($_POST['edit_candidate'])){
     $position_result = $position_stmt->get_result();
     $position = $position_result->fetch_assoc();
     $position_name = $position['position_name'] ?? 'Unassigned';
+    $candidate_order = (int)$current_name['candidate_order'];
+    if((int)$current_name['position_id'] !== $position_id){
+        $order_stmt = $conn->prepare("SELECT COALESCE(MAX(candidate_order), 0) + 1 AS next_order FROM candidates WHERE position_id=?");
+        $order_stmt->bind_param("i", $position_id);
+        $order_stmt->execute();
+        $candidate_order = (int)$order_stmt->get_result()->fetch_assoc()['next_order'];
+    }
 
     $photo = "";
     if(!empty($_POST['cropped_photo'])){
@@ -280,18 +415,18 @@ if(isset($_POST['edit_candidate'])){
         $stmt = $conn->prepare("
             UPDATE candidates 
             SET fullname=?, candidate_last_name=?, candidate_first_name=?, candidate_middle_name=?, candidate_suffix=?, candidate_titles=?,
-                position_name=?, photo=?, description=?, education=?, position_id=?
+                position_name=?, photo=?, description=?, education=?, candidate_order=?, position_id=?
             WHERE id=?
         ");
-        $stmt->bind_param("ssssssssssii", $fullname, $last_name, $first_name, $middle_name, $suffix, $titles, $position_name, $photo, $description, $education, $position_id, $candidate_id);
+        $stmt->bind_param("ssssssssssiii", $fullname, $last_name, $first_name, $middle_name, $suffix, $titles, $position_name, $photo, $description, $education, $candidate_order, $position_id, $candidate_id);
     } else {
         $stmt = $conn->prepare("
             UPDATE candidates 
             SET fullname=?, candidate_last_name=?, candidate_first_name=?, candidate_middle_name=?, candidate_suffix=?, candidate_titles=?,
-                position_name=?, description=?, education=?, position_id=?
+                position_name=?, description=?, education=?, candidate_order=?, position_id=?
             WHERE id=?
         ");
-        $stmt->bind_param("sssssssssii", $fullname, $last_name, $first_name, $middle_name, $suffix, $titles, $position_name, $description, $education, $position_id, $candidate_id);
+        $stmt->bind_param("sssssssssiii", $fullname, $last_name, $first_name, $middle_name, $suffix, $titles, $position_name, $description, $education, $candidate_order, $position_id, $candidate_id);
     }
 
     if($stmt->execute()){
@@ -336,10 +471,11 @@ $candidates_query = $conn->query("
         c.description,
         c.education,
         c.position_id,
+        c.candidate_order,
         COALESCE(p.position_name, NULLIF(c.position_name, ''), 'Unassigned Position') AS position_name
     FROM candidates c
     LEFT JOIN positions p ON c.position_id = p.id
-    ORDER BY position_name ASC, c.fullname ASC
+    ORDER BY position_name ASC, c.candidate_order ASC, c.fullname ASC, c.id ASC
 ");
 
 $grouped_candidates = [];
@@ -347,7 +483,14 @@ $total_candidates = 0;
 if($candidates_query){
     while($row = $candidates_query->fetch_assoc()) {
         $pos_name = !empty($row['position_name']) ? $row['position_name'] : 'Unassigned Position';
-        $grouped_candidates[$pos_name][] = $row;
+        $position_key = (int)$row['position_id'];
+        if(!isset($grouped_candidates[$position_key])){
+            $grouped_candidates[$position_key] = [
+                'position_name' => $pos_name,
+                'candidates' => []
+            ];
+        }
+        $grouped_candidates[$position_key]['candidates'][] = $row;
         $total_candidates++;
     }
 }
@@ -621,6 +764,24 @@ body {
     vertical-align: middle;
 }
 
+.candidate-drag-handle {
+    color: var(--text-muted);
+    cursor: grab;
+    touch-action: none;
+}
+
+.candidate-drag-handle:active {
+    cursor: grabbing;
+}
+
+.candidate-order-row.sortable-ghost {
+    opacity: 0.35;
+}
+
+.candidate-order-row.sortable-chosen {
+    background: var(--input-bg);
+}
+
 .candidate-photo {
     width: 52px;
     height: 52px;
@@ -821,7 +982,7 @@ body {
 
     <?php if($message){ ?>
         <div class="alert alert-<?= $message_type; ?> rounded-4 border-0 shadow-sm d-flex align-items-center gap-2 mb-4 p-3">
-            <i class="bi bi-check-circle-fill fs-5"></i>
+            <i class="bi <?= $message_type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'; ?> fs-5"></i>
             <div class="fw-semibold"><?= htmlspecialchars($message); ?></div>
         </div>
     <?php } ?>
@@ -908,7 +1069,7 @@ body {
                 <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
                     <i class="bi bi-journal-medical text-primary"></i> Master Directory
                 </h5>
-                <p class="text-secondary small mb-0">System candidate profiles grouped by contest position</p>
+                <p class="text-secondary small mb-0">Drag candidates into ballot order for each position, then save to control the order voters see.</p>
             </div>
         </div>
 
@@ -919,10 +1080,13 @@ body {
             </div>
         <?php } else { ?>
 
-            <?php foreach($grouped_candidates as $position_title => $candidates_list){ ?>
+            <?php foreach($grouped_candidates as $position_group){ ?>
+                <?php $position_title = $position_group['position_name']; ?>
+                <?php $candidates_list = $position_group['candidates']; ?>
+                <?php $position_has_ballot = (int)$candidates_list[0]['position_id'] > 0; ?>
                 <div class="position-header-card">
                     <div class="position-header-title">
-                        <i class="bi bi-award"></i> <?= htmlspecialchars($position_title); ?>
+                                                   <i class="bi bi-award"></i> <?= htmlspecialchars($position_title); ?>
                     </div> 
                     <span class="badge bg-white text-primary rounded-pill px-3 py-1 fw-bold fs-7">
                         <?= count($candidates_list); ?> Candidate(s)
@@ -930,9 +1094,18 @@ body {
                 </div>
 
                 <div class="table-responsive">
+                    <?php if($position_has_ballot){ ?>
+                    <form method="POST">
+                    <input type="hidden" name="save_candidate_order" value="1">
+                    <input type="hidden" name="order_position_id" value="<?= (int)$candidates_list[0]['position_id']; ?>">
+                    <?php } ?>
                     <table class="table custom-table align-middle">
                         <thead>
                             <tr>
+                                <?php if($position_has_ballot){ ?>
+                                <th width="4%"><span class="visually-hidden">Drag to reorder</span></th>
+                                <th width="10%">Ballot Order</th>
+                                <?php } ?>
                                 <th width="5%">ID</th>
                                 <th width="10%">Media</th>
                                 <th width="20%">Candidate</th>
@@ -941,11 +1114,32 @@ body {
                                 <th width="100" class="text-end">Controls</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="<?= $position_has_ballot ? 'candidate-order-list' : ''; ?>">
                         <?php foreach($candidates_list as $row){ 
                             $parsed = parseCandidateDescription($row['description']);
                         ?>
-                            <tr>
+                            <tr class="<?= $position_has_ballot ? 'candidate-order-row' : ''; ?>">
+                                <?php if($position_has_ballot){ ?>
+                                <td class="text-center">
+                                    <button
+                                        type="button"
+                                        class="btn btn-link p-1 candidate-drag-handle"
+                                        aria-label="Drag <?= htmlspecialchars($row['fullname']); ?> to reorder"
+                                        title="Drag to reorder">
+                                        <i class="bi bi-grip-vertical fs-5"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        name="candidate_order[<?= (int)$row['id']; ?>]"
+                                        class="form-control custom-input"
+                                        value="<?= (int)$row['candidate_order']; ?>"
+                                        readonly
+                                        tabindex="-1"
+                                        aria-label="Ballot order for <?= htmlspecialchars($row['fullname']); ?>">
+                                </td>
+                                <?php } ?>
                                 <td class="fw-bold text-muted">#<?= $row['id']; ?></td>
                                 <td>
                                     <?php if(!empty($row['photo']) && file_exists("../assets/images/" . $row['photo'])){ ?>
@@ -1007,6 +1201,14 @@ body {
                         <?php } ?>
                         </tbody>
                     </table>
+                    <?php if($position_has_ballot){ ?>
+                    <div class="d-flex justify-content-end pb-3">
+                        <button type="submit" class="btn btn-enterprise btn-sm d-inline-flex align-items-center gap-2">
+                            <i class="bi bi-sort-numeric-down"></i> Save Order
+                        </button>
+                    </div>
+                    </form>
+                    <?php } ?>
                 </div>
             <?php } ?>
         <?php } ?>
@@ -1118,6 +1320,7 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 
 <script>
 function toggleMenu() {
@@ -1147,6 +1350,20 @@ function toggleTheme() {
     localStorage.setItem('admin-theme', isLight ? 'light' : 'dark');
     updateThemeUI(isLight);
 }
+
+document.querySelectorAll('.candidate-order-list').forEach(function(list){
+    Sortable.create(list, {
+        animation: 150,
+        handle: '.candidate-drag-handle',
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        onEnd: function(){
+            list.querySelectorAll('input[name^="candidate_order["]').forEach(function(input, index){
+                input.value = index + 1;
+            });
+        }
+    });
+});
 
 let cropper = null;
 let currentFileUrl = null;

@@ -440,6 +440,15 @@ $attendanceLogs = $conn->query($logQuery);
             background: rgba(255, 255, 255, 0.03);
         }
 
+        .dark-theme .custom-table tbody td {
+            background-color: #0b1220;
+            color: var(--text-primary);
+        }
+
+        .dark-theme .custom-table tbody tr:nth-child(even) td {
+            background-color: #111c2f;
+        }
+
         .custom-table td {
             border-bottom: 1px solid var(--card-border);
             padding: 1rem;
@@ -449,6 +458,10 @@ $attendanceLogs = $conn->query($logQuery);
         }
 
         .custom-table tbody tr:hover td {
+            background-color: var(--table-hover);
+        }
+
+        .dark-theme .custom-table tbody tr:hover td {
             background-color: var(--table-hover);
         }
 

@@ -12,8 +12,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 5. Global Authentication Guard
-if (!isset($_SESSION['admin_id'])) {
-    header("Location: ../voters/login.php");
+// Require an admin session established after verifying the account's role.
+if (
+    !isset($_SESSION['admin_id']) ||
+    ($_SESSION['admin_role_verified'] ?? false) !== true
+) {
+    unset($_SESSION['admin_id'], $_SESSION['admin_username'], $_SESSION['admin_role_verified']);
+    header("Location: login.php");
     exit();
 }

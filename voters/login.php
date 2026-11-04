@@ -10,9 +10,12 @@ if (file_exists('../config/db.php')) {
 }
 
 // Redirect active sessions
-if (isset($_SESSION['admin_id'])) {
+if (isset($_SESSION['admin_id']) && ($_SESSION['admin_role_verified'] ?? false) === true) {
     header("Location: ../admin/dashboard.php");
     exit();
+}
+if (isset($_SESSION['admin_id'])) {
+    unset($_SESSION['admin_id'], $_SESSION['admin_username'], $_SESSION['admin_role_verified']);
 }
 if (isset($_SESSION['member_id']) || isset($_SESSION['voter_id'])) {
     header("Location: dashboard.php");
@@ -188,6 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         session_regenerate_id(true);
 
                         unset($_SESSION['admin_id'], $_SESSION['admin_username']);
+                        unset($_SESSION['admin_role_verified']);
 
                         $_SESSION['member_id']   = $voter['id'];
                         $_SESSION['voter_id']    = $voter['id'];
@@ -206,11 +210,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $admin_user = null;
                 try {
                     if ($is_pdo) {
-                        $stmt = $db->prepare("SELECT * FROM users WHERE LOWER(TRIM(username)) = LOWER(:u) LIMIT 1");
+                        $stmt = $db->prepare("SELECT * FROM users WHERE LOWER(TRIM(username)) = LOWER(:u) AND LOWER(TRIM(role)) = 'admin' LIMIT 1");
                         $stmt->execute(['u' => $username]);
                         $admin_user = $stmt->fetch(PDO::FETCH_ASSOC);
                     } else {
-                        $stmt = $db->prepare("SELECT * FROM users WHERE LOWER(TRIM(username)) = LOWER(?) LIMIT 1");
+                        $stmt = $db->prepare("SELECT * FROM users WHERE LOWER(TRIM(username)) = LOWER(?) AND LOWER(TRIM(role)) = 'admin' LIMIT 1");
                         if ($stmt) {
                             $stmt->bind_param("s", $username);
                             $stmt->execute();
@@ -225,6 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['admin_id']       = $admin_user['user_id'] ?? $admin_user['id'];
                     $_SESSION['admin_username'] = $admin_user['username'];
                     $_SESSION['role']           = 'admin';
+                    $_SESSION['admin_role_verified'] = true;
 
                     header("Location: ../admin/dashboard.php");
                     exit();
@@ -731,4 +736,4 @@ window.onload = function(){
 </html>
 <?php
 ob_end_flush();
-?>
+?>a
