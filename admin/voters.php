@@ -131,7 +131,7 @@ $totalVoted = $totalVotedQuery ? $totalVotedQuery->fetch_assoc()['total'] : 0;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Manage Voters - PMPC Admin</title>
+<title>Manage Voters - PANABO-CO-OP Admin</title>
 
 <!-- Google Fonts: Inter -->
 <link rel="preconnect" href="https://fonts.googleapis.com">

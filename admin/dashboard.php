@@ -162,8 +162,8 @@ $attendanceLogs = $conn->query($logQuery);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Admin Dashboard - PMPC E-Voting</title>
-    
+    <title>Admin Dashboard - PANABO-CO-OP E-Voting</title>
+
     <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -656,7 +656,7 @@ $attendanceLogs = $conn->query($logQuery);
             <div class="col-6 col-sm-4 col-md">
                 <div class="item-metric-card">
                     <div class="item-metric-val text-warning"><?php echo number_format($itemTotals['total_umbrellas']); ?></div>
-                    <div class="item-metric-lbl">PMPC Umbrellas</div>
+                    <div class="item-metric-lbl">Umbrellas</div>
                 </div>
             </div>
             <div class="col-6 col-sm-4 col-md">

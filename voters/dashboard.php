@@ -416,7 +416,7 @@ if ($db) {
             <?php endif; ?>
 
             <div class="footer-text">
-                Panabo Multi-Purpose Cooperative E-Voting System
+                Panabo Co-op E-Voting System
             </div>
 
         </div>

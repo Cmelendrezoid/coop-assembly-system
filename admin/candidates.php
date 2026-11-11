@@ -501,7 +501,7 @@ $total_positions_assigned = count($grouped_candidates);
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Candidate Registry | PMPC Admin</title>
+<title>Candidate Registry | Panabo Co-op Admin</title>
 
 <!-- Google Fonts: Inter -->
 <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -362,12 +362,12 @@ if (!isset($_SESSION['qr_user_id'])) {
         
         <div class="login-wrapper">
             <div class="login-hero">
-                <div class="hero-badge">Panabo Cooperative</div>
+                <div class="hero-badge">PANABO CO-OP</div>
                 <div class="hero-content">
                     <h1>General Assembly Registration Portal</h1>
                     <p>Welcome! Please authenticate your terminal operator session to manage member check-ins and freebie distribution.</p>
                 </div>
-                <div class="hero-footer">&copy; <?= date('Y') ?> Panabo Multi-Purpose Cooperative</div>
+                <div class="hero-footer">@2027 Panabo Co-op</div>
             </div>
 
             <div class="login-card">
@@ -1100,8 +1100,8 @@ function isAwardeeMember($member) {
         <div class="brand-left">
             <img src="/evoting/assets/images/logo.png" class="ui-logo" alt="Company Logo" onerror="this.style.display='none'">
             <div class="brand-text">
-                <h1>Panabo Cooperative</h1>
-                <p>General Assembly Registration & Gate Control System</p>
+                <h1>PANABO CO-OP</h1>
+                <p>General Assembly Registration & Control System</p>
             </div>
         </div>
         <div class="header-actions">
@@ -1110,8 +1110,8 @@ function isAwardeeMember($member) {
     </div>
 
     <div class="nav-tabs">
-        <a href="index.php?route=registration" class="<?= $route === 'registration' ? 'active' : '' ?>">🏢 Terminal A: Pre-Registration</a>
-        <a href="index.php?route=gate" class="<?= $route === 'gate' ? 'active' : '' ?>">🎁 Terminal B: Attendance & Freebies Gate</a>
+        <a href="index.php?route=registration" class="<?= $route === 'registration' ? 'active' : '' ?>">🏢 - Pre-Registration</a>
+        <a href="index.php?route=gate" class="<?= $route === 'gate' ? 'active' : '' ?>">🎁 - Actual Registration</a>
     </div>
 
     <div class="debug-bar">
@@ -1129,13 +1129,13 @@ function isAwardeeMember($member) {
 
     <?php if ($route === 'registration'): ?>
         <div class="section-title-wrap">
-            <h2>Member Registration Window (Terminal A)</h2>
+            <h2>Member Pre-Registration Window</h2>
             <p class="subtitle">Search and process member pre-registration to generate gate passes.</p>
         </div>
         
         <form method="GET" action="index.php" class="search-box-wrap">
             <input type="hidden" name="route" value="registration">
-            <input type="text" name="search" placeholder="Enter Member ID or Name..." value="<?= htmlspecialchars(!filter_var($search_query, FILTER_VALIDATE_URL) ? $search_query : '') ?>" autofocus>
+            <input type="text" name="search" placeholder="Enter Member Number or Name..." value="<?= htmlspecialchars(!filter_var($search_query, FILTER_VALIDATE_URL) ? $search_query : '') ?>" autofocus>
             <button type="submit">Search Member</button>
         </form>
 
@@ -1147,7 +1147,7 @@ function isAwardeeMember($member) {
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width: 120px;">ID</th>
+                                    <th style="width: 120px;">Member #</th>
                                     <th>Full Name</th>
                                     <th style="width: 130px;">Category</th>
                                     <th style="width: 140px;">Status</th>
@@ -1190,7 +1190,7 @@ function isAwardeeMember($member) {
                                                 <?php if (!$row['registered']): ?>
                                                     <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
                                                         <div style="text-align:left; max-width: 260px; font-size: 12px; color: var(--text-muted); background: var(--input-bg); padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border-color);">
-                                                            <strong style="display:block; margin-bottom: 8px; color: var(--text-main);">Select Terminal A Pre-Registration Freebies:</strong>
+                                                            <strong style="display:block; margin-bottom: 8px; color: var(--text-main);">Select Pre-Registration Freebies:</strong>
                                                             <label style="display:inline-flex; align-items:center; gap:8px; margin-bottom: 6px; cursor: pointer;"><input type="checkbox" name="claimed_items[]" value="GA T-Shirt"> GA T-Shirt</label><br>
                                                             
                                                             <?php if ($is_non_migs): ?>
@@ -1204,7 +1204,7 @@ function isAwardeeMember($member) {
                                                             <label style="display:inline-flex; align-items:center; gap:8px; margin-bottom: 6px; cursor: pointer;"><input type="checkbox" name="claimed_items[]" value="Snacks / Meals"> Snacks / Meals</label><br>
                                                             <label style="display:inline-flex; align-items:center; gap:8px; margin-bottom: 6px; cursor: pointer;"><input type="checkbox" name="claimed_items[]" value="PMPC Umbrella"> PMPC Umbrella</label>
                                                             <?php if (stripos($cat_display, 'GOLD') !== false): ?>
-                                                            <br><label style="display:inline-flex; align-items:center; gap:8px; cursor: pointer;"><input type="checkbox" name="claimed_items[]" value="Water Bottle for Gold Members"> Water Bottle for Gold Members</label>
+                                                            <br><label style="display:inline-flex; align-items:center; gap:8px; cursor: pointer;"><input type="checkbox" name="claimed_items[]" value="Token for Gold Members"> Token for Gold Members</label>
                                                             <?php endif; ?>
                                                         </div>
                                                         <button type="submit" style="padding: 10px 18px; font-size: 13px;">Confirm & Print Pass</button>
@@ -1228,7 +1228,7 @@ function isAwardeeMember($member) {
 
     <?php if ($route === 'gate'): ?>
         <div class="section-title-wrap">
-            <h2>Attendance & Freebies Terminal (Terminal B)</h2>
+            <h2>Actual Registration</h2>
             <p class="subtitle">Scan member pass to review pre-registered claims and issue on-site items.</p>
         </div>
 
@@ -1263,7 +1263,7 @@ function isAwardeeMember($member) {
                         }
 
                         if (stripos($gate_member_cat, 'GOLD') !== false) {
-                            $gate_freebie_items[] = 'Water Bottle for Gold Members';
+                            $gate_freebie_items[] = 'Token for Gold Members';
                         }
 
                         $claim_stmt = $pdo->prepare("SELECT item_name FROM member_freebie_claims WHERE member_id = ?");
@@ -1360,7 +1360,7 @@ if (!empty($print_target_id) && ($route !== 'gate' || (!$gate_access_denied && (
             <div class="receipt-divider"></div>
             
             <table class="receipt-details-table">
-                <tr><td style="width: 45%;"><strong>MEMBER ID:</strong></td><td>#<?= htmlspecialchars($print_member['id']) ?></td></tr>
+                <tr><td style="width: 45%;"><strong>NUMBER:</strong></td><td>#<?= htmlspecialchars($print_member['id']) ?></td></tr>
                 <tr><td><strong>NAME:</strong></td><td><?= htmlspecialchars($print_member['full_name']) ?></td></tr>
                 <tr><td><strong>BRANCH:</strong></td><td><?= htmlspecialchars($branch_name) ?></td></tr>
                 <tr><td><strong>CATEGORY:</strong></td><td><?= htmlspecialchars(!empty($migs_category) ? $migs_category : 'REGULAR') ?></td></tr>
@@ -1382,9 +1382,9 @@ if (!empty($print_target_id) && ($route !== 'gate' || (!$gate_access_denied && (
                 <div style="font-size: 10px; color: #000; margin-bottom: 10px; text-align: center;">No pre-registration freebies were selected.</div>
             <?php endif; ?>
             
-            <div style="font-size: 9px; font-weight: bold; margin-bottom: 2px; text-align: center; color: #000;">PRESENT THIS AT TERMINAL B</div>
+            <div style="font-size: 9px; font-weight: bold; margin-bottom: 2px; text-align: center; color: #000;">PRESENT THIS AT THE ACTUAL REGISTRATION TERMINAL</div>
             <div class="qr-wrapper"><img src="<?= $gate_qr_file ?>?v=<?= time() ?>" alt="Entrance QR Pass"></div>
-            <div style="font-size: 8px; color: #000; text-align: center;">Scan at Terminal B to verify entrance and claim freebies.</div>
+            <div style="font-size: 8px; color: #000; text-align: center;">Scan at the actual registration terminal to verify your attendance and claim your freebies.</div>
         <?php else: ?>
             <div class="receipt-header">GENERAL ASSEMBLY</div>
             <div style="font-size: 11px; font-weight: bold; letter-spacing: 1px; text-align: center; color: #000;">
@@ -1393,7 +1393,7 @@ if (!empty($print_target_id) && ($route !== 'gate' || (!$gate_access_denied && (
             <div class="receipt-divider"></div>
             
             <table class="receipt-details-table">
-                <tr><td style="width: 45%;"><strong>MEMBER ID:</strong></td><td>#<?= htmlspecialchars($print_member['id']) ?></td></tr>
+                <tr><td style="width: 45%;"><strong>NUMBER:</strong></td><td>#<?= htmlspecialchars($print_member['id']) ?></td></tr>
                 <tr><td><strong>NAME:</strong></td><td><?= htmlspecialchars($print_member['full_name']) ?></td></tr>
                 <tr><td><strong>BRANCH:</strong></td><td><?= htmlspecialchars($branch_name) ?></td></tr>
                 <tr><td><strong>CATEGORY:</strong></td><td><?= htmlspecialchars(!empty($migs_category) ? $migs_category : 'REGULAR') ?></td></tr>

@@ -435,18 +435,14 @@
             <!-- Original Logo Restored Here -->
             <img 
                 src="assets/images/logo.png" 
-                alt="PMPC Logo" 
+                alt="PANABO CO-OP Logo" 
                 class="logo" 
                 onerror="this.style.display='none';"
             >
         </div>
 
-        <div>
-            <span class="welcome-badge">Member Portal</span>
-        </div>
-
-        <h1 class="portal-title">PMPC Election Portal</h1>
-        <p class="portal-subtitle">Panabo Multi-Purpose Cooperative</p>
+        <h1 class="portal-title">PANABO CO-OP</h1>
+        <p class="portal-subtitle">Registration and E-Voting Portal</p>
 
         <div class="portal-grid">
             
@@ -475,7 +471,7 @@
 
         </div>
 
-        <div class="info-box">
+        <div class="info-box">  
             <strong>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 System Notice
@@ -486,7 +482,7 @@
         </div>
 
         <div class="footer-note">
-            Panabo Multi-Purpose Cooperative E-Voting System
+            Panabo Co-op General Assembly @2027
         </div>
 
     </div>

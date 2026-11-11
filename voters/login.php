@@ -647,7 +647,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <i class="bi bi-shield-lock-fill"></i> Secure E-Voting
                     </span>
                 </div>
-                <h3>Welcome Back</h3>
+                <h3>Welcome!</h3>
                 <p class="portal-subtitle">Sign in with your official account credentials to participate in your branch's active voting session.</p>
 
                 <?php if(!empty($error)): ?>
@@ -683,7 +683,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
 
                 <div class="portal-footer">
-                    Panabo Multi-Purpose Cooperative E-Voting System
+                    Panabo Co-op E-Voting System
                 </div>
             </div>
         </div>

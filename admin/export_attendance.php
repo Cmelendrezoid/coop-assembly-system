@@ -126,7 +126,7 @@ if ($type === 'pdf') {
             </button>
         </div>
         <div class="header">
-            <h2>Panabo Multi-Purpose Cooperative (PMPC)</h2>
+            <h2>PANABO CO-OP</h2>
             <p>Printed Members Attendance Summary Report <?php echo (!empty($filterDate) && strtolower($filterDate) !== 'all') ? " - Date: " . htmlspecialchars($filterDate) : " - All Records"; ?></p>
         </div>
         <table>

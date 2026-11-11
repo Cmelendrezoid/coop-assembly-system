@@ -158,7 +158,7 @@ p {
 <h1>Vote Submitted</h1>
 
 <p>
-Thank you for participating in the election.
+Thank you for participating in the election. God Bless You! Your vote has been successfully recorded.
 </p>
 
 <a href="logout.php?redirect=candidates.php" class="btn btn-primary">

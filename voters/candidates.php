@@ -25,7 +25,7 @@ $candidate_order_clause = ($candidate_order_column && $candidate_order_column->n
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>PMPC Election Candidates</title>
+<title>Panabo Co-op Election Candidates</title>
 
 <!-- Google Fonts: Plus Jakarta Sans -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -489,7 +489,7 @@ body {
                 <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Back</span>
             </a>
             <div>
-                <h1 class="page-title">PMPC Election Candidates</h1>
+                <h1 class="page-title">Panabo Co-op Election Candidates</h1>
                 <p class="page-subtitle d-none d-md-block">Review candidates carefully before voting</p>
             </div>
         </div>

@@ -110,8 +110,8 @@ if ($type === 'excel') {
     echo '<th>GA T-Shirt</th>';
     echo '<th>Cash Allowance</th>';
     echo '<th>Snacks / Meals</th>';
-    echo '<th>PMPC Umbrella</th>';
-    echo '<th>Water Bottle (Gold)</th>';
+    echo '<th>Umbrella</th>';
+    echo '<th>Token (Gold)</th>';
     echo '<th>Processed By</th>';
     echo '<th>Distribution Date</th>';
     echo '</tr>';
@@ -180,7 +180,7 @@ if ($type === 'pdf') {
             </button>
         </div>
         <div class="header">
-            <h2>Panabo Multi-Purpose Cooperative</h2>
+            <h2>PANABO CO-OP</h2>
             <p>Freebies & Item Distribution Log - <?php echo htmlspecialchars($dateSuffix); ?></p>
         </div>
         <table>
@@ -193,8 +193,8 @@ if ($type === 'pdf') {
                     <th>GA T-Shirt</th>
                     <th>Cash Allowance</th>
                     <th>Snacks / Meals</th>
-                    <th>PMPC Umbrella</th>
-                    <th>Water Bottle (Gold)</th>
+                    <th>Umbrella</th>
+                    <th>Token (Gold)</th>
                     <th>Processed By</th>
                     <th>Distribution Date</th>
                 </tr>

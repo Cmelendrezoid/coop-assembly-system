@@ -316,7 +316,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             onerror="this.style.display='none';"
         >
         <div>
-            <div class="mobile-brand-title">PMPC</div>
+            <div class="mobile-brand-title">PANABO CO-OP</div>
             <div class="mobile-brand-subtitle">E-Voting Admin</div>
         </div>
     </div>
@@ -349,11 +349,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 class="brand-logo-img"
                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
             >
-            <div class="brand-logo-fallback" style="display:none;">PMPC</div>
+            <div class="brand-logo-fallback" style="display:none;">PANABO<br>CO-OP</div>
         </div>
 
         <div class="brand-text-details">
-            <h1 class="brand-title">PMPC Admin</h1>
+            <h1 class="brand-title">Admin</h1>
 
             <div class="brand-status-pill">
                 <span class="status-indicator"></span>
