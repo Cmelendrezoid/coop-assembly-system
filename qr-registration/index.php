@@ -116,240 +116,635 @@ if (!isset($_SESSION['qr_user_id'])) {
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-        <style>
-            :root {
-                --bg-gradient: radial-gradient(circle at 50% 0%, #edf2f7 0%, #cbd5e1 100%);
-                --card-bg: rgba(255, 255, 255, 0.9);
-                --card-border: rgba(255, 255, 255, 0.8);
-                --text-main: #0f172a;
-                --text-muted: #64748b;
-                --border-color: #e2e8f0;
-                --input-bg: #f8fafc;
-                --input-border: #cbd5e1;
-                --primary-gradient: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
-                --primary-hover: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
-                --primary-shadow: rgba(37, 99, 235, 0.35);
-            }
+        
+<style>
+    /* =========================================
+       1. THEME VARIABLES
+    ========================================= */
 
-            [data-theme="dark"] {
-                --bg-gradient: radial-gradient(circle at 50% 0%, #0d1527 0%, #070a12 100%);
-                --card-bg: rgba(15, 23, 42, 0.85);
-                --card-border: rgba(255, 255, 255, 0.08);
-                --text-main: #f8fafc;
-                --text-muted: #94a3b8;
-                --border-color: #1e293b;
-                --input-bg: #0b1120;
-                --input-border: #334155;
-                --primary-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-                --primary-hover: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
-                --primary-shadow: rgba(37, 99, 235, 0.45);
-            }
+    :root {
+        --bg-gradient: radial-gradient(circle at 50% 0%, #edf2f7 0%, #cbd5e1 100%);
+        --card-bg: rgba(255, 255, 255, 0.9);
+        --card-border: rgba(255, 255, 255, 0.8);
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --input-bg: #f8fafc;
+        --input-border: #cbd5e1;
+        --primary-gradient: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+        --primary-hover: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+        --primary-shadow: rgba(37, 99, 235, 0.35);
+    }
 
-            * { box-sizing: border-box; transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease; }
-            
-            body {
-                font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-                background: var(--bg-gradient);
-                color: var(--text-main);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                min-height: 100vh;
-                margin: 0;
-                padding: 24px;
-                -webkit-font-smoothing: antialiased;
-            }
+    [data-theme="dark"] {
+        --bg-gradient: radial-gradient(circle at 50% 0%, #0d1527 0%, #070a12 100%);
+        --card-bg: rgba(15, 23, 42, 0.85);
+        --card-border: rgba(255, 255, 255, 0.08);
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: #1e293b;
+        --input-bg: #0b1120;
+        --input-border: #334155;
+        --primary-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        --primary-hover: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+        --primary-shadow: rgba(37, 99, 235, 0.45);
+    }
 
-            .top-nav-actions {
-                position: fixed;
-                top: 24px;
-                left: 24px;
-                right: 24px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                z-index: 10;
-            }
 
-            .btn-back, .theme-toggle-login {
-                background: var(--card-bg);
-                border: 1px solid var(--border-color);
-                color: var(--text-main);
-                padding: 10px 20px;
-                border-radius: 30px;
-                font-weight: 700;
-                font-size: 13px;
-                text-decoration: none;
-                backdrop-filter: blur(16px);
-                box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                cursor: pointer;
-            }
+    /* =========================================
+       2. GLOBAL STYLES
+    ========================================= */
 
-            .btn-back:hover, .theme-toggle-login:hover {
-                transform: translateY(-2px);
-                border-color: #3b82f6;
-            }
+    * {
+        box-sizing: border-box;
+        transition:
+            background 0.25s ease,
+            border-color 0.25s ease,
+            color 0.25s ease,
+            box-shadow 0.25s ease,
+            transform 0.2s ease;
+    }
 
-            .login-wrapper {
-                width: 100%;
-                max-width: 900px;
-                background: var(--card-bg);
-                backdrop-filter: blur(20px);
-                border-radius: 28px;
-                box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25);
-                border: 1px solid var(--card-border);
-                display: flex;
-                overflow: hidden;
-            }
+    body {
+        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        background: var(--bg-gradient);
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 24px;
+        -webkit-font-smoothing: antialiased;
+    }
 
-            .login-hero {
-                flex: 1.1;
-                background: linear-gradient(145deg, #1e3a8a 0%, #1e40af 40%, #1d4ed8 100%);
-                color: #ffffff;
-                padding: 52px;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                position: relative;
-                overflow: hidden;
-            }
 
-            .login-hero::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                left: -50%;
-                width: 200%;
-                height: 200%;
-                background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%);
-                pointer-events: none;
-            }
+    /* =========================================
+       3. TOP NAVIGATION
+    ========================================= */
 
-            .hero-badge {
-                align-self: flex-start;
-                background: rgba(255, 255, 255, 0.18);
-                backdrop-filter: blur(10px);
-                padding: 6px 16px;
-                border-radius: 20px;
-                font-size: 12px;
-                font-weight: 800;
-                letter-spacing: 0.05em;
-                text-transform: uppercase;
-                border: 1px solid rgba(255, 255, 255, 0.25);
-            }
+    .top-nav-actions {
+        position: fixed;
+        top: 24px;
+        left: 24px;
+        right: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 10;
+    }
 
-            .hero-content {
-                position: relative;
-                z-index: 1;
-            }
+    .btn-back,
+    .theme-toggle-login {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        padding: 10px 20px;
+        border-radius: 30px;
+        font-weight: 700;
+        font-size: 13px;
+        text-decoration: none;
+        backdrop-filter: blur(16px);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
 
-            .hero-content h1 {
-                font-size: 32px;
-                font-weight: 800;
-                line-height: 1.2;
-                margin: 20px 0 14px 0;
-                letter-spacing: -0.02em;
-            }
+    .btn-back:hover,
+    .theme-toggle-login:hover {
+        transform: translateY(-2px);
+        border-color: #3b82f6;
+    }
 
-            .hero-content p {
-                font-size: 14.5px;
-                color: rgba(255, 255, 255, 0.88);
-                line-height: 1.6;
-                margin: 0;
-            }
 
-            .hero-footer {
-                font-size: 12px;
-                color: rgba(255, 255, 255, 0.65);
-                font-weight: 600;
-                position: relative;
-                z-index: 1;
-            }
+    /* =========================================
+       4. LOGIN WRAPPER
+    ========================================= */
 
-            .login-card {
-                flex: 1;
-                padding: 52px 44px;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
+    .login-wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        min-height: 520px;
 
-            .brand-header-login { margin-bottom: 32px; }
-            .login-logo { height: 56px; width: auto; margin-bottom: 16px; object-fit: contain; }
-            .login-card h2 { margin: 0 0 6px 0; font-size: 26px; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em; }
-            .login-card p { color: var(--text-muted); font-size: 13.5px; margin: 0; font-weight: 500; }
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
 
-            .form-group { margin-bottom: 22px; }
-            label { display: block; font-size: 11px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
-            .input-wrap { position: relative; display: flex; align-items: center; }
-            .input-icon { position: absolute; left: 16px; width: 20px; height: 20px; stroke: var(--text-muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+        border-radius: 28px;
+        box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25);
+        border: 1px solid var(--card-border);
 
-            input[type="text"], input[type="password"] {
-                width: 100%;
-                padding: 14px 16px 14px 48px;
-                border: 1px solid var(--input-border);
-                border-radius: 14px;
-                font-size: 14px;
-                background: var(--input-bg);
-                color: var(--text-main);
-                font-family: inherit;
-                font-weight: 600;
-            }
+        display: flex;
+        overflow: hidden;
+        isolation: isolate;
+    }
 
-            input[type="text"]:focus, input[type="password"]:focus {
-                outline: none;
-                border-color: #3b82f6;
-                box-shadow: 0 0 0 4px var(--primary-shadow);
-                background: var(--card-bg);
-            }
+    /* Outer animated blue glow */
 
-            .btn-login {
-                width: 100%;
-                background: var(--primary-gradient);
-                color: white;
-                border: none;
-                padding: 15px;
-                font-size: 14px;
-                border-radius: 14px;
-                font-weight: 800;
-                cursor: pointer;
-                font-family: inherit;
-                box-shadow: 0 10px 20px -4px var(--primary-shadow);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 10px;
-                margin-top: 10px;
-            }
+    .login-wrapper::before {
+        content: '';
+        position: absolute;
+        width: 380px;
+        height: 380px;
+        top: -180px;
+        right: 35%;
 
-            .btn-login:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 14px 24px -4px var(--primary-shadow);
-            }
+        background: radial-gradient(
+            circle,
+            rgba(96, 165, 250, 0.22) 0%,
+            rgba(37, 99, 235, 0.08) 45%,
+            transparent 70%
+        );
 
-            .alert {
-                background: rgba(254, 242, 242, 0.9);
-                color: #991b1b;
-                border: 1px solid #fee2e2;
-                padding: 14px 18px;
-                border-radius: 14px;
-                font-size: 13px;
-                margin-bottom: 24px;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                font-weight: 600;
-            }
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: -1;
 
-            @media (max-width: 820px) {
-                .login-wrapper { flex-direction: column; }
-                .login-hero { padding: 36px; }
-                .login-card { padding: 36px 28px; }
-            }
-        </style>
+        animation: floatingGlow 9s ease-in-out infinite alternate;
+    }
+
+    .login-wrapper::after {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        bottom: -170px;
+        left: 15%;
+
+        background: radial-gradient(
+            circle,
+            rgba(56, 189, 248, 0.15),
+            transparent 70%
+        );
+
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: -1;
+
+        animation: floatingGlow 11s ease-in-out infinite alternate-reverse;
+    }
+
+
+    /* =========================================
+       5. LOGIN HERO SECTION
+    ========================================= */
+
+    .login-hero {
+        flex: 1.1;
+        min-width: 0;
+
+        background: linear-gradient(
+            135deg,
+            #061a40 0%,
+            #0b3b82 45%,
+            #1d4ed8 100%
+        );
+
+        color: #ffffff;
+        padding: 52px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        position: relative;
+        overflow: hidden;
+        isolation: isolate;
+    }
+
+    /* Large animated radial lighting */
+
+    .login-hero::before {
+        content: '';
+        position: absolute;
+
+        width: 550px;
+        height: 550px;
+
+        top: -230px;
+        right: -190px;
+
+        background: radial-gradient(
+            circle,
+            rgba(147, 197, 253, 0.35) 0%,
+            rgba(96, 165, 250, 0.15) 35%,
+            rgba(255, 255, 255, 0.04) 55%,
+            transparent 72%
+        );
+
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: -1;
+
+        animation: floatingGlow 9s ease-in-out infinite alternate;
+    }
+
+    /* Animated circular rings */
+
+    .login-hero::after {
+        content: '';
+
+        position: absolute;
+        width: 280px;
+        height: 280px;
+
+        right: -75px;
+        bottom: -100px;
+
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 50%;
+
+        box-shadow:
+            0 0 0 35px rgba(255, 255, 255, 0.035),
+            0 0 0 70px rgba(255, 255, 255, 0.025),
+            0 0 0 105px rgba(255, 255, 255, 0.015);
+
+        pointer-events: none;
+        z-index: -1;
+
+        animation: rotateCircle 35s linear infinite;
+    }
+
+
+    /* =========================================
+       6. HERO BADGE
+    ========================================= */
+
+    .hero-badge {
+        align-self: flex-start;
+
+        background: rgba(255, 255, 255, 0.14);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+
+        padding: 9px 18px;
+        border-radius: 30px;
+
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        color: #ffffff;
+
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+
+        position: relative;
+        z-index: 2;
+    }
+
+
+    /* =========================================
+       7. HERO CONTENT
+    ========================================= */
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+
+        max-width: 570px;
+
+        animation: fadeUp 1s ease both;
+    }
+
+    .hero-content h1 {
+        font-size: clamp(32px, 4vw, 46px);
+        font-weight: 800;
+        line-height: 1.15;
+
+        margin: 20px 0 16px 0;
+
+        letter-spacing: -0.035em;
+        color: #ffffff;
+    }
+
+    .hero-content p {
+        max-width: 470px;
+
+        font-size: 14.5px;
+        color: rgba(255, 255, 255, 0.84);
+
+        line-height: 1.8;
+        margin: 0;
+    }
+
+
+    /* =========================================
+       8. HERO FOOTER
+    ========================================= */
+
+    .hero-footer {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.65);
+        font-weight: 600;
+
+        position: relative;
+        z-index: 2;
+
+        padding-top: 18px;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+
+        letter-spacing: 0.04em;
+    }
+
+
+    /* =========================================
+       9. LOGIN CARD
+    ========================================= */
+
+    .login-card {
+        flex: 1;
+        min-width: 0;
+        padding: 52px 44px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .brand-header-login {
+        margin-bottom: 32px;
+    }
+
+    .login-logo {
+        height: 56px;
+        width: auto;
+        margin-bottom: 16px;
+        object-fit: contain;
+    }
+
+    .login-card h2 {
+        margin: 0 0 6px 0;
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -0.02em;
+    }
+
+    .login-card p {
+        color: var(--text-muted);
+        font-size: 13.5px;
+        margin: 0;
+        font-weight: 500;
+    }
+
+
+    /* =========================================
+       10. FORM ELEMENTS
+    ========================================= */
+
+    .form-group {
+        margin-bottom: 22px;
+    }
+
+    label {
+        display: block;
+        font-size: 11px;
+        font-weight: 800;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+    }
+
+    .input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 16px;
+        width: 20px;
+        height: 20px;
+        stroke: var(--text-muted);
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        pointer-events: none;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+        width: 100%;
+        padding: 14px 16px 14px 48px;
+
+        border: 1px solid var(--input-border);
+        border-radius: 14px;
+
+        font-size: 14px;
+        background: var(--input-bg);
+        color: var(--text-main);
+
+        font-family: inherit;
+        font-weight: 600;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px var(--primary-shadow);
+        background: var(--card-bg);
+    }
+
+
+    /* =========================================
+       11. LOGIN BUTTON
+    ========================================= */
+
+    .btn-login {
+        width: 100%;
+
+        background: var(--primary-gradient);
+        color: white;
+
+        border: none;
+        padding: 15px;
+
+        font-size: 14px;
+        border-radius: 14px;
+        font-weight: 800;
+
+        cursor: pointer;
+        font-family: inherit;
+
+        box-shadow: 0 10px 20px -4px var(--primary-shadow);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+
+        margin-top: 10px;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 24px -4px var(--primary-shadow);
+    }
+
+
+    /* =========================================
+       12. ALERT MESSAGES
+    ========================================= */
+
+    .alert {
+        background: rgba(254, 242, 242, 0.9);
+        color: #991b1b;
+
+        border: 1px solid #fee2e2;
+        padding: 14px 18px;
+
+        border-radius: 14px;
+        font-size: 13px;
+
+        margin-bottom: 24px;
+
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        font-weight: 600;
+    }
+
+
+    /* =========================================
+       13. ANIMATIONS
+    ========================================= */
+
+    @keyframes floatingGlow {
+        0% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        50% {
+            transform: translate(-20px, 15px) scale(1.08);
+        }
+
+        100% {
+            transform: translate(-35px, 25px) scale(1.2);
+        }
+    }
+
+    @keyframes rotateCircle {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(25px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    /* =========================================
+       14. RESPONSIVE DESIGN
+    ========================================= */
+
+    @media (max-width: 820px) {
+
+        body {
+            padding: 20px;
+        }
+
+        .login-wrapper {
+            flex-direction: column;
+            max-width: 520px;
+            min-height: auto;
+        }
+
+        .login-hero {
+            flex: none;
+            min-height: 350px;
+            padding: 36px;
+        }
+
+        .hero-content h1 {
+            font-size: 34px;
+        }
+
+        .login-card {
+            padding: 36px 28px;
+        }
+    }
+
+    @media (max-width: 480px) {
+
+        body {
+            padding: 15px;
+        }
+
+        .login-wrapper {
+            border-radius: 20px;
+        }
+
+        .login-hero {
+            min-height: 320px;
+            padding: 28px 24px;
+        }
+
+        .hero-content h1 {
+            font-size: 30px;
+        }
+
+        .hero-content p {
+            font-size: 13px;
+        }
+
+        .login-card {
+            padding: 30px 24px;
+        }
+
+        .top-nav-actions {
+            top: 12px;
+            left: 12px;
+            right: 12px;
+        }
+
+        .btn-back,
+        .theme-toggle-login {
+            padding: 9px 13px;
+            font-size: 12px;
+        }
+    }
+
+
+    /* =========================================
+       15. ACCESSIBILITY
+    ========================================= */
+
+    @media (prefers-reduced-motion: reduce) {
+
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+
+</style>
+
     </head>
     <body>
         <div class="top-nav-actions">
@@ -627,7 +1022,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $error = "Pre-registration failed: " . $e->getMessage();
         }
     } else {
-        $error = "Invalid Member ID provided.";
+        $error = "Invalid Member Number provided.";
     }
 }
 
@@ -635,7 +1030,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $scan_input = trim($_POST['scan_input'] ?? '');
     $scanned_id = '';
     if (empty($scan_input)) {
-        $error = "Please scan a valid Member QR code or enter Member ID.";
+        $error = "Please scan a valid Member QR code or enter Member Number.";
     } else {
         if (preg_match('/gate_id=([^&]+)/i', $scan_input, $matches)) {
             $scanned_id = trim($matches[1]);
@@ -675,7 +1070,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $error = "Database execution error: " . $e->getMessage();
             }
         } else {
-            $error = "Please scan a valid Member QR code or enter Member ID.";
+            $error = "Please scan a valid Member QR code or enter Member Number.";
         }
     }
 }

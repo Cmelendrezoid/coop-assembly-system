@@ -532,7 +532,7 @@ body {
 .container {
     padding-top: 90px;
     padding-bottom: 60px;
-    max-width: 900px;
+    max-width: 1600px;
 }
 
 .theme-toggle-btn {
@@ -603,18 +603,23 @@ h2 {
 
 .candidate-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 10px 0;
-    max-width: 500px;
+    grid-auto-flow: row;
+    grid-template-columns: repeat(4, 340px);
+    grid-auto-rows: auto;
+    gap: 12px;
+    padding: 10px 0 16px;
+    max-width: 100%;
     margin: 0 auto;
+    overflow-x: auto;
+    overflow-y: auto;
 }
 
 .candidate-card {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    border-radius: 20px;
+    min-width: 0;
+    border-radius: 12px;
     border: 2px solid var(--ballot-section-border);
     transition: all 0.3s ease;
     cursor: pointer;
@@ -640,10 +645,9 @@ h2 {
 
 .candidate-img-wrapper {
     width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
+    height: 280px;
     overflow: hidden;
-    background-color: var(--avatar-fallback);
+    background-color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -654,32 +658,34 @@ h2 {
 .candidate-avatar {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     image-rendering: -webkit-optimize-contrast;
     display: block;
 }
 
 .candidate-avatar-placeholder {
     font-weight: 700;
-    font-size: 80px;
+    font-size: 3rem;
     color: var(--text-muted);
 }
 
 .candidate-details-text {
-    padding: 16px 20px 10px 20px;
+    min-width: 0;
+    padding: 12px 14px 8px;
 }
 
 .candidate-name {
-    font-size: 1.4rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--body-text);
     text-align: center;
     margin-bottom: 0;
     line-height: 1.3;
+    overflow-wrap: anywhere;
 }
 
 .candidate-checkbox {
-    padding: 0 20px 20px 20px;
+    padding: 0 14px 12px;
     display: flex;
     justify-content: center;
 }
@@ -838,13 +844,23 @@ h2 {
         padding-top: 80px;
         padding-left: 12px;
         padding-right: 12px;
+        max-width: 100%;
     }
     .candidate-grid {
+        grid-auto-flow: row;
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+        grid-auto-rows: auto;
         max-width: 100%;
-        gap: 15px;
+        gap: 10px;
+        overflow-x: visible;
+        overflow-y: visible;
+    }
+    .candidate-img-wrapper {
+        height: 320px;
     }
     .candidate-avatar-placeholder {
-        font-size: 60px;
+        font-size: 3rem;
     }
     .theme-toggle-btn {
         top: 15px;

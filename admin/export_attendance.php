@@ -59,7 +59,7 @@ if ($type === 'excel') {
     echo '<table>';
     echo '<thead>';
     echo '<tr>';
-    echo '<th>Member ID</th>';
+    echo '<th>Member Number</th>';
     echo '<th>Member Name</th>';
     echo '<th>Category</th>';
     echo '<th>Status</th>';
@@ -132,7 +132,7 @@ if ($type === 'pdf') {
         <table>
             <thead>
                 <tr>
-                    <th>Member ID</th>
+                    <th>Member Number</th>
                     <th>Member Name</th>
                     <th>Category</th>
                     <th>Status</th>

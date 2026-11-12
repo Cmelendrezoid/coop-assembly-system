@@ -477,7 +477,7 @@
                 System Notice
             </strong>
             <small>
-                All voters will be routed through the official candidate information registry prior to securely finalizing their digital ballots.
+                Please review the official candidate information before proceeding to vote.
             </small>
         </div>
 

@@ -710,7 +710,7 @@ $attendanceLogs = $conn->query($logQuery);
             <table class="table custom-table align-middle text-center">
                 <thead>
                     <tr>
-                        <th class="text-start">Member ID</th>
+                        <th class="text-start">Member Number</th>
                         <th class="text-start">Member Name</th>
                         <th>Category</th>
                         <th>Branch</th>
@@ -718,7 +718,7 @@ $attendanceLogs = $conn->query($logQuery);
                         <th>Cash</th>
                         <th>Snacks</th>
                         <th>Umbrella</th>
-                        <th>Water Bottle</th>
+                        <th>Token for Gold Members</th>
                         <th>Arrival Date</th>
                     </tr>
                 </thead>
