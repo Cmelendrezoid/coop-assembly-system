@@ -1035,7 +1035,7 @@ body {
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label-custom">Accomplishments & Milestones</label>
+                    <label class="form-label-custom">Work Experience</label>
                     <textarea name="description_accomplishments" class="form-control custom-input" placeholder="Enter bullet points (one per line)" rows="4"></textarea>
                 </div>
 
@@ -1110,7 +1110,7 @@ body {
                                 <th width="10%">Media</th>
                                 <th width="20%">Candidate</th>
                                 <th width="18%">Educational Credentials</th>
-                                <th>Statements & Platforms</th>
+                                <th>Work Experiences & Platforms</th>
                                 <th width="100" class="text-end">Controls</th>
                             </tr>
                         </thead>
@@ -1158,7 +1158,7 @@ body {
                                 </td>
                                 <td>
                                     <?php if(!empty($parsed['accomplishments'])){ ?>
-                                        <span class="badge-chip badge-accomplishments"><i class="bi bi-trophy"></i> Accomplishments</span>
+                                        <span class="badge-chip badge-accomplishments"><i class="bi-solid bi-briefcase"></i> Work Experience</span>
                                         <ul class="structured-list">
                                             <?php foreach($parsed['accomplishments'] as $acc){ ?>
                                                 <li><?= htmlspecialchars($acc); ?></li>

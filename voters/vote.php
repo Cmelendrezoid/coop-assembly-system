@@ -472,57 +472,62 @@ function renderHiddenVoteInputs($voteData, $currentPositionId) {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 :root {
-    --bg-gradient: radial-gradient(circle at top, #ffffff 0%, #f1f3f5 100%);
+    --bg-gradient: radial-gradient(ellipse at 12% 8%, rgba(167, 243, 208, 0.58), transparent 34%), radial-gradient(ellipse at 92% 18%, rgba(191, 219, 254, 0.62), transparent 32%), linear-gradient(145deg, #f8fafc 0%, #eef4f7 52%, #f1f5f9 100%);
     --card-bg: #ffffff;
-    --card-border: rgba(0, 0, 0, 0.05);
-    --text-main-gradient: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+    --card-border: rgba(148, 163, 184, 0.22);
+    --text-main-gradient: linear-gradient(120deg, #0f766e 0%, #0f172a 58%, #334155 100%);
     --body-text: #1e293b;
     --text-muted: #64748b;
     --ballot-section-bg: #f8fafc;
-    --ballot-section-border: #e2e8f0;
+    --ballot-section-border: #dbe5e8;
     --ballot-header-text: #1e293b;
     --candidate-label: #334155;
     --input-border: #cbd5e1;
-    --toggle-btn-bg: #f1f5f9;
+    --toggle-btn-bg: rgba(255, 255, 255, 0.88);
     --toggle-btn-color: #334155;
-    --accent-color: #10b981;
-    --accent-color-hover: #059669;
+    --accent-color: #0f9f83;
+    --accent-color-hover: #087f6b;
     --alert-danger-bg: #fee2e2;
     --alert-danger-border: #fca5a5;
     --alert-danger-text: #991b1b;
     --btn-success-text: #ffffff;
-    --candidate-hover: #f1f5f9;
-    --avatar-fallback: #e2e8f0;
+    --candidate-hover: #f0fdfa;
+    --avatar-fallback: #dff5ee;
     --recap-list-bg: #f8fafc;
+    --card-shadow: 0 24px 70px rgba(15, 23, 42, 0.11), 0 3px 12px rgba(15, 23, 42, 0.04);
+    --candidate-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
 }
 
 .dark-theme {
-    --bg-gradient: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
-    --card-bg: #1e293b;
-    --card-border: rgba(255, 255, 255, 0.05);
-    --text-main-gradient: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+    --bg-gradient: radial-gradient(ellipse at 12% 8%, rgba(15, 118, 110, 0.25), transparent 36%), radial-gradient(ellipse at 92% 18%, rgba(30, 64, 175, 0.22), transparent 34%), linear-gradient(145deg, #101a2b 0%, #111827 56%, #0b1220 100%);
+    --card-bg: #172235;
+    --card-border: rgba(148, 163, 184, 0.16);
+    --text-main-gradient: linear-gradient(120deg, #6ee7c3 0%, #f8fafc 58%, #cbd5e1 100%);
     --body-text: #f8fafc;
     --text-muted: #94a3b8;
-    --ballot-section-bg: #151f32;
-    --ballot-section-border: #334155;
+    --ballot-section-bg: #1b2a3d;
+    --ballot-section-border: #34465b;
     --ballot-header-text: #f8fafc;
     --candidate-label: #f1f5f9;
     --input-border: #475569;
     --toggle-btn-bg: #334155;
     --toggle-btn-color: #f8fafc;
-    --accent-color: #10b981;
-    --accent-color-hover: #059669;
+    --accent-color: #34d3ae;
+    --accent-color-hover: #5ee4c2;
     --alert-danger-bg: #4b1220;
     --alert-danger-border: #7f1d1d;
     --alert-danger-text: #f8d7da;
     --btn-success-text: #ffffff;
-    --candidate-hover: #1c283e;
-    --avatar-fallback: #334155;
-    --recap-list-bg: #151f32;
+    --candidate-hover: #20394a;
+    --avatar-fallback: #25483f;
+    --recap-list-bg: #1b2a3d;
+    --card-shadow: 0 28px 80px rgba(0, 0, 0, 0.32), 0 3px 14px rgba(0, 0, 0, 0.16);
+    --candidate-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
 }
 
 body {
     background: var(--bg-gradient);
+    background-attachment: fixed;
     color: var(--body-text);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
@@ -530,8 +535,8 @@ body {
 }
 
 .container {
-    padding-top: 90px;
-    padding-bottom: 60px;
+    padding-top: 100px;
+    padding-bottom: 72px;
     max-width: 1600px;
 }
 
@@ -539,15 +544,16 @@ body {
     position: fixed;
     top: 20px;
     right: 20px;
-    background-color: var(--toggle-btn-bg);
+    background: var(--toggle-btn-bg);
     color: var(--toggle-btn-color);
-    border: none;
+    border: 1px solid var(--card-border);
     padding: 10px 18px;
     border-radius: 30px;
     font-weight: 600;
     font-size: 0.85rem;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+    backdrop-filter: blur(12px);
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
@@ -561,24 +567,32 @@ body {
 
 .main-portal-card {
     border: 1px solid var(--card-border);
-    border-radius: 16px;
-    background-color: var(--card-bg);
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+    border-radius: 24px;
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .main-card-body {
     color: var(--body-text);
+    padding: clamp(1.25rem, 4vw, 3rem) !important;
 }
 
 .position-header {
-    margin-bottom: 30px;
+    margin: 24px 0 30px;
     text-align: center;
+    padding: 26px 20px;
+    border: 1px solid var(--ballot-section-border);
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(20, 184, 166, 0.09), rgba(59, 130, 246, 0.07)), var(--ballot-section-bg);
 }
 
 .position-header h3 {
     color: var(--body-text);
     font-weight: 700;
     margin-bottom: 0.5rem;
+    letter-spacing: -0.025em;
 }
 
 .position-header .position-info,
@@ -586,13 +600,29 @@ body {
     color: var(--text-muted);
 }
 
+.position-header .position-info {
+    font-size: 0.97rem;
+}
+
+.position-header .position-limit {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 14px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--card-bg);
+    border: 1px solid var(--ballot-section-border);
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
 h2 {
     font-weight: 700;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.04em;
     background: var(--text-main-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
 }
 
 .user-welcome-text {
@@ -603,15 +633,12 @@ h2 {
 
 .candidate-grid {
     display: grid;
-    grid-auto-flow: row;
-    grid-template-columns: repeat(4, 340px);
-    grid-auto-rows: auto;
-    gap: 12px;
-    padding: 10px 0 16px;
+    grid-template-columns: repeat(3, minmax(340px, 1fr));
+    gap: 18px;
+    padding: 8px 0 16px;
     max-width: 100%;
     margin: 0 auto;
     overflow-x: auto;
-    overflow-y: auto;
 }
 
 .candidate-card {
@@ -619,35 +646,41 @@ h2 {
     flex-direction: column;
     align-items: stretch;
     min-width: 0;
-    border-radius: 12px;
-    border: 2px solid var(--ballot-section-border);
+    border-radius: 18px;
+    border: 1px solid var(--ballot-section-border);
     transition: all 0.3s ease;
     cursor: pointer;
-    background-color: var(--card-bg);
+    background: var(--card-bg);
     overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0,0,0,.04);
+    box-shadow: var(--candidate-shadow);
 }
 
 .candidate-card:hover:not(.disabled-option) {
     border-color: var(--accent-color, #10b981);
-    transform: translateY(-4px);
+    transform: translateY(-5px);
+    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.12);
 }
 
 .candidate-card.selected {
     border-color: var(--accent-color, #10b981);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 0 3px rgba(15, 159, 131, 0.15), 0 14px 30px rgba(15, 159, 131, 0.14);
+}
+
+.candidate-card:focus-within {
+    outline: 3px solid rgba(15, 159, 131, 0.35);
+    outline-offset: 3px;
 }
 
 .candidate-card.disabled-option {
-    opacity: 0.6;
+    opacity: 0.58;
     cursor: not-allowed;
 }
 
 .candidate-img-wrapper {
     width: 100%;
-    height: 280px;
+    height: 340px;
     overflow: hidden;
-    background-color: #ffffff;
+    background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -661,17 +694,18 @@ h2 {
     object-fit: contain;
     image-rendering: -webkit-optimize-contrast;
     display: block;
+    border: 8px solid #ffffff;
 }
 
 .candidate-avatar-placeholder {
     font-weight: 700;
-    font-size: 3rem;
-    color: var(--text-muted);
+    font-size: 3.5rem;
+    color: var(--accent-color);
 }
 
 .candidate-details-text {
     min-width: 0;
-    padding: 12px 14px 8px;
+    padding: 16px 16px 10px;
 }
 
 .candidate-name {
@@ -685,7 +719,7 @@ h2 {
 }
 
 .candidate-checkbox {
-    padding: 0 14px 12px;
+    padding: 0 16px 16px;
     display: flex;
     justify-content: center;
 }
@@ -743,10 +777,18 @@ h2 {
     font-size: 1.05rem;
     font-weight: 600;
     border-radius: 10px;
+    border: 0;
+    background: linear-gradient(120deg, #2563eb, #0f766e);
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.2);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(120deg, #1d4ed8, #0f766e);
+    transform: translateY(-2px);
 }
 
 .btn-success {
-    background-color: var(--accent-color, #10b981) !important;
+    background: linear-gradient(120deg, var(--accent-color, #10b981), #0f766e) !important;
     color: var(--btn-success-text, #ffffff) !important;
     padding: 14px 36px;
     font-size: 1.05rem;
@@ -841,23 +883,19 @@ h2 {
 
 @media (max-width: 768px) {
     .container {
-        padding-top: 80px;
+        padding-top: 84px;
         padding-left: 12px;
         padding-right: 12px;
         max-width: 100%;
     }
     .candidate-grid {
-        grid-auto-flow: row;
         grid-template-columns: 1fr;
-        grid-template-rows: none;
-        grid-auto-rows: auto;
         max-width: 100%;
-        gap: 10px;
+        gap: 14px;
         overflow-x: visible;
-        overflow-y: visible;
     }
     .candidate-img-wrapper {
-        height: 320px;
+        height: 360px;
     }
     .candidate-avatar-placeholder {
         font-size: 3rem;
@@ -867,6 +905,13 @@ h2 {
         right: 15px;
         padding: 8px 14px;
         font-size: 0.8rem;
+    }
+    .position-nav-buttons {
+        margin-top: 22px;
+        gap: 10px;
+    }
+    .position-nav-buttons .btn {
+        padding: 12px 18px;
     }
 }
 </style>

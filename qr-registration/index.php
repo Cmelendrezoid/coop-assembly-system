@@ -1506,7 +1506,7 @@ function isAwardeeMember($member) {
 
     <div class="nav-tabs">
         <a href="index.php?route=registration" class="<?= $route === 'registration' ? 'active' : '' ?>">🏢 - Pre-Registration</a>
-        <a href="index.php?route=gate" class="<?= $route === 'gate' ? 'active' : '' ?>">🎁 - Actual Registration</a>
+        <a href="index.php?route=gate" class="<?= $route === 'gate' ? 'active' : '' ?>">📝 - Actual Registration</a>
     </div>
 
     <div class="debug-bar">

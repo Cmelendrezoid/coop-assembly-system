@@ -666,7 +666,7 @@ $candidates = $conn->query("
 
                     <div class="candidate-description">
                         <?php if(!empty($accomplishments)){ ?>
-                            <strong><i class="bi bi-trophy-fill me-1 text-warning"></i> Accomplishments</strong>
+                            <strong><i class="bi bi-trophy-fill me-1 text-warning"></i> Work Experience</strong>
                             <ul>
                                 <?php foreach($accomplishments as $item){ ?>
                                     <li><?= htmlspecialchars($item); ?></li>
